@@ -8,17 +8,24 @@ export const siteConfig = {
   navigation: [
     { label: "Home", href: "/" },
     { label: "Chi sono", href: "/#chi-sono" },
-    { label: "Servizi", href: "/#servizi" },
+    { label: "Approccio", href: "/#approccio" },
+    { label: "Ambiti", href: "/#ambiti" },
+    { label: "Articoli", href: "/articoli" },
+    { label: "FAQ", href: "/#faq" },
     { label: "Contatti", href: "/#contatti" },
   ],
+  cta: {
+    label: "Prenota",
+    href: "/prenota",
+  },
   contacts: {
-    email: "email@example.com",
-    phone: "+39 000 000 0000",
-    address: "Indirizzo da definire",
+    email: null,
+    phone: null,
+    address: null,
   },
   social: {
-    instagram: "https://www.instagram.com/",
-    linkedin: "https://www.linkedin.com/",
+    instagram: null,
+    linkedin: null,
   },
   seo: {
     title: "Giorgia Petruzzellis | Psicologa",
