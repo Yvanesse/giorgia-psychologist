@@ -63,3 +63,9 @@ Giorgia desidera orientare la propria crescita professionale verso:
 - neuropsicologia forense.
 
 Non attribuire titoli, abilitazioni o servizi non ancora dichiarati.
+
+## Content Layer
+- I componenti non devono contenere testi editoriali hardcoded: copy, CTA e voci di navigazione devono restare separati dal layout.
+- Testi e immagini devono provenire da `src/data`, così i contenuti possano essere aggiornati senza modificare i componenti React.
+- I dati personali o professionali non disponibili non devono essere inventati; usare valori `null` o stringhe vuote in base al tipo previsto.
+- Il Content Layer è provvisorio ed è predisposto per essere sostituito o alimentato in futuro da un CMS.
