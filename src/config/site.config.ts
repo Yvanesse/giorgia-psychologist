@@ -1,3 +1,5 @@
+import { navigationCta, navigationItems } from "@/data/navigation";
+
 export const siteConfig = {
   name: "Giorgia Petruzzellis",
   profession: "Psicologa",
@@ -5,19 +7,8 @@ export const siteConfig = {
     src: "/logo/logo-placeholder.svg",
     alt: "Logo di Giorgia Petruzzellis",
   },
-  navigation: [
-    { label: "Home", href: "/" },
-    { label: "Chi sono", href: "/#chi-sono" },
-    { label: "Approccio", href: "/#approccio" },
-    { label: "Ambiti", href: "/#ambiti" },
-    { label: "Articoli", href: "/articoli" },
-    { label: "FAQ", href: "/#faq" },
-    { label: "Contatti", href: "/#contatti" },
-  ],
-  cta: {
-    label: "Prenota",
-    href: "/prenota",
-  },
+  navigation: navigationItems,
+  cta: navigationCta,
   contacts: {
     email: null,
     phone: null,
