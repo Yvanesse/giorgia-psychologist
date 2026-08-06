@@ -1,9 +1,11 @@
 import type { AreaItem } from "@/types/content";
 
 export const areasContent: {
+  readonly label: string;
   readonly title: string;
   readonly items: readonly AreaItem[];
 } = {
+  label: "Il supporto psicologico",
   title: "Ambiti di intervento",
   items: [
     {

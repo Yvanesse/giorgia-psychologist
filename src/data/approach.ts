@@ -1,10 +1,14 @@
 import type { ApproachItem } from "@/types/content";
 
 export const approachContent: {
+  readonly label: string;
   readonly title: string;
+  readonly description: string;
   readonly items: readonly ApproachItem[];
 } = {
+  label: "Il mio approccio",
   title: "Il mio modo di lavorare",
+  description: "Un percorso costruito con cura, a partire dalla persona e dalla sua esperienza.",
   items: [
     {
       title: "Ascolto",
