@@ -59,7 +59,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full border font-medium tracking-tight transition-colors duration-200 motion-reduce:transition-none",
+    "inline-flex items-center justify-center gap-2 rounded-full border font-sans font-semibold tracking-tight transition-colors duration-200 motion-reduce:transition-none",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4",
     "disabled:cursor-not-allowed disabled:opacity-100 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
     variants[variant],
