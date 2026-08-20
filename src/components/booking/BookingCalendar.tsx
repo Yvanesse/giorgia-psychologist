@@ -153,13 +153,13 @@ export function BookingCalendar() {
             <p className="text-sm text-ink-muted">Disponibilità provvisorie</p>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 min-[520px]:grid-cols-3 sm:grid-cols-4">
+          <div className="mt-5 grid grid-flow-col grid-rows-2 auto-cols-[7.5rem] gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid-flow-row sm:grid-rows-none sm:grid-cols-4 sm:auto-cols-auto sm:overflow-visible sm:pb-0 sm:snap-none">
             {availableDays.map((date) => {
               const iso = toIsoDate(date);
               const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
               return (
                 <button
-                  className={`min-h-20 rounded-2xl border px-4 py-3 text-left transition-colors ${
+                  className={`min-h-20 snap-start rounded-2xl border px-4 py-3 text-left transition-colors ${
                     active ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:border-primary/50"
                   }`}
                   key={iso}
@@ -176,6 +176,7 @@ export function BookingCalendar() {
               );
             })}
           </div>
+          <p className="mt-2 text-sm text-ink-muted sm:hidden">Scorri verso destra per vedere altri giorni →</p>
         </section>
 
         {selectedDate ? (
