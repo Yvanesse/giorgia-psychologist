@@ -11,9 +11,9 @@ type ContainerProps<T extends ElementType = "div"> = {
 } & Omit<ComponentPropsWithoutRef<T>, "as" | "className">;
 
 const variants: Record<ContainerVariant, string> = {
-  narrow: "max-w-3xl",
-  default: "max-w-6xl",
-  wide: "max-w-7xl",
+  narrow: "max-w-4xl",
+  default: "max-w-[1600px]",
+  wide: "max-w-[1680px]",
 };
 
 export function Container<T extends ElementType = "div">({
@@ -26,7 +26,7 @@ export function Container<T extends ElementType = "div">({
 
   return (
     <Component
-      className={cn("mx-auto w-full px-6 sm:px-8 lg:px-10", variants[variant], className)}
+      className={cn("mx-auto w-full px-4 sm:px-6 lg:px-8", variants[variant], className)}
       {...props}
     />
   );
