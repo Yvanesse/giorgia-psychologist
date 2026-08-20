@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
 type BookingPayload = {
@@ -23,11 +24,19 @@ function safe(value: unknown) {
 }
 
 async function sendEmailNotification(payload: Required<BookingPayload>) {
-  const apiKey = process.env.RESEND_API_KEY;
+  const user = process.env.GMAIL_USER;
+  const appPassword = process.env.GMAIL_APP_PASSWORD;
   const to = process.env.BOOKING_NOTIFICATION_EMAIL;
-  const from = process.env.BOOKING_FROM_EMAIL;
 
-  if (!apiKey || !to || !from) return false;
+  if (!user || !appPassword || !to) return false;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user,
+      pass: appPassword,
+    },
+  });
 
   const subject = `Nuova richiesta di appuntamento — ${payload.firstName} ${payload.lastName}`;
   const text = [
@@ -41,16 +50,15 @@ async function sendEmailNotification(payload: Required<BookingPayload>) {
     `Ora: ${payload.time}`,
   ].join("\n");
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ from, to: [to], subject, text, reply_to: payload.email }),
+  await transporter.sendMail({
+    from: `Sito Giorgia Petruzzellis <${user}>`,
+    to,
+    replyTo: payload.email,
+    subject,
+    text,
   });
 
-  return response.ok;
+  return true;
 }
 
 async function sendSmsNotification(payload: Required<BookingPayload>) {
