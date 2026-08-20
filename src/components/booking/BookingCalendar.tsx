@@ -14,11 +14,11 @@ type BookingForm = {
 };
 
 const TEST_SLOTS = ["09:00", "11:00", "15:00", "17:00"] as const;
+const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
 
-const dateFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short",
+const monthFormatter = new Intl.DateTimeFormat("it-IT", {
+  month: "long",
+  year: "numeric",
 });
 
 const fullDateFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -35,13 +35,21 @@ function toIsoDate(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function firstDayOfMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1, 12);
+}
+
+function addMonths(date: Date, amount: number) {
+  return new Date(date.getFullYear(), date.getMonth() + amount, 1, 12);
+}
+
 function buildTestDays() {
   const days: Date[] = [];
   const cursor = new Date();
   cursor.setHours(12, 0, 0, 0);
   cursor.setDate(cursor.getDate() + 1);
 
-  while (days.length < 20) {
+  while (days.length < 60) {
     const weekday = cursor.getDay();
     if (weekday !== 0 && weekday !== 6) {
       days.push(new Date(cursor));
@@ -52,15 +60,41 @@ function buildTestDays() {
   return days;
 }
 
+function buildMonthCells(month: Date) {
+  const first = firstDayOfMonth(month);
+  const mondayOffset = (first.getDay() + 6) % 7;
+  const cells: Array<Date | null> = Array.from({ length: mondayOffset }, () => null);
+  const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push(new Date(first.getFullYear(), first.getMonth(), day, 12));
+  }
+
+  while (cells.length % 7 !== 0) cells.push(null);
+  return cells;
+}
+
 export function BookingCalendar() {
   const availableDays = useMemo(() => buildTestDays(), []);
+  const availableDates = useMemo(() => new Set(availableDays.map(toIsoDate)), [availableDays]);
+  const firstAvailableMonth = useMemo(() => firstDayOfMonth(availableDays[0]), [availableDays]);
+  const lastAvailableMonth = useMemo(
+    () => firstDayOfMonth(availableDays[availableDays.length - 1]),
+    [availableDays],
+  );
+
   const [mode, setMode] = useState<BookingMode>("in-presenza");
+  const [visibleMonth, setVisibleMonth] = useState(firstAvailableMonth);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [form, setForm] = useState<BookingForm>({ firstName: "", lastName: "", email: "", phone: "" });
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  const monthCells = useMemo(() => buildMonthCells(visibleMonth), [visibleMonth]);
+  const canGoBack = visibleMonth.getTime() > firstAvailableMonth.getTime();
+  const canGoForward = visibleMonth.getTime() < lastAvailableMonth.getTime();
 
   const canSubmit = Boolean(
     selectedDate &&
@@ -153,30 +187,79 @@ export function BookingCalendar() {
             <p className="text-sm text-ink-muted">Disponibilità provvisorie</p>
           </div>
 
-          <div className="mt-5 grid grid-flow-col grid-rows-2 auto-cols-[7.5rem] gap-3 overflow-x-auto overscroll-x-contain pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:auto-cols-[8.5rem]">
-            {availableDays.map((date) => {
-              const iso = toIsoDate(date);
-              const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
-              return (
-                <button
-                  className={`min-h-20 snap-start rounded-2xl border px-4 py-3 text-left transition-colors ${
-                    active ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:border-primary/50"
-                  }`}
-                  key={iso}
-                  onClick={() => {
-                    setSelectedDate(date);
-                    setSelectedTime(null);
-                    setStatus("idle");
-                    setMessage("");
-                  }}
-                  type="button"
-                >
-                  <span className="block text-sm font-semibold capitalize">{dateFormatter.format(date)}</span>
-                </button>
-              );
-            })}
+          <div className="mt-5 rounded-3xl border border-border bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-4">
+              <button
+                aria-label="Mese precedente"
+                className="flex size-10 items-center justify-center rounded-full border border-border text-xl text-ink transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                disabled={!canGoBack}
+                onClick={() => setVisibleMonth((current) => addMonths(current, -1))}
+                type="button"
+              >
+                ‹
+              </button>
+              <h3 className="text-lg font-semibold capitalize tracking-tight text-ink sm:text-xl">
+                {monthFormatter.format(visibleMonth)}
+              </h3>
+              <button
+                aria-label="Mese successivo"
+                className="flex size-10 items-center justify-center rounded-full border border-border text-xl text-ink transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                disabled={!canGoForward}
+                onClick={() => setVisibleMonth((current) => addMonths(current, 1))}
+                type="button"
+              >
+                ›
+              </button>
+            </div>
+
+            <div className="mt-5 grid grid-cols-7 text-center">
+              {WEEKDAYS.map((day) => (
+                <div className="pb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-muted sm:text-xs" key={day}>
+                  {day}
+                </div>
+              ))}
+
+              {monthCells.map((date, index) => {
+                if (!date) {
+                  return <div aria-hidden="true" className="aspect-square" key={`blank-${index}`} />;
+                }
+
+                const iso = toIsoDate(date);
+                const available = availableDates.has(iso);
+                const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
+
+                return (
+                  <div className="flex aspect-square items-center justify-center p-0.5 sm:p-1" key={iso}>
+                    <button
+                      aria-label={fullDateFormatter.format(date)}
+                      className={`flex size-full max-h-12 max-w-12 items-center justify-center rounded-full text-sm font-semibold transition sm:text-base ${
+                        active
+                          ? "bg-primary text-white shadow-sm"
+                          : available
+                            ? "text-ink hover:bg-[#f2efff] hover:text-primary"
+                            : "cursor-not-allowed text-ink-muted/35"
+                      }`}
+                      disabled={!available}
+                      onClick={() => {
+                        setSelectedDate(date);
+                        setSelectedTime(null);
+                        setStatus("idle");
+                        setMessage("");
+                      }}
+                      type="button"
+                    >
+                      {date.getDate()}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 text-xs text-ink-muted">
+              <span aria-hidden="true" className="size-2 rounded-full bg-primary" />
+              Seleziona uno dei giorni disponibili
+            </div>
           </div>
-          <p className="mt-2 text-sm text-ink-muted">Scorri verso destra per vedere altri giorni →</p>
         </section>
 
         {selectedDate ? (
