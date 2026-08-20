@@ -6,7 +6,7 @@ import { bookingContent } from "@/data/booking";
 export default function BookingPage() {
   return (
     <main className="bg-white py-16 sm:py-20 lg:py-24">
-      <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-none px-4 sm:px-6 lg:px-[4vw]">
         <div className="w-full min-w-0 max-w-full">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-strong">
