@@ -153,7 +153,7 @@ export function BookingCalendar() {
             <p className="text-sm text-ink-muted">Disponibilità provvisorie</p>
           </div>
 
-          <div className="mt-5 grid grid-flow-col grid-rows-2 auto-cols-[7.5rem] gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid-flow-row sm:grid-rows-none sm:grid-cols-4 sm:auto-cols-auto sm:overflow-visible sm:pb-0 sm:snap-none">
+          <div className="mt-5 grid grid-flow-col grid-rows-2 auto-cols-[7.5rem] gap-3 overflow-x-auto overscroll-x-contain pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:auto-cols-[8.5rem]">
             {availableDays.map((date) => {
               const iso = toIsoDate(date);
               const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
@@ -176,7 +176,7 @@ export function BookingCalendar() {
               );
             })}
           </div>
-          <p className="mt-2 text-sm text-ink-muted sm:hidden">Scorri verso destra per vedere altri giorni →</p>
+          <p className="mt-2 text-sm text-ink-muted">Scorri verso destra per vedere altri giorni →</p>
         </section>
 
         {selectedDate ? (
