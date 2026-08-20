@@ -1,34 +1,71 @@
 import { areasContent } from "@/data";
-import { Card, Container, Grid, Heading, Section, Text } from "@/components/ui";
+import { Container, Heading, Section, Text } from "@/components/ui";
 import { SectionHeading } from "./SectionHeading";
 
-function AreaIcon({ index }: { index: number }) {
-  const paths = [
-    <><circle cx="12" cy="8" r="3" /><path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6" /></>,
-    <><circle cx="8" cy="9" r="3" /><circle cx="16" cy="9" r="3" /><path d="M3 20c.5-4 2.2-6 5-6 1.7 0 3 .7 4 2 1-1.3 2.3-2 4-2 2.8 0 4.5 2 5 6" /></>,
-    <><path d="M12 3v18M5 7h14M7 7l-4 7h8L7 7Zm10 0-4 7h8l-4-7ZM7 21h10" /></>,
-  ];
-  return <svg aria-hidden="true" className="size-8 fill-none stroke-primary stroke-[1.5]" viewBox="0 0 24 24">{paths[index]}</svg>;
-}
+const areaStyles = [
+  {
+    panel: "bg-[#f7f3ff]",
+    accent: "text-[#6848ed]",
+    chip: "border-[#ddcffd] bg-white/80 text-[#5d3ed7]",
+    words: ["ANSIA", "AUTOSTIMA", "CAMBIAMENTO"],
+  },
+  {
+    panel: "bg-[#fff3ef]",
+    accent: "text-[#d36e59]",
+    chip: "border-[#f0d1c8] bg-white/80 text-[#b95a48]",
+    words: ["COPPIA", "DIALOGO", "RELAZIONI"],
+  },
+  {
+    panel: "bg-[#eff7f2]",
+    accent: "text-[#5d8f6f]",
+    chip: "border-[#d0e4d6] bg-white/80 text-[#4f7b60]",
+    words: ["CONTESTI", "VALUTAZIONE", "FORENSE"],
+  },
+] as const;
 
 export function AreasSection() {
   return (
     <Section id="ambiti">
       <Container variant="wide">
         <SectionHeading label={areasContent.label} title={areasContent.title} />
-        <Grid className="mt-10 lg:mt-12" columns={3}>
-          {areasContent.items.map((item, index) => (
-            <Card className="flex h-full flex-col hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(24,24,27,.05)] motion-reduce:transform-none" key={item.title} variant="interactive">
-              <AreaIcon index={index} />
-              <Heading className="mt-6" variant="h3">{item.title}</Heading>
-              <Text className="mt-4" variant="small">{item.description}</Text>
-              <ul className="mt-6 space-y-2 border-t border-border pt-5 text-base leading-7 text-ink-soft">
-                {item.topics.map((topic) => <li className="flex gap-3" key={topic}><span aria-hidden="true" className="text-primary">•</span>{topic}</li>)}
-              </ul>
-              {item.note ? <p className="mt-5 text-base leading-7 text-ink-muted">{item.note}</p> : null}
-            </Card>
-          ))}
-        </Grid>
+
+        <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-3">
+          {areasContent.items.map((item, index) => {
+            const style = areaStyles[index];
+            return (
+              <article
+                className={`group relative min-h-[30rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transition-transform duration-300 hover:-translate-y-1 sm:p-8 ${style.panel}`}
+                key={item.title}
+              >
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start opacity-[0.08]">
+                  {style.words.map((word) => (
+                    <span className="whitespace-nowrap text-[2.7rem] font-semibold leading-[0.88] tracking-[-0.06em] sm:text-[3.35rem]" key={word}>
+                      {word}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="relative z-10 flex h-full flex-col">
+                  <div className={`text-sm font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
+                    0{index + 1}
+                  </div>
+                  <Heading className="mt-5 max-w-sm" variant="h3">{item.title}</Heading>
+                  <Text className="mt-4 max-w-md" variant="small">{item.description}</Text>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {item.topics.map((topic) => (
+                      <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${style.chip}`} key={topic}>
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+
+                  {item.note ? <p className="mt-auto pt-7 text-sm leading-6 text-ink-muted">{item.note}</p> : <div className="mt-auto" />}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </Container>
     </Section>
   );
