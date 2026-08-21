@@ -37,7 +37,7 @@ export function AreasSection() {
             const style = areaStyles[index];
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transition-[transform,box-shadow] duration-500 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(24,24,27,.06)] sm:p-8 ${style.panel}`}
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 will-change-transform transition-[transform,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:scale-[1.004] hover:shadow-[0_18px_46px_rgba(24,24,27,.055)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel}`}
                 key={item.title}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
