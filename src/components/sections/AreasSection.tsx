@@ -37,7 +37,7 @@ export function AreasSection() {
             const style = areaStyles[index];
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 will-change-transform transition-[transform,box-shadow] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:scale-[1.004] hover:shadow-[0_18px_46px_rgba(24,24,27,.055)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel}`}
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu will-change-transform transition-[transform,box-shadow,border-color] duration-[950ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 hover:scale-[1.012] hover:border-black/[0.07] hover:shadow-[0_26px_70px_rgba(24,24,27,.09)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel}`}
                 key={item.title}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
@@ -62,7 +62,7 @@ export function AreasSection() {
                   ))}
                 </div>
 
-                <div className="relative z-10 flex h-full flex-col">
+                <div className="relative z-10 flex h-full flex-col transform-gpu transition-transform duration-[1050ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none">
                   <div className={`text-base font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
                     0{index + 1}
                   </div>
