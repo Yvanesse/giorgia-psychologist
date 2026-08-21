@@ -27,7 +27,7 @@ export const areasContent: {
       title: "Psicologia giuridica e forense",
       description:
         "Un ambito di formazione dedicato all’incontro tra psicologia, contesti giuridici e valutazione specialistica.",
-      topics: ["Psicologia giuridica", "Neuropsicologia forense", "Comprensione dei contesti legali", "Formazione specialistica"],
+      topics: ["Psicologia giuridica", "Comprensione dei contesti legali", "Formazione specialistica"],
       href: "/ambiti/psicologia-giuridica-forense",
       note: "Area di formazione e orientamento professionale.",
     },
