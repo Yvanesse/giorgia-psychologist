@@ -64,7 +64,7 @@ export function AreasSection() {
           observer.unobserve(entry.target);
         });
       },
-      { threshold: 0.28, rootMargin: "0px 0px -10% 0px" },
+      { threshold: 0.55, rootMargin: "0px 0px -12% 0px" },
     );
 
     cardRefs.current.forEach((card) => {
@@ -92,13 +92,9 @@ export function AreasSection() {
 
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-transform transition-[transform,box-shadow,border-color,opacity] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
-                  isTouch
-                    ? isRevealed
-                      ? "translate-y-0 scale-100 opacity-100"
-                      : "translate-y-5 scale-[0.97] opacity-0"
-                    : ""
-                } ${isTouch && isActive ? "z-20 scale-[1.02] shadow-[0_24px_60px_rgba(24,24,27,.09)]" : ""}`}
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-transform transition-[transform,box-shadow,border-color] duration-[1200ms] ease-in-out lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                  isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
+                }`}
                 data-area-index={index}
                 key={item.title}
                 onClick={(event) => {
@@ -109,7 +105,6 @@ export function AreasSection() {
                 ref={(node) => {
                   cardRefs.current[index] = node;
                 }}
-                style={isTouch ? { transitionDelay: `${index * 70}ms` } : undefined}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
                   {style.words.map((word, wordIndex) => (
@@ -126,12 +121,12 @@ export function AreasSection() {
                         {word}
                       </span>
                       <span
-                        className={`absolute inset-0 block translate-y-2 bg-gradient-to-r bg-clip-text text-transparent opacity-0 transition-[opacity,transform,background-position] duration-[900ms] [background-position:100%_50%] [background-size:200%_100%] lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:[background-position:0%_50%] motion-reduce:transform-none ${style.gradient} ${
+                        className={`absolute inset-0 block translate-y-2 bg-gradient-to-r bg-clip-text text-transparent opacity-0 transition-[opacity,transform,background-position] duration-[1000ms] [background-position:100%_50%] [background-size:200%_100%] lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:[background-position:0%_50%] motion-reduce:transform-none ${style.gradient} ${
                           isTouch && isRevealed
                             ? "translate-y-0 opacity-100 [background-position:0%_50%]"
                             : ""
                         }`}
-                        style={{ transitionDelay: `${120 + wordIndex * 110}ms` }}
+                        style={{ transitionDelay: `${120 + wordIndex * 120}ms` }}
                       >
                         {word}
                       </span>
