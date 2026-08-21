@@ -1,4 +1,4 @@
-import { Container, Heading, Section, Text } from "@/components/ui";
+import { Container, Heading, Section } from "@/components/ui";
 import { whenUsefulContent } from "@/data/whenUseful";
 
 const tones = [
@@ -33,7 +33,9 @@ export function WhenUsefulSection() {
             <p className="section-label">{whenUsefulContent.label}</p>
             <Heading className="mt-3" variant="h2">{whenUsefulContent.title}</Heading>
           </div>
-          <Text className="max-w-2xl lg:justify-self-end">{whenUsefulContent.description}</Text>
+          <p className="max-w-2xl text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9 lg:justify-self-end">
+            {whenUsefulContent.description}
+          </p>
         </div>
 
         <div className="mt-10 grid gap-4 sm:mt-12 lg:grid-cols-2">
@@ -48,12 +50,14 @@ export function WhenUsefulSection() {
                   {item.number}
                 </div>
                 <div className="relative max-w-xl">
-                  <p className={`text-sm font-semibold tracking-[0.14em] ${tone.number}`}>{item.number}</p>
+                  <p className={`text-base font-semibold tracking-[0.14em] ${tone.number}`}>{item.number}</p>
                   <Heading className="mt-4 max-w-md" variant="h3">{item.title}</Heading>
-                  <Text className="mt-4 max-w-xl" variant="small">{item.description}</Text>
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  <p className="mt-5 max-w-xl text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">
+                    {item.description}
+                  </p>
+                  <div className="mt-7 flex flex-wrap gap-2.5">
                     {item.keywords.map((keyword) => (
-                      <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${tone.tag}`} key={keyword}>
+                      <span className={`rounded-full border px-4 py-2 text-base font-medium leading-6 sm:text-[1.05rem] ${tone.tag}`} key={keyword}>
                         {keyword}
                       </span>
                     ))}
