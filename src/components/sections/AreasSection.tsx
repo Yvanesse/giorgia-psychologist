@@ -56,7 +56,7 @@ export function AreasSection() {
     const updateIntensity = () => {
       frameRef.current = null;
       const viewportCenter = window.innerHeight / 2;
-      const influenceRange = window.innerHeight * 0.72;
+      const influenceRange = window.innerHeight * 0.62;
 
       const next = cardRefs.current.map((card) => {
         if (!card) return 0;
@@ -103,7 +103,7 @@ export function AreasSection() {
             const style = areaStyles[index];
             const intensity = scrollIntensity[index] ?? 0;
             const isActive = activeIndex === index;
-            const cardOpacity = 0.58 + intensity * 0.42;
+            const cardOpacity = 0.32 + intensity * 0.68;
             const grayOpacity = 0.075 * (1 - intensity);
             const gradientOpacity = 0.18 + intensity * 0.82;
 
@@ -121,7 +121,7 @@ export function AreasSection() {
                 ref={(node) => {
                   cardRefs.current[index] = node;
                 }}
-                style={isTouch ? { opacity: cardOpacity, transitionDuration: "180ms,1200ms,1200ms,180ms" } : undefined}
+                style={isTouch ? { opacity: cardOpacity, transitionDuration: "120ms,1200ms,1200ms,120ms" } : undefined}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
                   {style.words.map((word, wordIndex) => (
