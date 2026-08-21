@@ -1,5 +1,5 @@
 import { aboutContent } from "@/data";
-import { Button, Container, Heading, Section } from "@/components/ui";
+import { Container, Heading, Section } from "@/components/ui";
 
 export function AboutSection() {
   return (
@@ -30,10 +30,6 @@ export function AboutSection() {
                   {paragraph}
                 </p>
               ))}
-
-              <Button className="mt-8" href={aboutContent.cta.href} variant="outline">
-                {aboutContent.cta.label}
-              </Button>
             </div>
           </div>
         </div>
