@@ -103,12 +103,13 @@ export function AreasSection() {
             const style = areaStyles[index];
             const intensity = scrollIntensity[index] ?? 0;
             const isActive = activeIndex === index;
+            const cardOpacity = 0.58 + intensity * 0.42;
             const grayOpacity = 0.075 * (1 - intensity);
             const gradientOpacity = 0.18 + intensity * 0.82;
 
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-transform transition-[transform,box-shadow,border-color] duration-[1200ms] ease-in-out lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
                   isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
                 }`}
                 key={item.title}
@@ -120,6 +121,7 @@ export function AreasSection() {
                 ref={(node) => {
                   cardRefs.current[index] = node;
                 }}
+                style={isTouch ? { opacity: cardOpacity, transitionDuration: "180ms,1200ms,1200ms,180ms" } : undefined}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
                   {style.words.map((word, wordIndex) => (
