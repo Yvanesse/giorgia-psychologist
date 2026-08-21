@@ -9,10 +9,10 @@ export const heroContent: HeroContent = {
   primaryCta: { label: "Prenota un primo colloquio", href: "/prenota" },
   secondaryCta: { label: "Scopri il mio approccio", href: "/#approccio" },
   image: {
-    src: "/images/giorgia-hero.jpg",
+    src: "/images/giorgia-hero-new.svg",
     alt: "Ritratto della Dott.ssa Giorgia Petruzzellis",
-    width: 1200,
-    height: 1500,
+    width: 460,
+    height: 575,
   },
   isProvisional: false,
 };
