@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 import { areasContent } from "@/data";
 import { Container, Heading, Section } from "@/components/ui";
 import { SectionHeading } from "./SectionHeading";
@@ -27,18 +31,85 @@ const areaStyles = [
 ] as const;
 
 export function AreasSection() {
+  const cardRefs = useRef<Array<HTMLElement | null>>([]);
+  const [isTouch, setIsTouch] = useState(false);
+  const [revealed, setRevealed] = useState<boolean[]>(() => areasContent.items.map(() => false));
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(hover: none), (pointer: coarse)");
+    const syncInputMode = () => setIsTouch(media.matches);
+
+    syncInputMode();
+    media.addEventListener?.("change", syncInputMode);
+
+    return () => media.removeEventListener?.("change", syncInputMode);
+  }, []);
+
+  useEffect(() => {
+    if (!isTouch) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const index = Number((entry.target as HTMLElement).dataset.areaIndex);
+          setRevealed((current) => {
+            if (current[index]) return current;
+            const next = [...current];
+            next[index] = true;
+            return next;
+          });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.28, rootMargin: "0px 0px -10% 0px" },
+    );
+
+    cardRefs.current.forEach((card) => {
+      if (card) observer.observe(card);
+    });
+
+    return () => observer.disconnect();
+  }, [isTouch]);
+
   return (
     <Section id="ambiti">
       <Container variant="wide">
         <SectionHeading label={areasContent.label} title={areasContent.title} />
 
-        <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-3">
+        <div
+          className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-3"
+          onClick={() => {
+            if (isTouch) setActiveIndex(null);
+          }}
+        >
           {areasContent.items.map((item, index) => {
             const style = areaStyles[index];
+            const isRevealed = revealed[index];
+            const isActive = activeIndex === index;
+
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-transform transition-[transform,box-shadow,border-color] duration-[1200ms] ease-in-out hover:z-20 hover:scale-[1.045] hover:border-black/[0.07] hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel}`}
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-transform transition-[transform,box-shadow,border-color,opacity] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                  isTouch
+                    ? isRevealed
+                      ? "translate-y-0 scale-100 opacity-100"
+                      : "translate-y-5 scale-[0.97] opacity-0"
+                    : ""
+                } ${isTouch && isActive ? "z-20 scale-[1.02] shadow-[0_24px_60px_rgba(24,24,27,.09)]" : ""}`}
+                data-area-index={index}
                 key={item.title}
+                onClick={(event) => {
+                  if (!isTouch) return;
+                  event.stopPropagation();
+                  setActiveIndex((current) => (current === index ? null : index));
+                }}
+                ref={(node) => {
+                  cardRefs.current[index] = node;
+                }}
+                style={isTouch ? { transitionDelay: `${index * 70}ms` } : undefined}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
                   {style.words.map((word, wordIndex) => (
@@ -47,14 +118,20 @@ export function AreasSection() {
                       key={word}
                     >
                       <span
-                        className="block text-black/[0.075] transition-[opacity,transform] duration-500 group-hover:-translate-y-1 group-hover:opacity-0 motion-reduce:transform-none"
-                        style={{ transitionDelay: `${wordIndex * 45}ms` }}
+                        className={`block text-black/[0.075] transition-[opacity,transform] duration-700 lg:group-hover:-translate-y-1 lg:group-hover:opacity-0 motion-reduce:transform-none ${
+                          isTouch && isRevealed ? "-translate-y-1 opacity-0" : ""
+                        }`}
+                        style={{ transitionDelay: `${wordIndex * 90}ms` }}
                       >
                         {word}
                       </span>
                       <span
-                        className={`absolute inset-0 block bg-gradient-to-r bg-clip-text text-transparent opacity-0 translate-y-2 transition-[opacity,transform,background-position] duration-700 [background-position:100%_50%] [background-size:200%_100%] group-hover:translate-y-0 group-hover:opacity-100 group-hover:[background-position:0%_50%] motion-reduce:transform-none ${style.gradient}`}
-                        style={{ transitionDelay: `${70 + wordIndex * 55}ms` }}
+                        className={`absolute inset-0 block translate-y-2 bg-gradient-to-r bg-clip-text text-transparent opacity-0 transition-[opacity,transform,background-position] duration-[900ms] [background-position:100%_50%] [background-size:200%_100%] lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:[background-position:0%_50%] motion-reduce:transform-none ${style.gradient} ${
+                          isTouch && isRevealed
+                            ? "translate-y-0 opacity-100 [background-position:0%_50%]"
+                            : ""
+                        }`}
+                        style={{ transitionDelay: `${120 + wordIndex * 110}ms` }}
                       >
                         {word}
                       </span>
