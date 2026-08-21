@@ -1,5 +1,5 @@
 import { areasContent } from "@/data";
-import { Container, Heading, Section, Text } from "@/components/ui";
+import { Container, Heading, Section } from "@/components/ui";
 import { SectionHeading } from "./SectionHeading";
 
 const areaStyles = [
@@ -34,7 +34,7 @@ export function AreasSection() {
             const style = areaStyles[index];
             return (
               <article
-                className={`group relative min-h-[30rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transition-transform duration-300 hover:-translate-y-1 sm:p-8 ${style.panel}`}
+                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transition-transform duration-300 hover:-translate-y-1 sm:p-8 ${style.panel}`}
                 key={item.title}
               >
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start opacity-[0.08]">
@@ -46,21 +46,21 @@ export function AreasSection() {
                 </div>
 
                 <div className="relative z-10 flex h-full flex-col">
-                  <div className={`text-sm font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
+                  <div className={`text-base font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
                     0{index + 1}
                   </div>
                   <Heading className="mt-5 max-w-sm" variant="h3">{item.title}</Heading>
-                  <Text className="mt-4 max-w-md" variant="small">{item.description}</Text>
+                  <p className="mt-5 max-w-md text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">{item.description}</p>
 
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  <div className="mt-7 flex flex-wrap gap-2.5">
                     {item.topics.map((topic) => (
-                      <span className={`rounded-full border px-3 py-1.5 text-sm font-medium ${style.chip}`} key={topic}>
+                      <span className={`rounded-full border px-4 py-2 text-base font-medium leading-6 sm:text-[1.05rem] ${style.chip}`} key={topic}>
                         {topic}
                       </span>
                     ))}
                   </div>
 
-                  {item.note ? <p className="mt-auto pt-7 text-sm leading-6 text-ink-muted">{item.note}</p> : <div className="mt-auto" />}
+                  {item.note ? <p className="mt-auto pt-7 text-base leading-7 text-ink-muted">{item.note}</p> : <div className="mt-auto" />}
                 </div>
               </article>
             );
