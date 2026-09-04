@@ -1,10 +1,14 @@
 import type { FaqItem } from "@/types/content";
 
 export const faqContent: {
+  readonly label: string;
   readonly title: string;
+  readonly description: string;
   readonly items: readonly FaqItem[];
 } = {
+  label: "FAQ",
   title: "Domande frequenti",
+  description: "Alcune informazioni utili prima di iniziare.",
   items: [
     {
       question: "Come si svolge il primo colloquio?",

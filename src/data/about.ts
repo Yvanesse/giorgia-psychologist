@@ -10,10 +10,10 @@ export const aboutContent: AboutContent = {
   ],
   cta: { label: "Scopri di più su di me", href: "/chi-sono" },
   image: {
-    src: "/images/giorgia-about-placeholder.jpg",
+    src: "/images/giorgia-about.jpg",
     alt: "Giorgia Petruzzellis nel suo contesto professionale",
     width: 1200,
     height: 1500,
   },
-  isProvisional: true,
+  isProvisional: false,
 };
