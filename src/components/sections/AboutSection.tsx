@@ -6,30 +6,28 @@ export function AboutSection() {
     <Section id="chi-sono" spacing="compact">
       <Container variant="wide">
         <div className="border-y border-border/80 py-12 sm:py-16 lg:py-20">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:gap-20">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,.78fr)_minmax(0,1.22fr)] lg:gap-20">
             <div className="max-w-xl">
               <p className="section-label">{aboutContent.label}</p>
               <Heading className="mt-3" variant="h2">
                 {aboutContent.name}
               </Heading>
-              <p className="mt-6 max-w-xl text-xl font-semibold leading-9 text-primary sm:text-2xl sm:leading-10">
+              <p className="mt-5 max-w-xl text-lg font-medium leading-8 text-primary sm:text-xl sm:leading-9">
                 {aboutContent.role}
               </p>
             </div>
 
             <div className="max-w-4xl lg:pt-8">
-              {aboutContent.paragraphs.map((paragraph, index) => (
-                <p
-                  className={
-                    index === 0
-                      ? "text-2xl leading-10 tracking-[-0.02em] text-ink sm:text-[1.7rem] sm:leading-[1.48]"
-                      : "mt-7 text-xl leading-9 text-ink-soft sm:text-[1.35rem] sm:leading-10"
-                  }
-                  key={paragraph}
-                >
-                  {paragraph}
-                </p>
-              ))}
+              <div className="rounded-[1.75rem] border border-primary/10 bg-primary/[0.035] p-6 sm:p-8">
+                {aboutContent.paragraphs.map((paragraph, index) => (
+                  <p
+                    className={`text-lg leading-8 text-ink sm:text-xl sm:leading-9 ${index > 0 ? "mt-6 text-ink-soft" : ""}`}
+                    key={paragraph}
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
           </div>
         </div>
