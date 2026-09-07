@@ -10,58 +10,65 @@ const professionalPath = [
     number: "01",
     title: "Psicologia clinica",
     text: "Il mio percorso professionale parte dalla psicologia clinica, con attenzione al benessere psicologico e al sostegno della persona.",
-    accent: "#6848ed",
-    soft: "#f7f3ff",
+    accent: [104, 72, 237] as const,
   },
   {
     number: "02",
     title: "Psicoterapia sistemico-relazionale",
     text: "Sto proseguendo la formazione in psicoterapia ad orientamento sistemico-relazionale, approfondendo il ruolo delle relazioni, della famiglia e dei contesti di vita.",
-    accent: "#d36e59",
-    soft: "#fff3ef",
+    accent: [211, 110, 89] as const,
   },
   {
     number: "03",
     title: "Psicologia giuridica e forense",
     text: "Ho approfondito la Psicologia giuridica e la Neuropsicologia forense, integrando la formazione clinica con competenze specialistiche nei contesti giuridici.",
-    accent: "#5d8f6f",
-    soft: "#eff7f2",
+    accent: [93, 143, 111] as const,
   },
 ] as const;
+
+const baseInk = [24, 24, 27] as const;
+const mutedInk = [113, 113, 122] as const;
+const borderNeutral = [212, 212, 216] as const;
+
+type Rgb = readonly [number, number, number];
+
+function mixRgb(from: Rgb, to: Rgb, amount: number) {
+  const t = Math.max(0, Math.min(1, amount));
+  const channels = from.map((value, index) => Math.round(value + (to[index] - value) * t));
+  return `rgb(${channels.join(", ")})`;
+}
 
 export function AboutSection() {
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const frameRef = useRef<number | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollIntensity, setScrollIntensity] = useState<number[]>(() => professionalPath.map(() => 0));
 
   useEffect(() => {
-    const updateActiveItem = () => {
+    const updateIntensity = () => {
       frameRef.current = null;
       const target = window.innerHeight * 0.52;
-      let closestIndex = 0;
-      let closestDistance = Number.POSITIVE_INFINITY;
+      const influenceRange = window.innerHeight * 0.72;
 
-      itemRefs.current.forEach((item, index) => {
-        if (!item) return;
+      const next = itemRefs.current.map((item) => {
+        if (!item) return 0;
+
         const rect = item.getBoundingClientRect();
         const center = rect.top + rect.height / 2;
         const distance = Math.abs(center - target);
+        const raw = Math.max(0, Math.min(1, 1 - distance / influenceRange));
 
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestIndex = index;
-        }
+        return raw * raw * (3 - 2 * raw);
       });
 
-      setActiveIndex(closestIndex);
+      setScrollIntensity(next);
     };
 
     const requestUpdate = () => {
       if (frameRef.current !== null) return;
-      frameRef.current = window.requestAnimationFrame(updateActiveItem);
+      frameRef.current = window.requestAnimationFrame(updateIntensity);
     };
 
-    updateActiveItem();
+    updateIntensity();
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
 
@@ -92,26 +99,30 @@ export function AboutSection() {
 
               <div className="space-y-5 sm:space-y-7">
                 {professionalPath.map((item, index) => {
-                  const isActive = activeIndex === index;
+                  const intensity = scrollIntensity[index] ?? 0;
+                  const titleColor = mixRgb(baseInk, item.accent, intensity * 0.94);
+                  const numberColor = mixRgb(mutedInk, item.accent, intensity);
+                  const borderColor = mixRgb(borderNeutral, item.accent, intensity * 0.9);
 
                   return (
                     <div
-                      className="group relative grid cursor-default grid-cols-[2.35rem_minmax(0,1fr)] gap-5 rounded-[1.75rem] px-0 py-5 transition-[background-color,transform] duration-500 sm:grid-cols-[2.6rem_minmax(0,1fr)] sm:gap-7 sm:px-2 sm:py-7 lg:hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none"
+                      className="group relative grid cursor-default grid-cols-[2.35rem_minmax(0,1fr)] gap-5 rounded-[1.75rem] px-0 py-5 transition-transform duration-700 sm:grid-cols-[2.6rem_minmax(0,1fr)] sm:gap-7 sm:px-2 sm:py-7 lg:hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none"
                       key={item.title}
-                      onClick={() => setActiveIndex(index)}
                       ref={(node) => {
                         itemRefs.current[index] = node;
                       }}
-                      style={{ backgroundColor: isActive ? item.soft : "transparent" }}
+                      style={{
+                        backgroundColor: `rgba(${item.accent.join(", ")}, ${0.012 + intensity * 0.105})`,
+                      }}
                     >
                       <div className="relative z-10 flex justify-center pt-1">
                         <span
-                          className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-xs font-semibold tracking-[0.08em] transition-[border-color,color,box-shadow,transform] duration-500 sm:h-10 sm:w-10"
+                          className="flex h-9 w-9 items-center justify-center rounded-full border bg-white text-xs font-semibold tracking-[0.08em] sm:h-10 sm:w-10"
                           style={{
-                            borderColor: isActive ? item.accent : "rgba(24,24,27,.12)",
-                            color: isActive ? item.accent : "rgba(24,24,27,.45)",
-                            boxShadow: isActive ? `0 0 0 6px ${item.soft}` : "none",
-                            transform: isActive ? "scale(1.06)" : "scale(1)",
+                            borderColor,
+                            color: numberColor,
+                            boxShadow: `0 0 0 ${Math.round(intensity * 6)}px rgba(${item.accent.join(", ")}, ${intensity * 0.11})`,
+                            transform: `scale(${1 + intensity * 0.055})`,
                           }}
                         >
                           {item.number}
@@ -120,8 +131,8 @@ export function AboutSection() {
 
                       <div className="min-w-0 pr-3 sm:pr-6">
                         <h3
-                          className="text-2xl font-semibold leading-tight tracking-[-0.035em] transition-colors duration-500 sm:text-[1.8rem]"
-                          style={{ color: isActive ? item.accent : "#18181b" }}
+                          className="text-2xl font-semibold leading-tight tracking-[-0.035em] sm:text-[1.8rem]"
+                          style={{ color: titleColor }}
                         >
                           {item.title}
                         </h3>
