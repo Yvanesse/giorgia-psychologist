@@ -18,13 +18,13 @@ export function HeroSection() {
             </Text>
             <div className="mt-7 flex items-center gap-3 sm:mt-9">
               <Link
-                className="group inline-flex min-h-14 items-center gap-5 rounded-full border-[1.5px] border-[#2f176f] bg-primary px-6 text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
+                className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-[1.5px] border-[#2f176f] bg-primary px-6 text-center text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
                 href={heroContent.primaryCta.href}
               >
-                <span>{heroContent.primaryCta.label}</span>
-                <span className="relative flex h-7 w-7 items-center justify-center" aria-hidden="true">
+                <span className="text-center">{heroContent.primaryCta.label}</span>
+                <span className="relative flex h-6 w-6 shrink-0 items-center justify-center" aria-hidden="true">
                   <svg
-                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5"
+                    className="h-[1.15rem] w-[1.15rem] transition-transform duration-300 group-hover:translate-x-0.5"
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
