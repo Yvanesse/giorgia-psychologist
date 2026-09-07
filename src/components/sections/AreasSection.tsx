@@ -109,7 +109,7 @@ export function AreasSection() {
 
             return (
               <article
-                className={`group relative min-h-[32rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                className={`group relative min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
                   isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
                 }`}
                 key={item.title}
@@ -123,10 +123,10 @@ export function AreasSection() {
                 }}
                 style={isTouch ? { opacity: cardOpacity, transitionDuration: "120ms,1200ms,1200ms,120ms" } : undefined}
               >
-                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-start">
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-start px-5 sm:px-7 lg:px-0">
                   {style.words.map((word, wordIndex) => (
                     <span
-                      className="relative whitespace-nowrap text-[2.7rem] font-semibold leading-[0.88] tracking-[-0.06em] sm:text-[3.35rem]"
+                      className="relative whitespace-nowrap text-[2.2rem] font-semibold leading-[0.9] tracking-[-0.055em] sm:text-[2.7rem] lg:text-[3.35rem]"
                       key={word}
                     >
                       <span
@@ -149,16 +149,19 @@ export function AreasSection() {
                   ))}
                 </div>
 
-                <div className="relative z-10 flex h-full flex-col">
+                <div className="relative z-10 flex h-full flex-col pb-36 sm:pb-40 lg:pb-0">
                   <div className={`text-base font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
                     0{index + 1}
                   </div>
                   <Heading className="mt-5 max-w-sm" variant="h3">{item.title}</Heading>
                   <p className="mt-5 max-w-md text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">{item.description}</p>
 
-                  <div className="mt-7 flex flex-wrap gap-2.5">
+                  <div className="mt-6 flex flex-wrap gap-2 sm:mt-7 sm:gap-2.5">
                     {item.topics.map((topic) => (
-                      <span className={`rounded-full border px-4 py-2 text-base font-medium leading-6 sm:text-[1.05rem] ${style.chip}`} key={topic}>
+                      <span
+                        className={`rounded-full border px-3 py-1.5 text-[0.95rem] font-medium leading-6 sm:px-4 sm:py-2 sm:text-[1.05rem] ${style.chip}`}
+                        key={topic}
+                      >
                         {topic}
                       </span>
                     ))}
