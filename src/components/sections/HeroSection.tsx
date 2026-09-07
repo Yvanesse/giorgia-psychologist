@@ -5,13 +5,29 @@ import { Button, Container, Text } from "@/components/ui";
 import { LocalPhoto } from "./LocalPhoto";
 
 export function HeroSection() {
+  const startWord = "Comprendere";
+  const endWord = "cambiamento";
+  const startIndex = heroContent.title.indexOf(startWord);
+  const endIndex = heroContent.title.indexOf(endWord);
+  const canHighlightTitle = startIndex !== -1 && endIndex > startIndex;
+
   return (
     <section className="hero-surface overflow-hidden pb-12 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16">
       <Container variant="wide">
         <div className="grid items-center gap-7 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:gap-14">
           <div className="max-w-3xl">
             <h1 className="text-[2.65rem] font-semibold leading-[1.04] tracking-[-0.052em] text-ink min-[390px]:text-5xl sm:text-[3.5rem] lg:text-[4.4rem]">
-              {heroContent.title}
+              {canHighlightTitle ? (
+                <>
+                  {heroContent.title.slice(0, startIndex)}
+                  <span className="text-[#d36e59]">{startWord}</span>
+                  {heroContent.title.slice(startIndex + startWord.length, endIndex)}
+                  <span className="text-[#5d8f6f]">{endWord}</span>
+                  {heroContent.title.slice(endIndex + endWord.length)}
+                </>
+              ) : (
+                heroContent.title
+              )}
             </h1>
             <Text className="mt-5 max-w-2xl text-[1.15rem] leading-8 sm:mt-7 sm:text-[1.35rem]">
               {heroContent.subtitle}
