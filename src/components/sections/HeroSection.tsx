@@ -18,20 +18,27 @@ export function HeroSection() {
             </Text>
             <div className="mt-7 flex items-center gap-3 sm:mt-9">
               <Link
-                className="group inline-flex min-h-14 items-center justify-between gap-6 rounded-full border border-primary bg-primary px-7 text-lg font-semibold tracking-tight text-white shadow-[0_12px_30px_rgba(91,53,245,.18)] transition-[transform,box-shadow,background-color] duration-300 hover:bg-primary-strong hover:shadow-[0_16px_34px_rgba(91,53,245,.24)] active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-8"
+                className="group inline-flex min-h-14 items-center gap-5 rounded-full border-[1.5px] border-[#2f176f] bg-primary px-6 text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
                 href={heroContent.primaryCta.href}
               >
                 <span>{heroContent.primaryCta.label}</span>
-                <span
-                  aria-hidden="true"
-                  className="text-2xl leading-none transition-transform duration-300 group-hover:translate-x-1"
-                >
-                  →
+                <span className="relative flex h-7 w-7 items-center justify-center" aria-hidden="true">
+                  <svg
+                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M5 12H18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M13.5 7.5L18 12L13.5 16.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </span>
               </Link>
-              <Button className="hidden sm:inline-flex" href={heroContent.secondaryCta.href} size="lg" variant="outline">
-                {heroContent.secondaryCta.label}
-              </Button>
+              <div className="hidden lg:block">
+                <Button href={heroContent.secondaryCta.href} size="lg" variant="outline">
+                  {heroContent.secondaryCta.label}
+                </Button>
+              </div>
             </div>
           </div>
           <LocalPhoto
