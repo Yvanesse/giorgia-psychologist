@@ -1,4 +1,3 @@
-import { AboutSection } from "@/components/sections/AboutSection";
 import { ApproachSection } from "@/components/sections/ApproachSection";
 import { AreasSection } from "@/components/sections/AreasSection";
 import { ArticlesSection } from "@/components/sections/ArticlesSection";
@@ -14,7 +13,6 @@ export default function Home() {
   return (
     <main id="main-content">
       <HeroSection />
-      <AboutSection />
       <ManifestoSection />
       <AreasSection />
       <WhenUsefulSection />
