@@ -12,6 +12,8 @@ const areaStyles = [
     accent: "text-[#6848ed]",
     chip: "border-[#ddcffd] bg-white/80 text-[#5d3ed7]",
     gradient: "from-[#a58cff] via-[#6547ef] to-[#d1c4ff]",
+    bar: "bg-[#6848ed]",
+    ring: "border-[#6848ed]/15",
     words: ["ANSIA", "AUTOSTIMA", "CAMBIAMENTO"],
   },
   {
@@ -19,6 +21,8 @@ const areaStyles = [
     accent: "text-[#d36e59]",
     chip: "border-[#f0d1c8] bg-white/80 text-[#b95a48]",
     gradient: "from-[#f6a18d] via-[#d96a55] to-[#ffd0c4]",
+    bar: "bg-[#d36e59]",
+    ring: "border-[#d36e59]/15",
     words: ["COPPIA", "DIALOGO", "RELAZIONI"],
   },
   {
@@ -26,6 +30,8 @@ const areaStyles = [
     accent: "text-[#5d8f6f]",
     chip: "border-[#d0e4d6] bg-white/80 text-[#4f7b60]",
     gradient: "from-[#8fc3a1] via-[#4f8b66] to-[#c9e7d3]",
+    bar: "bg-[#5d8f6f]",
+    ring: "border-[#5d8f6f]/15",
     words: ["CONTESTI", "VALUTAZIONE", "FORENSE"],
   },
 ] as const;
@@ -56,7 +62,7 @@ export function AreasSection() {
     const updateIntensity = () => {
       frameRef.current = null;
       const viewportCenter = window.innerHeight / 2;
-      const influenceRange = window.innerHeight * 0.62;
+      const influenceRange = window.innerHeight * 0.72;
 
       const next = cardRefs.current.map((card) => {
         if (!card) return 0;
@@ -103,9 +109,9 @@ export function AreasSection() {
             const style = areaStyles[index];
             const intensity = scrollIntensity[index] ?? 0;
             const isActive = activeIndex === index;
-            const cardOpacity = 0.32 + intensity * 0.68;
-            const grayOpacity = 0.075 * (1 - intensity);
-            const gradientOpacity = 0.18 + intensity * 0.82;
+            const cardOpacity = 0.76 + intensity * 0.24;
+            const grayOpacity = 0.035 * (1 - intensity);
+            const gradientOpacity = 0.42 + intensity * 0.58;
 
             return (
               <article
@@ -123,6 +129,9 @@ export function AreasSection() {
                 }}
                 style={isTouch ? { opacity: cardOpacity, transitionDuration: "120ms,1200ms,1200ms,120ms" } : undefined}
               >
+                <div aria-hidden="true" className={`pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full border-[22px] opacity-70 sm:h-44 sm:w-44 sm:border-[28px] ${style.ring}`} />
+                <div aria-hidden="true" className={`pointer-events-none absolute right-8 top-8 h-3 w-3 rounded-full opacity-60 ${style.bar}`} />
+
                 <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-start px-5 sm:px-7 lg:px-0">
                   {style.words.map((word, wordIndex) => (
                     <span
@@ -150,9 +159,7 @@ export function AreasSection() {
                 </div>
 
                 <div className="relative z-10 flex h-full flex-col pb-36 sm:pb-40 lg:pb-0">
-                  <div className={`text-base font-semibold uppercase tracking-[0.16em] ${style.accent}`}>
-                    0{index + 1}
-                  </div>
+                  <div className={`h-1.5 w-14 rounded-full ${style.bar}`} />
                   <Heading className="mt-5 max-w-sm" variant="h3">{item.title}</Heading>
                   <p className="mt-5 max-w-md text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">{item.description}</p>
 
