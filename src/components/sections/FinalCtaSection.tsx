@@ -9,9 +9,10 @@ export function FinalCtaSection() {
           <h2 className="mx-auto max-w-4xl font-serif text-3xl font-medium leading-tight tracking-[-0.03em] sm:text-5xl">{finalCtaContent.title}</h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/90 sm:text-xl sm:leading-9">{finalCtaContent.description}</p>
           <Button
-            className="mt-8 border-white bg-white text-primary hover:bg-white/90 hover:text-primary focus-visible:outline-white"
+            className="mt-8 border-white bg-white hover:bg-white/90 focus-visible:outline-white"
             href={finalCtaContent.cta.href}
             size="lg"
+            style={{ color: "#5B35F5" }}
             variant="outline"
           >
             {finalCtaContent.cta.label}
