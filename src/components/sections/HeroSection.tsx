@@ -36,9 +36,16 @@ export function HeroSection() {
               <Link
                 className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-[1.5px] border-[#2f176f] bg-primary px-6 text-center text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
                 href={heroContent.primaryCta.href}
+                style={{ color: "#ffffff" }}
               >
-                <span className="text-center">{heroContent.primaryCta.label}</span>
-                <span className="relative flex h-6 w-6 shrink-0 items-center justify-center" aria-hidden="true">
+                <span className="text-center" style={{ color: "#ffffff" }}>
+                  {heroContent.primaryCta.label}
+                </span>
+                <span
+                  className="relative flex h-6 w-6 shrink-0 items-center justify-center"
+                  aria-hidden="true"
+                  style={{ color: "#ffffff" }}
+                >
                   <svg
                     className="h-[1.15rem] w-[1.15rem] transition-transform duration-300 group-hover:translate-x-0.5"
                     viewBox="0 0 24 24"
