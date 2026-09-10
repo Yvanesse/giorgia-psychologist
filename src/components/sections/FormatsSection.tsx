@@ -4,6 +4,9 @@ import { formatsContent } from "@/data";
 import { Container, Heading, Section, Text } from "@/components/ui";
 import { SectionHeading } from "./SectionHeading";
 
+const studioMapsHref =
+  "https://www.google.com/maps/search/?api=1&query=Via+Monte+d%27Alba+76%2C+Trani";
+
 function FormatIcon({ type }: { type: "presence" | "online" }) {
   if (type === "presence") {
     return (
@@ -19,6 +22,15 @@ function FormatIcon({ type }: { type: "presence" | "online" }) {
       <rect height="11" rx="1.8" stroke="currentColor" strokeWidth="1.65" width="16" x="4" y="5" />
       <path d="M2.5 19h19M9.5 16v3M14.5 16v3" stroke="currentColor" strokeLinecap="round" strokeWidth="1.65" />
       <path d="m10.5 9 3 1.75-3 1.75V9Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.45" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+      <path d="M12 21s6-5.15 6-11a6 6 0 1 0-12 0c0 5.85 6 11 6 11Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.7" />
+      <circle cx="12" cy="10" r="2.2" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   );
 }
@@ -58,7 +70,18 @@ export function FormatsSection() {
                 <Text className="mt-3 max-w-xl text-lg leading-7" variant="small">
                   {item.description}
                 </Text>
-                {item.location ? <p className="mt-4 text-base leading-7 text-ink-soft">{item.location}</p> : null}
+
+                {item.location ? (
+                  <a
+                    className="relative z-10 mt-5 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-semibold text-[#9d493a] transition-colors hover:bg-white"
+                    href={studioMapsHref}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    <MapPinIcon />
+                    <span>{item.location}</span>
+                  </a>
+                ) : null}
 
                 <Link
                   className={`relative z-10 mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-base font-semibold transition-[transform,background-color] duration-300 active:scale-[0.985] ${
@@ -81,6 +104,26 @@ export function FormatsSection() {
             );
           })}
         </div>
+
+        <a
+          className="mt-8 flex flex-col gap-4 rounded-[1.5rem] border border-[#d8cdfd] bg-white/75 px-5 py-5 transition-colors hover:bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:mt-12"
+          href={studioMapsHref}
+          rel="noreferrer"
+          target="_blank"
+        >
+          <span className="flex items-center gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3efff] text-[#6848ed]">
+              <MapPinIcon />
+            </span>
+            <span>
+              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#6848ed]">Dove si trova lo studio</span>
+              <span className="mt-1 block text-lg font-semibold tracking-tight text-ink">Via Monte d&apos;Alba 76, Trani</span>
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#6848ed] sm:text-base">
+            Apri la mappa <span aria-hidden="true">→</span>
+          </span>
+        </a>
       </Container>
     </Section>
   );
