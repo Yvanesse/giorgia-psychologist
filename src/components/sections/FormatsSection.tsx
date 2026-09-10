@@ -66,10 +66,6 @@ export function FormatsSection() {
             );
           })}
         </div>
-
-        <p className="mt-7 max-w-2xl text-sm leading-6 text-ink-soft sm:mt-9">
-          Lo spazio dedicato agli incontri in presenza potrà essere raccontato anche attraverso fotografie dello studio.
-        </p>
       </Container>
     </Section>
   );
