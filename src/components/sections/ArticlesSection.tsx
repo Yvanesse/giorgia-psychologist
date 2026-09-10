@@ -1,29 +1,27 @@
 import { articlesContent } from "@/data";
-import { Badge, Card, Container, Grid, Heading, Section, Text } from "@/components/ui";
-import { SectionHeading } from "./SectionHeading";
+import { Button, Container, Heading, Section } from "@/components/ui";
 
 export function ArticlesSection() {
   return (
-    <Section id="articoli">
+    <Section id="articoli" spacing="compact">
       <Container variant="wide">
-        <SectionHeading description={articlesContent.description} label={articlesContent.label} title={articlesContent.title} />
-        <Grid className="mt-10 lg:mt-12" columns={3}>
-          {articlesContent.items.slice(0, 3).map((article) => (
-            <Card className="overflow-hidden p-0" key={article.slug} variant="bordered">
-              {article.image ? (
-                // Published article media will be rendered here when supplied by the Content Layer.
-                // eslint-disable-next-line @next/next/no-img-element
-                <img alt={article.image.alt} className="aspect-[16/10] w-full object-cover" height={article.image.height} src={article.image.src} width={article.image.width} />
-              ) : <div aria-hidden="true" className="article-placeholder aspect-[16/10] border-b border-border" />}
-              <div className="p-6 sm:p-7">
-                {!article.isPublished ? <Badge>{articlesContent.upcomingLabel}</Badge> : null}
-                <p className="mt-5 text-base font-semibold text-primary">{article.category} · {article.readingTime}</p>
-                <Heading className="mt-3" variant="h3">{article.title}</Heading>
-                <Text className="mt-4" variant="small">{article.excerpt}</Text>
-              </div>
-            </Card>
-          ))}
-        </Grid>
+        <div className="rounded-[2rem] border border-primary/10 bg-[#f7f3ff] px-6 py-9 sm:px-10 sm:py-11 lg:flex lg:items-center lg:justify-between lg:gap-12 lg:px-14 lg:py-12">
+          <div className="max-w-3xl">
+            <p className="section-label">I miei articoli</p>
+            <Heading className="mt-3" variant="h2">
+              Uno spazio per approfondire.
+            </Heading>
+            <p className="mt-4 max-w-2xl text-lg leading-7 text-ink-soft sm:text-xl sm:leading-8">
+              {articlesContent.description}
+            </p>
+          </div>
+
+          <div className="mt-7 shrink-0 lg:mt-0">
+            <Button href="/articoli" size="lg">
+              Vai agli articoli <span aria-hidden="true">→</span>
+            </Button>
+          </div>
+        </div>
       </Container>
     </Section>
   );
