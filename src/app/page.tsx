@@ -5,7 +5,6 @@ import { FaqSection } from "@/components/sections/FaqSection";
 import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 import { FormatsSection } from "@/components/sections/FormatsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { JourneySection } from "@/components/sections/JourneySection";
 import { ManifestoSection } from "@/components/sections/ManifestoSection";
 import { WhenUsefulSection } from "@/components/sections/WhenUsefulSection";
 
@@ -17,7 +16,6 @@ export default function Home() {
       <AreasSection />
       <WhenUsefulSection />
       <ApproachSection />
-      <JourneySection />
       <FormatsSection />
       <FaqSection />
       <ArticlesSection />
