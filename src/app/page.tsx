@@ -19,8 +19,8 @@ export default function Home() {
       <ApproachSection />
       <JourneySection />
       <FormatsSection />
-      <ArticlesSection />
       <FaqSection />
+      <ArticlesSection />
       <FinalCtaSection />
     </main>
   );
