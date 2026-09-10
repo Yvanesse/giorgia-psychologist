@@ -6,23 +6,25 @@ export const approachContent: {
   readonly description: string;
   readonly items: readonly ApproachItem[];
 } = {
-  label: "Il mio approccio",
-  title: "Il mio modo di lavorare",
-  description: "Un percorso costruito con cura, a partire dalla persona e dalla sua esperienza.",
+  label: "Come lavoro",
+  title: "Un percorso costruito insieme",
+  description:
+    "Dall’ascolto iniziale alla definizione del percorso, ogni fase nasce dal confronto e si adatta alla persona, alle relazioni e ai contesti di vita.",
   items: [
     {
-      title: "Ascolto",
-      description: "Ogni percorso inizia dalla comprensione della storia della persona.",
+      title: "Ascolto e comprensione",
+      description:
+        "Il primo colloquio è uno spazio per raccontare ciò che stai attraversando, comprendere la richiesta e iniziare a leggere insieme la tua esperienza.",
     },
     {
-      title: "Metodo",
+      title: "Direzione condivisa",
       description:
-        "Il lavoro psicologico si fonda su competenze cliniche, formazione continua e attenzione ai contesti di vita.",
+        "Obiettivi, modalità e tempi vengono definiti insieme, attraverso un lavoro psicologico fondato su competenze cliniche e attenzione ai contesti di vita.",
     },
     {
-      title: "Unicità",
+      title: "Un percorso che evolve",
       description:
-        "Ogni persona ha una storia diversa. Per questo ogni percorso viene costruito rispettandone tempi, bisogni e risorse.",
+        "Il percorso viene osservato e ridefinito nel tempo, rispettando bisogni, risorse e cambiamenti della persona.",
     },
   ],
 };
