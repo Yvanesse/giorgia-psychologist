@@ -71,15 +71,23 @@ export function FormatsSection() {
                   {item.description}
                 </Text>
 
-                {item.location ? (
+                {isPresence && item.location ? (
                   <a
-                    className="relative z-10 mt-5 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2.5 text-sm font-semibold text-[#9d493a] transition-colors hover:bg-white"
+                    className="relative z-10 mt-5 flex max-w-md items-center justify-between gap-4 rounded-2xl border border-[#efd0c8] bg-white/70 px-4 py-3.5 transition-colors hover:bg-white"
                     href={studioMapsHref}
                     rel="noreferrer"
                     target="_blank"
                   >
-                    <MapPinIcon />
-                    <span>{item.location}</span>
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fff7f4] text-[#d36e59]">
+                        <MapPinIcon />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b95542]">Dove si trova lo studio</span>
+                        <span className="mt-0.5 block text-sm font-semibold text-ink sm:text-base">{item.location}</span>
+                      </span>
+                    </span>
+                    <span aria-hidden="true" className="shrink-0 text-[#b95542]">→</span>
                   </a>
                 ) : null}
 
@@ -104,26 +112,6 @@ export function FormatsSection() {
             );
           })}
         </div>
-
-        <a
-          className="mt-8 flex flex-col gap-4 rounded-[1.5rem] border border-[#d8cdfd] bg-white/75 px-5 py-5 transition-colors hover:bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:mt-12"
-          href={studioMapsHref}
-          rel="noreferrer"
-          target="_blank"
-        >
-          <span className="flex items-center gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f3efff] text-[#6848ed]">
-              <MapPinIcon />
-            </span>
-            <span>
-              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#6848ed]">Dove si trova lo studio</span>
-              <span className="mt-1 block text-lg font-semibold tracking-tight text-ink">Via Monte d&apos;Alba 76, Trani</span>
-            </span>
-          </span>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#6848ed] sm:text-base">
-            Apri la mappa <span aria-hidden="true">→</span>
-          </span>
-        </a>
       </Container>
     </Section>
   );
