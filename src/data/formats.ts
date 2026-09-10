@@ -14,7 +14,7 @@ export const formatsContent: {
     {
       title: "Colloqui in presenza",
       description: "Gli incontri si svolgono in uno spazio professionale dedicato.",
-      location: null,
+      location: "Via Monte d'Alba 76, Trani",
     },
     {
       title: "Colloqui online",
