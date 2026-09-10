@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { formatsContent } from "@/data";
 import { Container, Heading, Section, Text } from "@/components/ui";
 import { SectionHeading } from "./SectionHeading";
@@ -30,6 +32,8 @@ export function FormatsSection() {
         <div className="mt-9 grid gap-4 sm:mt-11 lg:grid-cols-[1.08fr_.92fr] lg:gap-5">
           {formatsContent.items.map((item, index) => {
             const isPresence = index === 0;
+            const href = isPresence ? "/prenota?mode=in-presenza" : "/prenota?mode=online";
+            const ctaLabel = isPresence ? "Richiedi appuntamento" : "Prenota colloquio online";
 
             return (
               <article
@@ -55,6 +59,17 @@ export function FormatsSection() {
                   {item.description}
                 </Text>
                 {item.location ? <p className="mt-4 text-base leading-7 text-ink-soft">{item.location}</p> : null}
+
+                <Link
+                  className={`relative z-10 mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-base font-semibold transition-[transform,background-color] duration-300 active:scale-[0.985] ${
+                    isPresence ? "bg-[#d36e59]" : "bg-[#6848ed]"
+                  }`}
+                  href={href}
+                  style={{ color: "#ffffff" }}
+                >
+                  {ctaLabel}
+                  <span aria-hidden="true">→</span>
+                </Link>
 
                 <div
                   aria-hidden="true"
