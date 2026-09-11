@@ -1,10 +1,12 @@
 import type { FormatItem } from "@/types/content";
 
 export const formatsContent: {
+  readonly label: string;
   readonly title: string;
   readonly description: string;
   readonly items: readonly FormatItem[];
 } = {
+  label: "Modalità",
   title: "In presenza e online",
   description:
     "È possibile intraprendere il percorso psicologico in presenza oppure online, scegliendo la modalità più adatta alle proprie esigenze.",
@@ -12,7 +14,7 @@ export const formatsContent: {
     {
       title: "Colloqui in presenza",
       description: "Gli incontri si svolgono in uno spazio professionale dedicato.",
-      location: null,
+      location: "Via Monte d'Alba 76, Trani",
     },
     {
       title: "Colloqui online",

@@ -59,7 +59,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full border font-medium tracking-tight transition-colors duration-200 motion-reduce:transition-none",
+    "inline-flex items-center justify-center gap-2 rounded-full border font-sans font-semibold tracking-tight transition-colors duration-200 motion-reduce:transition-none",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4",
     "disabled:cursor-not-allowed disabled:opacity-100 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
     variants[variant],
@@ -67,14 +67,18 @@ export function Button({
     className,
   );
 
+  const filledButtonStyle =
+    variant === "primary" || variant === "secondary" ? { color: "#ffffff" } : undefined;
+
   if ("href" in props && props.href) {
-    const { disabled, href, ...anchorProps } = props;
+    const { disabled, href, style, ...anchorProps } = props;
 
     return (
       <a
         aria-disabled={disabled || loading ? true : undefined}
         className={classes}
         href={disabled || loading ? undefined : href}
+        style={{ ...style, ...filledButtonStyle }}
         {...anchorProps}
       >
         {loading ? spinner : null}
@@ -83,12 +87,13 @@ export function Button({
     );
   }
 
-  const { disabled, type, ...buttonProps } = props as ButtonAsButton;
+  const { disabled, type, style, ...buttonProps } = props as ButtonAsButton;
 
   return (
     <button
       className={classes}
       disabled={disabled || loading}
+      style={{ ...style, ...filledButtonStyle }}
       type={type ?? "button"}
       {...buttonProps}
     >

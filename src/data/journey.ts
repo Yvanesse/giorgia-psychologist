@@ -1,10 +1,14 @@
 import type { JourneyStep } from "@/types/content";
 
 export const journeyContent: {
+  readonly label: string;
   readonly title: string;
+  readonly description: string;
   readonly steps: readonly JourneyStep[];
 } = {
+  label: "Il percorso",
   title: "Come si svolge un percorso",
+  description: "Un processo condiviso, definito con chiarezza e rispettoso dei bisogni individuali.",
   steps: [
     {
       title: "Primo colloquio",
