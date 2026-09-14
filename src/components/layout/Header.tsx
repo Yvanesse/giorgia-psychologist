@@ -1,10 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { useRef } from "react";
 
 import { siteConfig } from "@/config/site.config";
 import { sharedContent } from "@/data";
 import { Button, Container } from "@/components/ui";
 
 export function Header() {
+  const mobileMenuRef = useRef<HTMLDetailsElement>(null);
+
+  function closeMobileMenu() {
+    mobileMenuRef.current?.removeAttribute("open");
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-white/95 backdrop-blur-sm">
       <Container variant="wide">
@@ -18,13 +27,13 @@ export function Header() {
             {siteConfig.navigation.map((item) => <a className="text-base font-medium text-ink-soft transition-colors hover:text-primary focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" href={item.href} key={item.label}>{item.label}</a>)}
           </nav>
           <Button className="hidden sm:inline-flex" href={siteConfig.cta.href}>{siteConfig.cta.label}</Button>
-          <details className="relative lg:hidden">
+          <details className="relative lg:hidden" ref={mobileMenuRef}>
             <summary aria-label={sharedContent.openMenu} className="flex size-12 cursor-pointer list-none items-center justify-center rounded-full border-[1.5px] border-black text-ink marker:content-none transition-[transform,background-color] active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
               <span aria-hidden="true" className="flex flex-col gap-1.5"><span className="h-px w-5 bg-current" /><span className="h-px w-5 bg-current" /><span className="h-px w-5 bg-current" /></span>
             </summary>
             <nav className="absolute right-0 top-14 w-[min(19rem,calc(100vw-3rem))] rounded-2xl border border-border bg-white p-3 shadow-xl" aria-label={sharedContent.openMenu}>
-              {siteConfig.navigation.map((item) => <a className="block rounded-xl px-4 py-3 text-base font-medium hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" href={item.href} key={item.label}>{item.label}</a>)}
-              <Button className="mt-2 w-full sm:hidden" href={siteConfig.cta.href}>{siteConfig.cta.label}</Button>
+              {siteConfig.navigation.map((item) => <a className="block rounded-xl px-4 py-3 text-base font-medium hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" href={item.href} key={item.label} onClick={closeMobileMenu}>{item.label}</a>)}
+              <Button className="mt-2 w-full sm:hidden" href={siteConfig.cta.href} onClick={closeMobileMenu}>{siteConfig.cta.label}</Button>
             </nav>
           </details>
         </div>
