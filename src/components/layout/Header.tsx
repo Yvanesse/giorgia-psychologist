@@ -72,13 +72,13 @@ export function Header() {
             aria-controls="mobile-navigation"
             aria-expanded={isMobileMenuOpen}
             aria-label={isMobileMenuOpen ? "Chiudi menu" : sharedContent.openMenu}
-            className="relative flex size-12 items-center justify-center rounded-full border-[1.5px] border-black text-ink transition-[transform,background-color] duration-[360ms] ease-[cubic-bezier(.16,1,.3,1)] active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:hidden"
+            className="relative flex size-12 items-center justify-center rounded-full border-[1.5px] border-black text-ink transition-transform duration-300 active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:hidden"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
             type="button"
           >
             <span aria-hidden="true" className="relative block h-5 w-5">
               <span
-                className={`absolute left-0 top-[4px] h-px w-5 bg-current transition-[transform,top] duration-[420ms] ease-[cubic-bezier(.16,1,.3,1)] ${
+                className={`absolute left-0 top-[4px] h-px w-5 bg-current transition-[transform,top] duration-300 ease-out ${
                   isMobileMenuOpen ? "top-[9px] rotate-45" : ""
                 }`}
               />
@@ -88,7 +88,7 @@ export function Header() {
                 }`}
               />
               <span
-                className={`absolute left-0 top-[14px] h-px w-5 bg-current transition-[transform,top] duration-[420ms] ease-[cubic-bezier(.16,1,.3,1)] ${
+                className={`absolute left-0 top-[14px] h-px w-5 bg-current transition-[transform,top] duration-300 ease-out ${
                   isMobileMenuOpen ? "top-[9px] -rotate-45" : ""
                 }`}
               />
@@ -103,7 +103,7 @@ export function Header() {
       >
         <button
           aria-label="Chiudi menu"
-          className={`absolute inset-0 bg-black/20 transition-opacity duration-[420ms] ease-[cubic-bezier(.16,1,.3,1)] ${
+          className={`absolute inset-0 bg-black/20 transition-opacity duration-300 ease-out ${
             isMobileMenuOpen ? "opacity-100" : "opacity-0"
           }`}
           onClick={closeMobileMenu}
@@ -112,8 +112,8 @@ export function Header() {
         />
 
         <div
-          className={`absolute right-0 top-0 flex h-dvh w-[min(88vw,25rem)] flex-col overflow-y-auto overscroll-contain border-l border-black/10 bg-[#fbfaff] px-6 pt-5 shadow-2xl transition-transform duration-[560ms] ease-[cubic-bezier(.16,1,.3,1)] will-change-transform sm:px-8 ${
-            isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          className={`absolute right-0 top-0 flex h-dvh w-[min(88vw,25rem)] flex-col overflow-hidden border-l border-black/10 bg-[#fbfaff] px-6 pt-5 shadow-2xl transition-[transform,opacity] duration-[420ms] ease-[cubic-bezier(.22,.8,.2,1)] sm:px-8 ${
+            isMobileMenuOpen ? "translate-x-0 opacity-100" : "translate-x-5 opacity-0"
           }`}
           id="mobile-navigation"
         >
@@ -126,7 +126,7 @@ export function Header() {
 
             <button
               aria-label="Chiudi menu"
-              className="flex size-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-black text-[1.65rem] leading-none text-ink transition-transform duration-300 ease-[cubic-bezier(.16,1,.3,1)] active:scale-95"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full border-[1.5px] border-black text-[1.65rem] leading-none text-ink transition-transform duration-200 active:scale-95"
               onClick={closeMobileMenu}
               tabIndex={isMobileMenuOpen ? 0 : -1}
               type="button"
@@ -135,34 +135,31 @@ export function Header() {
             </button>
           </div>
 
-          <nav aria-label={sharedContent.openMenu} className="mt-4 flex shrink-0 flex-col">
-            {siteConfig.navigation.map((item, index) => (
-              <a
-                className={`group flex items-center gap-3 border-b border-black/10 py-3 text-[1.18rem] font-semibold leading-tight tracking-[-0.025em] text-ink transition-[opacity,transform,color] duration-[460ms] ease-[cubic-bezier(.16,1,.3,1)] hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
-                  isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
-                }`}
-                href={item.href}
-                key={item.label}
-                onClick={closeMobileMenu}
-                style={{ transitionDelay: isMobileMenuOpen ? `${110 + index * 22}ms` : "0ms" }}
-                tabIndex={isMobileMenuOpen ? 0 : -1}
-              >
-                <span
-                  aria-hidden="true"
-                  className="h-2 w-2 shrink-0 rounded-full transition-transform duration-300 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-125"
-                  style={{ backgroundColor: mobileAccents[index % mobileAccents.length] }}
-                />
-                <span>{item.label}</span>
-              </a>
-            ))}
-          </nav>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <nav aria-label={sharedContent.openMenu} className="mt-4 flex flex-col pb-4">
+              {siteConfig.navigation.map((item, index) => (
+                <a
+                  className={`group flex items-center gap-3 border-b border-black/10 py-3 text-[1.18rem] font-semibold leading-tight tracking-[-0.025em] text-ink transition-[opacity,transform,filter,color] duration-[520ms] ease-[cubic-bezier(.22,.8,.2,1)] hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
+                    isMobileMenuOpen ? "translate-y-0 opacity-100 blur-0" : "translate-y-1.5 opacity-0 blur-[2px]"
+                  }`}
+                  href={item.href}
+                  key={item.label}
+                  onClick={closeMobileMenu}
+                  style={{ transitionDelay: isMobileMenuOpen ? `${90 + index * 34}ms` : "0ms" }}
+                  tabIndex={isMobileMenuOpen ? 0 : -1}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-2 w-2 shrink-0 rounded-full transition-transform duration-300 group-hover:scale-125"
+                    style={{ backgroundColor: mobileAccents[index % mobileAccents.length] }}
+                  />
+                  <span>{item.label}</span>
+                </a>
+              ))}
+            </nav>
+          </div>
 
-          <div
-            className={`sticky bottom-0 -mx-6 mt-4 shrink-0 border-t border-black/10 bg-[#fbfaff]/95 px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-sm transition-[opacity,transform] duration-[500ms] ease-[cubic-bezier(.16,1,.3,1)] sm:-mx-8 sm:px-8 ${
-              isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
-            }`}
-            style={{ transitionDelay: isMobileMenuOpen ? "220ms" : "0ms" }}
-          >
+          <div className="-mx-6 shrink-0 border-t border-black/10 bg-[#fbfaff] px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 sm:-mx-8 sm:px-8">
             <p className="mb-2 text-xs leading-5 text-ink-soft">Un primo colloquio per capire insieme da dove iniziare.</p>
             <Button className="w-full" href={siteConfig.cta.href} onClick={closeMobileMenu} size="md" tabIndex={isMobileMenuOpen ? 0 : -1}>
               Prenota un colloquio <span aria-hidden="true">→</span>
