@@ -29,7 +29,7 @@ export default function BookingPage() {
 
           <div className="mt-10">
             <Link
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-border px-6 font-sans font-semibold tracking-tight text-ink transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border-[1.5px] border-black px-6 font-sans font-semibold tracking-tight text-ink transition-[transform,background-color,color] hover:bg-surface-muted hover:text-primary active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
               href="/"
             >
               {bookingContent.backLabel}
