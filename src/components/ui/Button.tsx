@@ -28,11 +28,11 @@ export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "border-primary bg-primary text-white hover:bg-primary-strong focus-visible:outline-primary disabled:border-zinc-300 disabled:bg-zinc-300 disabled:text-zinc-500 aria-disabled:border-zinc-300 aria-disabled:bg-zinc-300 aria-disabled:text-zinc-500",
+    "border-black bg-primary text-white hover:bg-primary-strong focus-visible:outline-primary disabled:border-zinc-300 disabled:bg-zinc-300 disabled:text-zinc-500 aria-disabled:border-zinc-300 aria-disabled:bg-zinc-300 aria-disabled:text-zinc-500",
   secondary:
-    "border-ink bg-ink text-white hover:bg-zinc-700 focus-visible:outline-ink disabled:border-zinc-300 disabled:bg-zinc-300 disabled:text-zinc-500 aria-disabled:border-zinc-300 aria-disabled:bg-zinc-300 aria-disabled:text-zinc-500",
+    "border-black bg-ink text-white hover:bg-zinc-700 focus-visible:outline-ink disabled:border-zinc-300 disabled:bg-zinc-300 disabled:text-zinc-500 aria-disabled:border-zinc-300 aria-disabled:bg-zinc-300 aria-disabled:text-zinc-500",
   outline:
-    "border-border bg-transparent text-ink hover:border-primary hover:text-primary focus-visible:outline-primary disabled:border-zinc-200 disabled:text-zinc-400 aria-disabled:border-zinc-200 aria-disabled:text-zinc-400",
+    "border-black bg-transparent text-ink hover:bg-surface-muted hover:text-primary focus-visible:outline-primary disabled:border-zinc-200 disabled:text-zinc-400 aria-disabled:border-zinc-200 aria-disabled:text-zinc-400",
   ghost:
     "border-transparent bg-transparent text-ink hover:bg-surface-muted hover:text-primary focus-visible:outline-primary disabled:text-zinc-400 aria-disabled:text-zinc-400",
 };
@@ -59,8 +59,8 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full border font-sans font-semibold tracking-tight transition-colors duration-200 motion-reduce:transition-none",
-    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4",
+    "inline-flex items-center justify-center gap-2 rounded-full border-[1.5px] font-sans font-semibold tracking-tight transition-[transform,background-color,color,border-color] duration-200 motion-reduce:transition-none",
+    "active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4",
     "disabled:cursor-not-allowed disabled:opacity-100 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
     variants[variant],
     sizes[size],
