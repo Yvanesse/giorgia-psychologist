@@ -34,7 +34,7 @@ export function HeroSection() {
             </Text>
             <div className="mt-7 flex items-center gap-3 sm:mt-9">
               <Link
-                className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-[1.5px] border-[#2f176f] bg-primary px-6 text-center text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
+                className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-full border-[1.5px] border-black bg-primary px-6 text-center text-[1.05rem] font-semibold tracking-[-0.01em] text-white transition-[transform,background-color] duration-300 hover:bg-primary-strong active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7 sm:text-lg"
                 href={heroContent.primaryCta.href}
                 style={{ color: "#ffffff" }}
               >
