@@ -92,7 +92,7 @@ export function FormatsSection() {
                 ) : null}
 
                 <Link
-                  className={`relative z-10 mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-base font-semibold transition-[transform,background-color] duration-300 active:scale-[0.985] ${
+                  className={`relative z-10 mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-[1.5px] border-black px-5 text-base font-semibold transition-[transform,background-color] duration-300 active:scale-[0.985] ${
                     isPresence ? "bg-[#d36e59]" : "bg-[#6848ed]"
                   }`}
                   href={href}
