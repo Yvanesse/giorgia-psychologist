@@ -4,8 +4,8 @@ export const siteConfig = {
   name: "Giorgia Petruzzellis",
   profession: "Psicologa",
   logo: {
-    src: "/logo/logo-placeholder.svg",
-    alt: "Logo di Giorgia Petruzzellis",
+    src: "/logo/giorgia-petruzzellis-header.png",
+    alt: "Giorgia Petruzzellis — Psicologa",
   },
   navigation: navigationItems,
   cta: navigationCta,
