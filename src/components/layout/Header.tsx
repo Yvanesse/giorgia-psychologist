@@ -19,7 +19,7 @@ export function Header() {
           </nav>
           <Button className="hidden sm:inline-flex" href={siteConfig.cta.href}>{siteConfig.cta.label}</Button>
           <details className="relative lg:hidden">
-            <summary aria-label={sharedContent.openMenu} className="flex size-12 cursor-pointer list-none items-center justify-center rounded-full border border-border text-ink marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+            <summary aria-label={sharedContent.openMenu} className="flex size-12 cursor-pointer list-none items-center justify-center rounded-full border-[1.5px] border-black text-ink marker:content-none transition-[transform,background-color] active:scale-[0.985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
               <span aria-hidden="true" className="flex flex-col gap-1.5"><span className="h-px w-5 bg-current" /><span className="h-px w-5 bg-current" /><span className="h-px w-5 bg-current" /></span>
             </summary>
             <nav className="absolute right-0 top-14 w-[min(19rem,calc(100vw-3rem))] rounded-2xl border border-border bg-white p-3 shadow-xl" aria-label={sharedContent.openMenu}>
