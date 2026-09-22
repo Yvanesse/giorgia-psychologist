@@ -1,14 +1,15 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
-export function createAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const secretKey = process.env.SUPABASE_SECRET_KEY;
+import { getSupabasePublicConfig } from "./config";
 
-  if (!url || !secretKey) {
+export function createAdminClient() {
+  const config = getSupabasePublicConfig();
+
+  if (!config) {
     return null;
   }
 
-  return createSupabaseClient(url, secretKey, {
+  return createSupabaseClient(config.url, config.publishableKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
