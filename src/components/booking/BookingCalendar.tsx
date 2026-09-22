@@ -100,6 +100,7 @@ export function BookingCalendar() {
   );
 
   const carouselRef = useRef<HTMLDivElement>(null);
+  const submittingRef = useRef(false);
   const [monthIndex, setMonthIndex] = useState(0);
   const [mode, setMode] = useState<BookingMode>("in-presenza");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -143,8 +144,9 @@ export function BookingCalendar() {
 
   async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSubmit || !selectedDate || !selectedTime) return;
+    if (!canSubmit || !selectedDate || !selectedTime || submittingRef.current || status === "success") return;
 
+    submittingRef.current = true;
     setStatus("submitting");
     setMessage("");
 
@@ -168,6 +170,8 @@ export function BookingCalendar() {
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Si è verificato un errore.");
+    } finally {
+      submittingRef.current = false;
     }
   }
 
@@ -417,8 +421,17 @@ export function BookingCalendar() {
             </div>
           ) : null}
 
-          <Button className="w-full max-w-full" disabled={!canSubmit || status === "submitting"} size="lg" type="submit">
-            {status === "submitting" ? "Invio in corso…" : "Invia richiesta"}
+          <Button
+            className="w-full max-w-full"
+            disabled={!canSubmit || status === "submitting" || status === "success"}
+            size="lg"
+            type="submit"
+          >
+            {status === "submitting"
+              ? "Invio in corso…"
+              : status === "success"
+                ? "Richiesta inviata"
+                : "Invia richiesta"}
           </Button>
 
           {message ? (
