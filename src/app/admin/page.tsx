@@ -24,6 +24,7 @@ type Appointment = {
   email: string;
   phone: string;
   status: "new" | "confirmed" | "cancelled" | "completed";
+  google_event_id?: string | null;
 };
 
 const navItems: Array<{ id: AdminView; label: string; icon: string }> = [
@@ -107,15 +108,19 @@ export default function AdminPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [databaseConnected, setDatabaseConnected] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [updatingAppointment, setUpdatingAppointment] = useState<string | null>(null);
+  const [appointmentMessage, setAppointmentMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadDashboardData() {
       try {
-        const [articlesResponse, appointmentsResponse] = await Promise.all([
+        const [articlesResponse, appointmentsResponse, calendarResponse] = await Promise.all([
           fetch("/api/admin/articles", { cache: "no-store" }),
           fetch("/api/admin/appointments", { cache: "no-store" }),
+          fetch("/api/admin/calendar/status", { cache: "no-store" }),
         ]);
 
         if (cancelled || !articlesResponse.ok || !appointmentsResponse.ok) return;
@@ -130,6 +135,9 @@ export default function AdminPage() {
           }>;
         };
         const appointmentsData = (await appointmentsResponse.json()) as { items?: Appointment[] };
+        const calendarData = calendarResponse.ok
+          ? ((await calendarResponse.json()) as { configured?: boolean })
+          : { configured: false };
 
         if (articlesData.items) {
           setDrafts(
@@ -144,6 +152,7 @@ export default function AdminPage() {
         }
 
         setAppointments(appointmentsData.items ?? []);
+        setCalendarConnected(Boolean(calendarData.configured));
         setDatabaseConnected(true);
       } catch {
         // The preview keeps its local demo data until Supabase is configured.
@@ -217,6 +226,46 @@ export default function AdminPage() {
       setEditorOpen(false);
     } finally {
       setSavingArticle(false);
+    }
+  };
+
+  const updateAppointment = async (
+    id: string,
+    status: "confirmed" | "cancelled" | "completed",
+  ) => {
+    if (updatingAppointment) return;
+
+    setUpdatingAppointment(id);
+    setAppointmentMessage("");
+
+    try {
+      const response = await fetch("/api/admin/appointments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+
+      const data = (await response.json()) as { item?: Appointment; message?: string };
+
+      if (!response.ok || !data.item) {
+        setAppointmentMessage(data.message || "Non è stato possibile aggiornare l’appuntamento.");
+        return;
+      }
+
+      setAppointments((current) =>
+        current.map((appointment) => (appointment.id === id ? data.item! : appointment)),
+      );
+      setAppointmentMessage(
+        status === "confirmed"
+          ? "Appuntamento confermato e sincronizzato con Google Calendar."
+          : status === "cancelled"
+            ? "Appuntamento annullato."
+            : "Appuntamento segnato come completato.",
+      );
+    } catch {
+      setAppointmentMessage("Non è stato possibile aggiornare l’appuntamento.");
+    } finally {
+      setUpdatingAppointment(null);
     }
   };
 
@@ -298,7 +347,7 @@ export default function AdminPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-emerald-500" aria-hidden="true" />
-                <span className="text-sm font-medium text-zinc-500">Anteprima attiva</span>
+                <span className="text-sm font-medium text-zinc-500">{calendarConnected ? "Calendar collegato" : "Anteprima attiva"}</span>
               </div>
             </header>
 
@@ -381,13 +430,108 @@ export default function AdminPage() {
                   <div>
                     <h2 className="text-2xl font-semibold tracking-[-0.035em] text-zinc-950">Gestione appuntamenti</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 sm:text-base">
-                      Qui gestiremo richieste, conferme, modalità del colloquio e sincronizzazione con il calendario professionale.
+                      Conferma le richieste, annullale o segnatele come completate. Quando Calendar è collegato, la conferma crea automaticamente l’evento.
                     </p>
                   </div>
-                  <StatusBadge tone="orange">Calendar non collegato</StatusBadge>
+                  <StatusBadge tone={calendarConnected ? "green" : "orange"}>
+                    {calendarConnected ? "Calendar collegato" : "Calendar da collegare"}
+                  </StatusBadge>
                 </div>
+
+                {appointmentMessage ? (
+                  <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+                    {appointmentMessage}
+                  </div>
+                ) : null}
+
                 <div className="mt-7">
-                  <EmptyAppointments />
+                  {appointments.length === 0 ? (
+                    <EmptyAppointments />
+                  ) : (
+                    <div className="space-y-4">
+                      {appointments.map((appointment) => (
+                        <article className="rounded-[1.75rem] border border-zinc-200 p-5 sm:p-6" key={appointment.id}>
+                          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-lg font-semibold text-zinc-950">
+                                  {appointment.first_name} {appointment.last_name}
+                                </h3>
+                                <StatusBadge
+                                  tone={
+                                    appointment.status === "confirmed"
+                                      ? "green"
+                                      : appointment.status === "new"
+                                        ? "purple"
+                                        : "neutral"
+                                  }
+                                >
+                                  {appointment.status === "new"
+                                    ? "Nuova"
+                                    : appointment.status === "confirmed"
+                                      ? "Confermata"
+                                      : appointment.status === "cancelled"
+                                        ? "Annullata"
+                                        : "Completata"}
+                                </StatusBadge>
+                              </div>
+                              <p className="mt-2 text-sm text-zinc-600">
+                                {appointment.appointment_date} · {appointment.appointment_time.slice(0, 5)} ·{" "}
+                                {appointment.mode === "online" ? "Online" : "In presenza"}
+                              </p>
+                              <p className="mt-2 text-sm text-zinc-500">
+                                {appointment.email} · {appointment.phone}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {appointment.status === "new" ? (
+                                <>
+                                  <button
+                                    className="rounded-full border-[1.5px] border-black bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+                                    disabled={updatingAppointment === appointment.id}
+                                    onClick={() => void updateAppointment(appointment.id, "confirmed")}
+                                    type="button"
+                                  >
+                                    {updatingAppointment === appointment.id ? "Aggiornamento…" : "Conferma"}
+                                  </button>
+                                  <button
+                                    className="rounded-full border-[1.5px] border-black px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-40"
+                                    disabled={updatingAppointment === appointment.id}
+                                    onClick={() => void updateAppointment(appointment.id, "cancelled")}
+                                    type="button"
+                                  >
+                                    Annulla
+                                  </button>
+                                </>
+                              ) : null}
+
+                              {appointment.status === "confirmed" ? (
+                                <>
+                                  <button
+                                    className="rounded-full border-[1.5px] border-black bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+                                    disabled={updatingAppointment === appointment.id}
+                                    onClick={() => void updateAppointment(appointment.id, "completed")}
+                                    type="button"
+                                  >
+                                    Segna completato
+                                  </button>
+                                  <button
+                                    className="rounded-full border-[1.5px] border-black px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-40"
+                                    disabled={updatingAppointment === appointment.id}
+                                    onClick={() => void updateAppointment(appointment.id, "cancelled")}
+                                    type="button"
+                                  >
+                                    Annulla
+                                  </button>
+                                </>
+                              ) : null}
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -506,20 +650,24 @@ export default function AdminPage() {
                   <article className="rounded-[2rem] border border-zinc-200 p-6">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-lg font-semibold text-zinc-950">Google Calendar</h3>
-                      <StatusBadge tone="orange">Non collegato</StatusBadge>
+                      <StatusBadge tone={calendarConnected ? "green" : "orange"}>
+                        {calendarConnected ? "Collegato" : "Non collegato"}
+                      </StatusBadge>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-zinc-600">
-                      Servirà per leggere le disponibilità e creare gli appuntamenti confermati.
+                      {calendarConnected
+                        ? "Il sito può leggere gli orari occupati e sincronizzare gli appuntamenti confermati."
+                        : "Servirà per leggere le disponibilità e creare gli appuntamenti confermati."}
                     </p>
                   </article>
 
                   <article className="rounded-[2rem] border border-zinc-200 p-6">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-lg font-semibold text-zinc-950">Accesso dashboard</h3>
-                      <StatusBadge>Da configurare</StatusBadge>
+                      <StatusBadge tone="green">Attivo</StatusBadge>
                     </div>
                     <p className="mt-3 text-sm leading-6 text-zinc-600">
-                      Prima della pubblicazione attiveremo un login privato e proteggeremo completamente /admin.
+                      L’area riservata è protetta e accessibile solo all’account amministratore autorizzato.
                     </p>
                   </article>
                 </div>
