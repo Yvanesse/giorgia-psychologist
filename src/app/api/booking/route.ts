@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
 
+import {
+  bookingSlotRange,
+  isAllowedBookingDate,
+  isAllowedBookingTime,
+} from "@/lib/booking-schedule";
+import {
+  getBusyPeriods,
+  isGoogleCalendarConfigured,
+  overlapsBusyPeriod,
+} from "@/lib/google-calendar";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type BookingPayload = {
@@ -39,9 +49,22 @@ async function saveBooking(payload: Required<BookingPayload>) {
     status: "new",
   });
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === "23505") {
+      return { configured: true, saved: false, slotTaken: true };
+    }
+    throw error;
+  }
 
-  return { configured: true, saved: true };
+  return { configured: true, saved: true, slotTaken: false };
+}
+
+async function ensureCalendarAvailability(payload: Required<BookingPayload>) {
+  if (!isGoogleCalendarConfigured()) return true;
+
+  const { start, end } = bookingSlotRange(payload.date, payload.time);
+  const busy = await getBusyPeriods(start.toISOString(), end.toISOString());
+  return !overlapsBusyPeriod(start, end, busy);
 }
 
 async function sendEmailNotification(payload: Required<BookingPayload>) {
@@ -127,8 +150,10 @@ export async function POST(request: Request) {
   if (
     !payload.date ||
     !/^\d{4}-\d{2}-\d{2}$/.test(payload.date) ||
+    !isAllowedBookingDate(payload.date) ||
     !payload.time ||
     !/^\d{2}:\d{2}$/.test(payload.time) ||
+    !isAllowedBookingTime(payload.time) ||
     !payload.firstName ||
     !payload.lastName ||
     !isValidEmail(payload.email) ||
@@ -141,7 +166,22 @@ export async function POST(request: Request) {
   }
 
   try {
+    const calendarAvailable = await ensureCalendarAvailability(payload);
+    if (!calendarAvailable) {
+      return NextResponse.json(
+        { message: "Questo orario non è più disponibile. Scegli un altro slot." },
+        { status: 409 },
+      );
+    }
+
     const bookingResult = await saveBooking(payload);
+
+    if ("slotTaken" in bookingResult && bookingResult.slotTaken) {
+      return NextResponse.json(
+        { message: "Questo orario è appena stato richiesto. Scegli un altro slot." },
+        { status: 409 },
+      );
+    }
     const [emailResult, smsResult] = await Promise.all([
       sendEmailNotification(payload),
       sendSmsNotification(payload),
