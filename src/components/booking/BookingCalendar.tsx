@@ -351,13 +351,43 @@ export function BookingCalendar() {
       </div>
 
       <Card as="section" variant="bordered" className="h-fit min-w-0 max-w-full lg:sticky lg:top-28">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">Dati per la richiesta</p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Completa la prenotazione</h2>
-        <p className="mt-3 text-base leading-7 text-ink-soft">
-          In questa fase il calendario è in modalità test. La richiesta viene inviata, ma lo slot non viene ancora bloccato in un calendario reale.
-        </p>
+        {status === "success" ? (
+          <div className="py-4 text-center sm:py-8" role="status" aria-live="polite">
+            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 text-3xl font-semibold text-emerald-700">
+              ✓
+            </div>
+            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Richiesta ricevuta</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">Richiesta inviata con successo</h2>
+            <p className="mx-auto mt-4 max-w-md text-base leading-7 text-ink-soft">
+              La richiesta è stata registrata correttamente. Non è necessario inviarla di nuovo.
+            </p>
 
-        <form className="mt-6 min-w-0 space-y-4" onSubmit={submitBooking}>
+            {selectedDate && selectedTime ? (
+              <div className="mx-auto mt-6 max-w-md rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-left">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Riepilogo richiesta</p>
+                <p className="mt-2 font-semibold capitalize text-ink">{fullDateFormatter.format(selectedDate)}</p>
+                <p className="mt-1 text-sm leading-6 text-ink-soft">
+                  {selectedTime} · {mode === "online" ? "Online" : "In presenza"}
+                </p>
+                <div className="mt-4 border-t border-emerald-200 pt-4 text-sm leading-6 text-ink-soft">
+                  <strong className="text-ink">Stato:</strong> in attesa di conferma.
+                </div>
+              </div>
+            ) : null}
+
+            <p className="mx-auto mt-6 max-w-md text-sm leading-6 text-ink-muted">
+              Giorgia potrà gestire la richiesta dalla sua area riservata.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">Dati per la richiesta</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Completa la prenotazione</h2>
+            <p className="mt-3 text-base leading-7 text-ink-soft">
+              In questa fase il calendario è in modalità test. La richiesta viene inviata, ma lo slot non viene ancora bloccato in un calendario reale.
+            </p>
+
+            <form className="mt-6 min-w-0 space-y-4" onSubmit={submitBooking}>
           <div className="grid min-w-0 gap-4 sm:grid-cols-2">
             <label className="min-w-0 text-sm font-semibold text-ink">
               Nome
@@ -444,7 +474,9 @@ export function BookingCalendar() {
               {message}
             </p>
           ) : null}
-        </form>
+            </form>
+          </>
+        )}
       </Card>
     </div>
   );
