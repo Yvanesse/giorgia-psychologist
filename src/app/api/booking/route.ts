@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { createAdminClient } from "@/lib/supabase/admin";
+
 type BookingPayload = {
   mode?: "in-presenza" | "online";
   date?: string;
@@ -22,12 +24,32 @@ function safe(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+async function saveBooking(payload: Required<BookingPayload>) {
+  const supabase = createAdminClient();
+  if (!supabase) return { configured: false, saved: false };
+
+  const { error } = await supabase.from("appointment_requests").insert({
+    mode: payload.mode,
+    appointment_date: payload.date,
+    appointment_time: payload.time,
+    first_name: payload.firstName,
+    last_name: payload.lastName,
+    email: payload.email,
+    phone: payload.phone,
+    status: "new",
+  });
+
+  if (error) throw error;
+
+  return { configured: true, saved: true };
+}
+
 async function sendEmailNotification(payload: Required<BookingPayload>) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.BOOKING_NOTIFICATION_EMAIL;
   const from = process.env.BOOKING_FROM_EMAIL;
 
-  if (!apiKey || !to || !from) return false;
+  if (!apiKey || !to || !from) return { configured: false, sent: false };
 
   const subject = `Nuova richiesta di appuntamento — ${payload.firstName} ${payload.lastName}`;
   const text = [
@@ -50,7 +72,7 @@ async function sendEmailNotification(payload: Required<BookingPayload>) {
     body: JSON.stringify({ from, to: [to], subject, text, reply_to: payload.email }),
   });
 
-  return response.ok;
+  return { configured: true, sent: response.ok };
 }
 
 async function sendSmsNotification(payload: Required<BookingPayload>) {
@@ -59,7 +81,7 @@ async function sendSmsNotification(payload: Required<BookingPayload>) {
   const from = process.env.TWILIO_FROM_NUMBER;
   const to = process.env.BOOKING_NOTIFICATION_PHONE;
 
-  if (!accountSid || !authToken || !from || !to) return false;
+  if (!accountSid || !authToken || !from || !to) return { configured: false, sent: false };
 
   const body = `Nuova richiesta: ${payload.firstName} ${payload.lastName}, ${payload.date} ${payload.time}, ${
     payload.mode === "online" ? "online" : "in presenza"
@@ -80,7 +102,7 @@ async function sendSmsNotification(payload: Required<BookingPayload>) {
     },
   );
 
-  return response.ok;
+  return { configured: true, sent: response.ok };
 }
 
 export async function POST(request: Request) {
@@ -119,26 +141,36 @@ export async function POST(request: Request) {
   }
 
   try {
-    const [emailSent, smsSent] = await Promise.all([
+    const bookingResult = await saveBooking(payload);
+    const [emailResult, smsResult] = await Promise.all([
       sendEmailNotification(payload),
       sendSmsNotification(payload),
     ]);
 
-    const notificationsConfigured = Boolean(
-      process.env.BOOKING_NOTIFICATION_EMAIL || process.env.BOOKING_NOTIFICATION_PHONE,
-    );
+    const anyNotificationConfigured = emailResult.configured || smsResult.configured;
+    const notificationSent = emailResult.sent || smsResult.sent;
 
-    if (notificationsConfigured && !emailSent && !smsSent) {
+    if (anyNotificationConfigured && !notificationSent) {
       return NextResponse.json(
-        { message: "La richiesta è valida, ma le notifiche di test non sono state inviate. Controlla la configurazione Vercel." },
-        { status: 502 },
+        {
+          message: bookingResult.saved
+            ? "La richiesta è stata salvata, ma la notifica non è partita. Verrà comunque visualizzata in dashboard."
+            : "La richiesta è valida, ma le notifiche non sono state inviate. Controlla la configurazione Vercel.",
+        },
+        { status: bookingResult.saved ? 202 : 502 },
       );
     }
 
+    if (bookingResult.saved) {
+      return NextResponse.json({
+        message: notificationSent
+          ? "Richiesta inviata correttamente."
+          : "Richiesta registrata correttamente.",
+      });
+    }
+
     return NextResponse.json({
-      message: notificationsConfigured
-        ? "Richiesta inviata. La notifica di test è stata inoltrata."
-        : "Richiesta registrata in modalità test. Le notifiche non sono ancora configurate.",
+      message: "Richiesta registrata in modalità test. Il database non è ancora configurato.",
     });
   } catch {
     return NextResponse.json(
