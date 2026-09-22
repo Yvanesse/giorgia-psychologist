@@ -279,6 +279,15 @@ export default function AdminPage() {
                 Attivare accesso privato, database e sincronizzazione con Google Calendar.
               </p>
             </div>
+
+            <form action="/api/admin/logout" className="mt-4" method="post">
+              <button
+                className="flex min-h-11 w-full items-center justify-center rounded-2xl border border-white/15 px-4 text-sm font-semibold text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
+                type="submit"
+              >
+                Esci dalla dashboard
+              </button>
+            </form>
           </aside>
 
           <section className="min-w-0 rounded-[2rem] border border-zinc-200 bg-white p-5 sm:p-7 lg:p-9">
