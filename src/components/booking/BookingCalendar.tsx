@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button, Card } from "@/components/ui";
 
@@ -88,7 +88,14 @@ function buildMonths(firstMonth: Date, lastMonth: Date) {
 
 export function BookingCalendar() {
   const availableDays = useMemo(() => buildTestDays(), []);
-  const availableDates = useMemo(() => new Set(availableDays.map(toIsoDate)), [availableDays]);
+  const [availability, setAvailability] = useState<Record<string, string[]>>(() =>
+    Object.fromEntries(availableDays.map((date) => [toIsoDate(date), [...TEST_SLOTS]])),
+  );
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const availableDates = useMemo(
+    () => new Set(Object.entries(availability).filter(([, slots]) => slots.length > 0).map(([date]) => date)),
+    [availability],
+  );
   const firstAvailableMonth = useMemo(() => firstDayOfMonth(availableDays[0]), [availableDays]);
   const lastAvailableMonth = useMemo(
     () => firstDayOfMonth(availableDays[availableDays.length - 1]),
@@ -110,8 +117,42 @@ export function BookingCalendar() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAvailability() {
+      try {
+        const response = await fetch("/api/booking/availability", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          calendarConfigured?: boolean;
+          dates?: Array<{ date: string; availableSlots: string[] }>;
+        };
+
+        if (cancelled || !data.dates) return;
+
+        setAvailability(
+          Object.fromEntries(data.dates.map((item) => [item.date, item.availableSlots])),
+        );
+        setCalendarConnected(Boolean(data.calendarConfigured));
+      } catch {
+        // Keep the safe fallback schedule if live availability is temporarily unavailable.
+      }
+    }
+
+    void loadAvailability();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
   const canGoBack = monthIndex > 0;
   const canGoForward = monthIndex < months.length - 1;
+  const selectedDateKey = selectedDate ? toIsoDate(selectedDate) : null;
+  const availableTimes = selectedDateKey ? availability[selectedDateKey] ?? [] : [];
 
   function goToMonth(nextIndex: number) {
     const clampedIndex = Math.max(0, Math.min(nextIndex, months.length - 1));
@@ -218,12 +259,16 @@ export function BookingCalendar() {
         <section className="min-w-0" aria-labelledby="booking-date-title">
           <div className="flex min-w-0 flex-wrap items-end justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">Calendario di test</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">
+                {calendarConnected ? "Disponibilità" : "Calendario"}
+              </p>
               <h2 id="booking-date-title" className="mt-2 text-2xl font-semibold tracking-tight text-ink">
                 Scegli un giorno
               </h2>
             </div>
-            <p className="text-sm text-ink-muted">Disponibilità provvisorie</p>
+            <p className="text-sm text-ink-muted">
+              {calendarConnected ? "Sincronizzato con Google Calendar" : "Disponibilità attuali"}
+            </p>
           </div>
 
           <div className="mt-5 w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-border bg-white p-3 sm:p-5">
@@ -326,7 +371,7 @@ export function BookingCalendar() {
             </h2>
             <p className="mt-2 capitalize text-base text-ink-soft">{fullDateFormatter.format(selectedDate)}</p>
             <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4">
-              {TEST_SLOTS.map((time) => {
+              {availableTimes.map((time) => {
                 const active = selectedTime === time;
                 return (
                   <button
