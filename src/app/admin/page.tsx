@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { articlesContent } from "@/data/articles";
 
@@ -12,6 +12,18 @@ type ArticleDraft = {
   category: string;
   excerpt: string;
   status: "Bozza" | "Pubblicato";
+};
+
+type Appointment = {
+  id: string;
+  mode: "in-presenza" | "online";
+  appointment_date: string;
+  appointment_time: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  status: "new" | "confirmed" | "cancelled" | "completed";
 };
 
 const navItems: Array<{ id: AdminView; label: string; icon: string }> = [
@@ -92,26 +104,120 @@ export default function AdminPage() {
     category: "",
     excerpt: "",
   });
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [databaseConnected, setDatabaseConnected] = useState(false);
+  const [savingArticle, setSavingArticle] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDashboardData() {
+      try {
+        const [articlesResponse, appointmentsResponse] = await Promise.all([
+          fetch("/api/admin/articles", { cache: "no-store" }),
+          fetch("/api/admin/appointments", { cache: "no-store" }),
+        ]);
+
+        if (cancelled || !articlesResponse.ok || !appointmentsResponse.ok) return;
+
+        const articlesData = (await articlesResponse.json()) as {
+          items?: Array<{
+            id: string;
+            title: string;
+            category: string;
+            excerpt: string;
+            status: "draft" | "published";
+          }>;
+        };
+        const appointmentsData = (await appointmentsResponse.json()) as { items?: Appointment[] };
+
+        if (articlesData.items) {
+          setDrafts(
+            articlesData.items.map((article) => ({
+              id: article.id,
+              title: article.title,
+              category: article.category,
+              excerpt: article.excerpt,
+              status: article.status === "published" ? "Pubblicato" : "Bozza",
+            })),
+          );
+        }
+
+        setAppointments(appointmentsData.items ?? []);
+        setDatabaseConnected(true);
+      } catch {
+        // The preview keeps its local demo data until Supabase is configured.
+      }
+    }
+
+    void loadDashboardData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const publishedCount = useMemo(() => drafts.filter((article) => article.status === "Pubblicato").length, [drafts]);
   const draftCount = drafts.length - publishedCount;
 
-  const saveLocalDraft = () => {
+  const saveDraft = async () => {
     const title = form.title.trim();
-    if (!title) return;
+    if (!title || savingArticle) return;
 
-    setDrafts((current) => [
-      {
-        id: `local-${Date.now()}`,
-        title,
-        category: form.category.trim() || "Senza categoria",
-        excerpt: form.excerpt.trim() || "Nessuna introduzione inserita.",
-        status: "Bozza",
-      },
-      ...current,
-    ]);
-    setForm({ title: "", category: "", excerpt: "" });
-    setEditorOpen(false);
+    setSavingArticle(true);
+
+    try {
+      const response = await fetch("/api/admin/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          category: form.category,
+          excerpt: form.excerpt,
+          status: "draft",
+        }),
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as {
+          item: {
+            id: string;
+            title: string;
+            category: string;
+            excerpt: string;
+            status: "draft" | "published";
+          };
+        };
+
+        setDrafts((current) => [
+          {
+            id: data.item.id,
+            title: data.item.title,
+            category: data.item.category,
+            excerpt: data.item.excerpt,
+            status: data.item.status === "published" ? "Pubblicato" : "Bozza",
+          },
+          ...current,
+        ]);
+        setDatabaseConnected(true);
+      } else {
+        setDrafts((current) => [
+          {
+            id: `local-${Date.now()}`,
+            title,
+            category: form.category.trim() || "Senza categoria",
+            excerpt: form.excerpt.trim() || "Nessuna introduzione inserita.",
+            status: "Bozza",
+          },
+          ...current,
+        ]);
+      }
+
+      setForm({ title: "", category: "", excerpt: "" });
+      setEditorOpen(false);
+    } finally {
+      setSavingArticle(false);
+    }
   };
 
   const pageTitle =
@@ -128,9 +234,12 @@ export default function AdminPage() {
       <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:px-5">
           <span>
-            <strong>Dashboard in anteprima.</strong> Le modifiche agli articoli restano solo sul dispositivo e gli appuntamenti non sono ancora sincronizzati.
+            <strong>{databaseConnected ? "Dashboard collegata." : "Dashboard in anteprima."}</strong>{" "}
+            {databaseConnected
+              ? "Articoli e richieste vengono letti dal database."
+              : "Il database non è ancora attivo: i dati mostrati restano dimostrativi."}
           </span>
-          <StatusBadge tone="orange">Fase 1</StatusBadge>
+          <StatusBadge tone={databaseConnected ? "green" : "orange"}>{databaseConnected ? "Database attivo" : "Fase 1"}</StatusBadge>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)]">
@@ -187,8 +296,8 @@ export default function AdminPage() {
             {view === "overview" ? (
               <div className="pt-7">
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  <StatCard label="Appuntamenti" value="0" note="In attesa del collegamento Calendar" accent="bg-[#5b35f5]" />
-                  <StatCard label="Richieste nuove" value="0" note="Il database verrà collegato nella fase 2" accent="bg-[#d36e59]" />
+                  <StatCard label="Appuntamenti" value={String(appointments.length)} note={databaseConnected ? "Richieste salvate nel database" : "In attesa del collegamento database"} accent="bg-[#5b35f5]" />
+                  <StatCard label="Richieste nuove" value={String(appointments.filter((appointment) => appointment.status === "new").length)} note={databaseConnected ? "Da gestire dalla dashboard" : "Il database verrà collegato nella fase 2"} accent="bg-[#d36e59]" />
                   <StatCard label="Articoli pubblicati" value={String(publishedCount)} note="Visibili nella sezione Articoli" accent="bg-[#5d8f6f]" />
                   <StatCard label="Bozze" value={String(draftCount)} note="Contenuti editoriali da completare" accent="bg-zinc-900" />
                 </div>
@@ -209,7 +318,27 @@ export default function AdminPage() {
                       </button>
                     </div>
                     <div className="mt-6">
-                      <EmptyAppointments />
+                      {appointments.length === 0 ? (
+                        <EmptyAppointments />
+                      ) : (
+                        <div className="space-y-3">
+                          {appointments.slice(0, 5).map((appointment) => (
+                            <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between" key={appointment.id}>
+                              <div>
+                                <p className="font-semibold text-zinc-950">
+                                  {appointment.first_name} {appointment.last_name}
+                                </p>
+                                <p className="mt-1 text-sm text-zinc-500">
+                                  {appointment.appointment_date} · {appointment.appointment_time.slice(0, 5)} · {appointment.mode === "online" ? "Online" : "In presenza"}
+                                </p>
+                              </div>
+                              <StatusBadge tone={appointment.status === "confirmed" ? "green" : "purple"}>
+                                {appointment.status === "new" ? "Nuova" : appointment.status === "confirmed" ? "Confermata" : appointment.status}
+                              </StatusBadge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </article>
 
@@ -322,13 +451,13 @@ export default function AdminPage() {
                     <div className="mt-5 flex flex-wrap items-center gap-3">
                       <button
                         className="rounded-full border-[1.5px] border-black bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
-                        disabled={!form.title.trim()}
-                        onClick={saveLocalDraft}
+                        disabled={!form.title.trim() || savingArticle}
+                        onClick={() => void saveDraft()}
                         type="button"
                       >
-                        Salva bozza
+                        {savingArticle ? "Salvataggio…" : "Salva bozza"}
                       </button>
-                      <p className="text-xs leading-5 text-zinc-500">Per ora il salvataggio è solo locale e serve a provare il flusso.</p>
+                      <p className="text-xs leading-5 text-zinc-500">{databaseConnected ? "La bozza viene salvata nel database." : "Finché Supabase non è configurato, la bozza resta solo locale."}</p>
                     </div>
                   </div>
                 ) : null}
