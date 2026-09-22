@@ -453,22 +453,16 @@ export function BookingCalendar() {
 
           <Button
             className="w-full max-w-full"
-            disabled={!canSubmit || status === "submitting" || status === "success"}
+            disabled={!canSubmit || status === "submitting"}
             size="lg"
             type="submit"
           >
-            {status === "submitting"
-              ? "Invio in corso…"
-              : status === "success"
-                ? "Richiesta inviata"
-                : "Invia richiesta"}
+            {status === "submitting" ? "Invio in corso…" : "Invia richiesta"}
           </Button>
 
           {message ? (
             <p
-              className={`min-w-0 rounded-2xl p-4 text-sm leading-6 ${
-                status === "success" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"
-              }`}
+              className="min-w-0 rounded-2xl bg-red-50 p-4 text-sm leading-6 text-red-800"
               role="status"
             >
               {message}
