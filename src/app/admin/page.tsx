@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { ArticleContentEditor } from "@/components/articles/ArticleContentEditor";
 import { articlesContent } from "@/data/articles";
 
 type AdminView = "overview" | "appointments" | "articles" | "settings";
@@ -13,6 +14,7 @@ type ArticleDraft = {
   category: string;
   excerpt: string;
   content: string;
+  cover_image_url: string | null;
   status: "Bozza" | "Pubblicato";
   published_at?: string | null;
 };
@@ -98,6 +100,7 @@ export default function AdminPage() {
       category: article.category,
       excerpt: article.excerpt,
       content: "",
+      cover_image_url: null,
       status: article.isPublished ? "Pubblicato" : "Bozza",
       published_at: null,
     })),
@@ -107,12 +110,14 @@ export default function AdminPage() {
     category: "",
     excerpt: "",
     content: "",
+    coverImageUrl: "",
   });
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   const [articleMessage, setArticleMessage] = useState("");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [databaseConnected, setDatabaseConnected] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [calendarConnected, setCalendarConnected] = useState(false);
   const [updatingAppointment, setUpdatingAppointment] = useState<string | null>(null);
   const [appointmentMessage, setAppointmentMessage] = useState("");
@@ -138,6 +143,7 @@ export default function AdminPage() {
             category: string;
             excerpt: string;
             content: string;
+            cover_image_url?: string | null;
             status: "draft" | "published";
             published_at?: string | null;
           }>;
@@ -156,6 +162,7 @@ export default function AdminPage() {
               category: article.category,
               excerpt: article.excerpt,
               content: article.content,
+              cover_image_url: article.cover_image_url ?? null,
               status: article.status === "published" ? "Pubblicato" : "Bozza",
               published_at: article.published_at ?? null,
             })),
@@ -185,7 +192,7 @@ export default function AdminPage() {
   );
 
   function resetArticleEditor() {
-    setForm({ title: "", category: "", excerpt: "", content: "" });
+    setForm({ title: "", category: "", excerpt: "", content: "", coverImageUrl: "" });
     setEditingArticleId(null);
     setEditorOpen(false);
   }
@@ -193,7 +200,7 @@ export default function AdminPage() {
   function openNewArticle() {
     setArticleMessage("");
     setEditingArticleId(null);
-    setForm({ title: "", category: "", excerpt: "", content: "" });
+    setForm({ title: "", category: "", excerpt: "", content: "", coverImageUrl: "" });
     setEditorOpen(true);
   }
 
@@ -205,6 +212,7 @@ export default function AdminPage() {
       category: article.category,
       excerpt: article.excerpt,
       content: article.content,
+      coverImageUrl: article.cover_image_url ?? "",
     });
     setEditorOpen(true);
   }
@@ -231,6 +239,7 @@ export default function AdminPage() {
           category: form.category,
           excerpt: form.excerpt,
           content: form.content,
+          coverImageUrl: form.coverImageUrl,
           status,
         }),
       });
@@ -243,6 +252,7 @@ export default function AdminPage() {
           category: string;
           excerpt: string;
           content: string;
+          cover_image_url?: string | null;
           status: "draft" | "published";
           published_at?: string | null;
         };
@@ -261,6 +271,7 @@ export default function AdminPage() {
         category: data.item.category,
         excerpt: data.item.excerpt,
         content: data.item.content,
+        cover_image_url: data.item.cover_image_url ?? null,
         status: data.item.status === "published" ? "Pubblicato" : "Bozza",
         published_at: data.item.published_at ?? null,
       };
@@ -278,6 +289,36 @@ export default function AdminPage() {
       setArticleMessage("Non è stato possibile salvare l’articolo.");
     } finally {
       setSavingArticle(false);
+    }
+  };
+
+  const uploadCoverImage = async (file: File) => {
+    if (uploadingCover) return;
+
+    setUploadingCover(true);
+    setArticleMessage("");
+
+    try {
+      const body = new FormData();
+      body.append("file", file);
+
+      const response = await fetch("/api/admin/articles/image", {
+        method: "POST",
+        body,
+      });
+
+      const data = (await response.json()) as { url?: string; message?: string };
+      if (!response.ok || !data.url) {
+        setArticleMessage(data.message || "Non è stato possibile caricare l’immagine.");
+        return;
+      }
+
+      setForm((current) => ({ ...current, coverImageUrl: data.url! }));
+      setArticleMessage("Immagine di copertina caricata.");
+    } catch {
+      setArticleMessage("Non è stato possibile caricare l’immagine.");
+    } finally {
+      setUploadingCover(false);
     }
   };
 
@@ -308,6 +349,7 @@ export default function AdminPage() {
           category: string;
           excerpt: string;
           content: string;
+          cover_image_url?: string | null;
           status: "draft" | "published";
           published_at?: string | null;
         };
@@ -329,6 +371,7 @@ export default function AdminPage() {
                 category: data.item!.category,
                 excerpt: data.item!.excerpt,
                 content: data.item!.content,
+                cover_image_url: data.item!.cover_image_url ?? null,
                 status: data.item!.status === "published" ? "Pubblicato" : "Bozza",
                 published_at: data.item!.published_at ?? null,
               }
@@ -767,12 +810,52 @@ export default function AdminPage() {
                         />
                       </label>
 
+                      <div className="grid gap-2 text-sm font-semibold text-zinc-700">
+                        <span>Immagine di copertina</span>
+                        {form.coverImageUrl ? (
+                          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+                            <div
+                              aria-label="Anteprima immagine di copertina"
+                              className="aspect-[16/7] bg-cover bg-center"
+                              role="img"
+                              style={{ backgroundImage: `url("${form.coverImageUrl}")` }}
+                            />
+                            <div className="flex flex-wrap items-center justify-between gap-3 p-3">
+                              <span className="text-xs font-normal text-zinc-500">Immagine pronta per l’articolo.</span>
+                              <button
+                                className="text-xs font-semibold text-red-700"
+                                onClick={() => setForm((current) => ({ ...current, coverImageUrl: "" }))}
+                                type="button"
+                              >
+                                Rimuovi
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-8 text-center transition hover:border-primary">
+                            <span className="text-sm font-semibold text-zinc-800">
+                              {uploadingCover ? "Caricamento…" : "Carica immagine di copertina"}
+                            </span>
+                            <span className="mt-1 text-xs font-normal text-zinc-500">JPG, PNG o WEBP · massimo 5 MB</span>
+                            <input
+                              accept="image/jpeg,image/png,image/webp"
+                              className="sr-only"
+                              disabled={uploadingCover}
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                if (file) void uploadCoverImage(file);
+                                event.currentTarget.value = "";
+                              }}
+                              type="file"
+                            />
+                          </label>
+                        )}
+                      </div>
+
                       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
                         Testo dell’articolo
-                        <textarea
-                          className="min-h-[22rem] resize-y rounded-2xl border border-zinc-300 bg-white px-4 py-4 font-normal leading-7 outline-none focus:border-primary"
-                          onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
-                          placeholder={"Scrivi qui l’articolo.\n\nLascia una riga vuota per separare i paragrafi."}
+                        <ArticleContentEditor
+                          onChange={(content) => setForm((current) => ({ ...current, content }))}
                           value={form.content}
                         />
                       </label>
