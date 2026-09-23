@@ -155,14 +155,11 @@ export async function POST(request: Request) {
         { status: 409 },
       );
     }
-    const [adminEmailResult, smsResult] = await Promise.all([
+    const [adminEmailResult, patientEmailResult, smsResult] = await Promise.all([
       sendAdminBookingRequestNotification(payload),
+      sendPatientRequestReceived(payload).catch(() => ({ configured: true, sent: false })),
       sendSmsNotification(payload),
     ]);
-
-    // The patient receipt is best-effort while the Resend test sender is in use.
-    // Booking persistence and the admin notification must never depend on it.
-    void sendPatientRequestReceived(payload).catch(() => undefined);
 
     const anyNotificationConfigured = adminEmailResult.configured || smsResult.configured;
     const notificationSent = adminEmailResult.sent || smsResult.sent;
@@ -183,6 +180,7 @@ export async function POST(request: Request) {
         message: notificationSent
           ? "Richiesta inviata correttamente."
           : "Richiesta registrata correttamente.",
+        patientNotificationSent: patientEmailResult.sent,
       });
     }
 
