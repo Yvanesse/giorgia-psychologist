@@ -8,10 +8,13 @@ type AdminView = "overview" | "appointments" | "articles" | "settings";
 
 type ArticleDraft = {
   id: string;
+  slug: string;
   title: string;
   category: string;
   excerpt: string;
+  content: string;
   status: "Bozza" | "Pubblicato";
+  published_at?: string | null;
 };
 
 type Appointment = {
@@ -90,17 +93,23 @@ export default function AdminPage() {
   const [drafts, setDrafts] = useState<ArticleDraft[]>(
     articlesContent.items.map((article) => ({
       id: article.slug,
+      slug: article.slug,
       title: article.title,
       category: article.category,
       excerpt: article.excerpt,
+      content: "",
       status: article.isPublished ? "Pubblicato" : "Bozza",
+      published_at: null,
     })),
   );
   const [form, setForm] = useState({
     title: "",
     category: "",
     excerpt: "",
+    content: "",
   });
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  const [articleMessage, setArticleMessage] = useState("");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [databaseConnected, setDatabaseConnected] = useState(false);
   const [savingArticle, setSavingArticle] = useState(false);
@@ -124,10 +133,13 @@ export default function AdminPage() {
         const articlesData = (await articlesResponse.json()) as {
           items?: Array<{
             id: string;
+            slug: string;
             title: string;
             category: string;
             excerpt: string;
+            content: string;
             status: "draft" | "published";
+            published_at?: string | null;
           }>;
         };
         const appointmentsData = (await appointmentsResponse.json()) as { items?: Appointment[] };
@@ -139,10 +151,13 @@ export default function AdminPage() {
           setDrafts(
             articlesData.items.map((article) => ({
               id: article.id,
+              slug: article.slug,
               title: article.title,
               category: article.category,
               excerpt: article.excerpt,
+              content: article.content,
               status: article.status === "published" ? "Pubblicato" : "Bozza",
+              published_at: article.published_at ?? null,
             })),
           );
         }
@@ -169,61 +184,189 @@ export default function AdminPage() {
     [appointments],
   );
 
-  const saveDraft = async () => {
+  function resetArticleEditor() {
+    setForm({ title: "", category: "", excerpt: "", content: "" });
+    setEditingArticleId(null);
+    setEditorOpen(false);
+  }
+
+  function openNewArticle() {
+    setArticleMessage("");
+    setEditingArticleId(null);
+    setForm({ title: "", category: "", excerpt: "", content: "" });
+    setEditorOpen(true);
+  }
+
+  function openEditArticle(article: ArticleDraft) {
+    setArticleMessage("");
+    setEditingArticleId(article.id);
+    setForm({
+      title: article.title,
+      category: article.category,
+      excerpt: article.excerpt,
+      content: article.content,
+    });
+    setEditorOpen(true);
+  }
+
+  const saveArticle = async (status: "draft" | "published") => {
     const title = form.title.trim();
     if (!title || savingArticle) return;
 
+    if (status === "published" && !form.content.trim()) {
+      setArticleMessage("Inserisci il testo dell’articolo prima di pubblicarlo.");
+      return;
+    }
+
     setSavingArticle(true);
+    setArticleMessage("");
 
     try {
       const response = await fetch("/api/admin/articles", {
-        method: "POST",
+        method: editingArticleId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(editingArticleId ? { id: editingArticleId } : {}),
           title,
           category: form.category,
           excerpt: form.excerpt,
-          status: "draft",
+          content: form.content,
+          status,
         }),
       });
 
-      if (response.ok) {
-        const data = (await response.json()) as {
-          item: {
-            id: string;
-            title: string;
-            category: string;
-            excerpt: string;
-            status: "draft" | "published";
-          };
+      const data = (await response.json()) as {
+        item?: {
+          id: string;
+          slug: string;
+          title: string;
+          category: string;
+          excerpt: string;
+          content: string;
+          status: "draft" | "published";
+          published_at?: string | null;
         };
+        message?: string;
+      };
 
-        setDrafts((current) => [
-          {
-            id: data.item.id,
-            title: data.item.title,
-            category: data.item.category,
-            excerpt: data.item.excerpt,
-            status: data.item.status === "published" ? "Pubblicato" : "Bozza",
-          },
-          ...current,
-        ]);
-        setDatabaseConnected(true);
-      } else {
-        setDrafts((current) => [
-          {
-            id: `local-${Date.now()}`,
-            title,
-            category: form.category.trim() || "Senza categoria",
-            excerpt: form.excerpt.trim() || "Nessuna introduzione inserita.",
-            status: "Bozza",
-          },
-          ...current,
-        ]);
+      if (!response.ok || !data.item) {
+        setArticleMessage(data.message || "Non è stato possibile salvare l’articolo.");
+        return;
       }
 
-      setForm({ title: "", category: "", excerpt: "" });
-      setEditorOpen(false);
+      const saved: ArticleDraft = {
+        id: data.item.id,
+        slug: data.item.slug,
+        title: data.item.title,
+        category: data.item.category,
+        excerpt: data.item.excerpt,
+        content: data.item.content,
+        status: data.item.status === "published" ? "Pubblicato" : "Bozza",
+        published_at: data.item.published_at ?? null,
+      };
+
+      setDrafts((current) => {
+        const exists = current.some((article) => article.id === saved.id);
+        return exists
+          ? current.map((article) => (article.id === saved.id ? saved : article))
+          : [saved, ...current];
+      });
+      setDatabaseConnected(true);
+      resetArticleEditor();
+      setArticleMessage(status === "published" ? "Articolo pubblicato sul sito." : "Bozza salvata.");
+    } catch {
+      setArticleMessage("Non è stato possibile salvare l’articolo.");
+    } finally {
+      setSavingArticle(false);
+    }
+  };
+
+  const changeArticleStatus = async (article: ArticleDraft) => {
+    if (savingArticle) return;
+    const nextStatus = article.status === "Pubblicato" ? "draft" : "published";
+
+    if (nextStatus === "published" && !article.content.trim()) {
+      openEditArticle(article);
+      setArticleMessage("Aggiungi il testo dell’articolo prima di pubblicarlo.");
+      return;
+    }
+
+    setSavingArticle(true);
+    setArticleMessage("");
+
+    try {
+      const response = await fetch("/api/admin/articles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: article.id, status: nextStatus }),
+      });
+      const data = (await response.json()) as {
+        item?: {
+          id: string;
+          slug: string;
+          title: string;
+          category: string;
+          excerpt: string;
+          content: string;
+          status: "draft" | "published";
+          published_at?: string | null;
+        };
+        message?: string;
+      };
+
+      if (!response.ok || !data.item) {
+        setArticleMessage(data.message || "Non è stato possibile aggiornare l’articolo.");
+        return;
+      }
+
+      setDrafts((current) =>
+        current.map((item) =>
+          item.id === article.id
+            ? {
+                id: data.item!.id,
+                slug: data.item!.slug,
+                title: data.item!.title,
+                category: data.item!.category,
+                excerpt: data.item!.excerpt,
+                content: data.item!.content,
+                status: data.item!.status === "published" ? "Pubblicato" : "Bozza",
+                published_at: data.item!.published_at ?? null,
+              }
+            : item,
+        ),
+      );
+      setArticleMessage(nextStatus === "published" ? "Articolo pubblicato sul sito." : "Articolo riportato in bozza.");
+    } catch {
+      setArticleMessage("Non è stato possibile aggiornare l’articolo.");
+    } finally {
+      setSavingArticle(false);
+    }
+  };
+
+  const deleteArticle = async (article: ArticleDraft) => {
+    if (savingArticle || !window.confirm(`Eliminare “${article.title}”? L’operazione non può essere annullata.`)) return;
+
+    setSavingArticle(true);
+    setArticleMessage("");
+
+    try {
+      const response = await fetch("/api/admin/articles", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: article.id }),
+      });
+
+      const data = (await response.json()) as { ok?: boolean; message?: string };
+      if (!response.ok || !data.ok) {
+        setArticleMessage(data.message || "Non è stato possibile eliminare l’articolo.");
+        return;
+      }
+
+      setDrafts((current) => current.filter((item) => item.id !== article.id));
+      if (editingArticleId === article.id) resetArticleEditor();
+      setArticleMessage("Articolo eliminato.");
+    } catch {
+      setArticleMessage("Non è stato possibile eliminare l’articolo.");
     } finally {
       setSavingArticle(false);
     }
@@ -556,29 +699,37 @@ export default function AdminPage() {
                   <div>
                     <h2 className="text-2xl font-semibold tracking-[-0.035em] text-zinc-950">Gestione articoli</h2>
                     <p className="mt-2 text-sm leading-6 text-zinc-600 sm:text-base">
-                      Una base semplice per creare, modificare e in seguito pubblicare contenuti senza entrare nel codice.
+                      Scrivi, modifica e pubblica gli approfondimenti che compariranno nella sezione Articoli del sito.
                     </p>
                   </div>
                   <button
                     className="inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-black bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-strong"
-                    onClick={() => setEditorOpen(true)}
+                    onClick={openNewArticle}
                     type="button"
                   >
                     + Nuovo articolo
                   </button>
                 </div>
 
+                {articleMessage ? (
+                  <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+                    {articleMessage}
+                  </div>
+                ) : null}
+
                 {editorOpen ? (
                   <div className="mt-7 rounded-[2rem] border border-primary/20 bg-[#f8f6ff] p-5 sm:p-7">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm font-semibold text-primary">Editor</p>
-                        <h3 className="mt-1 text-xl font-semibold text-zinc-950">Nuova bozza</h3>
+                        <h3 className="mt-1 text-xl font-semibold text-zinc-950">
+                          {editingArticleId ? "Modifica articolo" : "Nuovo articolo"}
+                        </h3>
                       </div>
                       <button
                         aria-label="Chiudi editor"
                         className="flex size-10 items-center justify-center rounded-full border border-zinc-300 bg-white text-lg"
-                        onClick={() => setEditorOpen(false)}
+                        onClick={resetArticleEditor}
                         type="button"
                       >
                         ×
@@ -595,6 +746,7 @@ export default function AdminPage() {
                           value={form.title}
                         />
                       </label>
+
                       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
                         Categoria
                         <input
@@ -604,51 +756,115 @@ export default function AdminPage() {
                           value={form.category}
                         />
                       </label>
+
                       <label className="grid gap-2 text-sm font-semibold text-zinc-700">
                         Introduzione
                         <textarea
                           className="min-h-28 resize-y rounded-2xl border border-zinc-300 bg-white px-4 py-3 font-normal leading-6 outline-none focus:border-primary"
                           onChange={(event) => setForm((current) => ({ ...current, excerpt: event.target.value }))}
-                          placeholder="Una breve introduzione al contenuto"
+                          placeholder="Una breve introduzione che comparirà nella card dell’articolo"
                           value={form.excerpt}
+                        />
+                      </label>
+
+                      <label className="grid gap-2 text-sm font-semibold text-zinc-700">
+                        Testo dell’articolo
+                        <textarea
+                          className="min-h-[22rem] resize-y rounded-2xl border border-zinc-300 bg-white px-4 py-4 font-normal leading-7 outline-none focus:border-primary"
+                          onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
+                          placeholder={"Scrivi qui l’articolo.\n\nLascia una riga vuota per separare i paragrafi."}
+                          value={form.content}
                         />
                       </label>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
                       <button
-                        className="rounded-full border-[1.5px] border-black bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        className="rounded-full border-[1.5px] border-black px-5 py-2.5 text-sm font-semibold text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
                         disabled={!form.title.trim() || savingArticle}
-                        onClick={() => void saveDraft()}
+                        onClick={() => void saveArticle("draft")}
                         type="button"
                       >
                         {savingArticle ? "Salvataggio…" : "Salva bozza"}
                       </button>
-                      <p className="text-xs leading-5 text-zinc-500">{databaseConnected ? "La bozza viene salvata nel database." : "Finché Supabase non è configurato, la bozza resta solo locale."}</p>
+                      <button
+                        className="rounded-full border-[1.5px] border-black bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        disabled={!form.title.trim() || !form.content.trim() || savingArticle}
+                        onClick={() => void saveArticle("published")}
+                        type="button"
+                      >
+                        {savingArticle ? "Pubblicazione…" : "Pubblica"}
+                      </button>
+                      <p className="text-xs leading-5 text-zinc-500">
+                        “Pubblica” rende immediatamente l’articolo visibile nella pagina pubblica.
+                      </p>
                     </div>
                   </div>
                 ) : null}
 
-                <div className="mt-7 overflow-hidden rounded-[2rem] border border-zinc-200">
-                  <div className="hidden grid-cols-[minmax(0,1fr)_10rem_7rem] gap-4 border-b border-zinc-200 bg-zinc-50 px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500 sm:grid">
-                    <span>Articolo</span>
-                    <span>Categoria</span>
-                    <span>Stato</span>
-                  </div>
-                  <div className="divide-y divide-zinc-100">
-                    {drafts.map((article) => (
-                      <article className="grid gap-3 px-5 py-5 sm:grid-cols-[minmax(0,1fr)_10rem_7rem] sm:items-center sm:gap-4" key={article.id}>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-zinc-950">{article.title}</h3>
-                          <p className="mt-1 line-clamp-1 text-sm text-zinc-500">{article.excerpt}</p>
-                        </div>
-                        <p className="text-sm font-medium text-zinc-600">{article.category}</p>
-                        <div>
-                          <StatusBadge tone={article.status === "Pubblicato" ? "green" : "purple"}>{article.status}</StatusBadge>
+                <div className="mt-7 space-y-4">
+                  {drafts.length === 0 ? (
+                    <div className="rounded-[2rem] border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
+                      <p className="font-semibold text-zinc-950">Nessun articolo.</p>
+                      <p className="mt-2 text-sm text-zinc-500">Crea il primo articolo dalla dashboard.</p>
+                    </div>
+                  ) : (
+                    drafts.map((article) => (
+                      <article className="rounded-[1.75rem] border border-zinc-200 p-5 sm:p-6" key={article.id}>
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="text-lg font-semibold text-zinc-950">{article.title}</h3>
+                              <StatusBadge tone={article.status === "Pubblicato" ? "green" : "purple"}>
+                                {article.status}
+                              </StatusBadge>
+                            </div>
+                            <p className="mt-2 text-sm font-medium text-primary">{article.category}</p>
+                            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                              {article.excerpt || "Nessuna introduzione inserita."}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {article.status === "Pubblicato" ? (
+                              <a
+                                className="rounded-full border-[1.5px] border-black px-4 py-2 text-sm font-semibold text-zinc-950"
+                                href={`/articoli/${article.slug}`}
+                                rel="noreferrer"
+                                target="_blank"
+                              >
+                                Vedi sul sito
+                              </a>
+                            ) : null}
+                            <button
+                              className="rounded-full border-[1.5px] border-black px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-40"
+                              disabled={savingArticle}
+                              onClick={() => openEditArticle(article)}
+                              type="button"
+                            >
+                              Modifica
+                            </button>
+                            <button
+                              className="rounded-full border-[1.5px] border-black bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+                              disabled={savingArticle}
+                              onClick={() => void changeArticleStatus(article)}
+                              type="button"
+                            >
+                              {article.status === "Pubblicato" ? "Rimetti in bozza" : "Pubblica"}
+                            </button>
+                            <button
+                              className="rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-40"
+                              disabled={savingArticle}
+                              onClick={() => void deleteArticle(article)}
+                              type="button"
+                            >
+                              Elimina
+                            </button>
+                          </div>
                         </div>
                       </article>
-                    ))}
-                  </div>
+                    ))
+                  )}
                 </div>
               </div>
             ) : null}
