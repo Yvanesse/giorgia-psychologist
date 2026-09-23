@@ -36,7 +36,16 @@ export default async function ArticlesPage() {
             <Grid className="mt-8 lg:mt-10" columns={3}>
               {articles.map((article) => (
                 <Card className="overflow-hidden p-0" key={article.id} variant="bordered">
-                  <div aria-hidden="true" className="article-placeholder aspect-[16/10] border-b border-border" />
+                  {article.cover_image_url ? (
+                    <div
+                      aria-label={`Immagine di copertina di ${article.title}`}
+                      className="aspect-[16/10] border-b border-border bg-cover bg-center"
+                      role="img"
+                      style={{ backgroundImage: `url("${article.cover_image_url}")` }}
+                    />
+                  ) : (
+                    <div aria-hidden="true" className="article-placeholder aspect-[16/10] border-b border-border" />
+                  )}
                   <div className="p-6 sm:p-7">
                     <p className="text-sm font-semibold text-primary">
                       {article.category} · {estimateReadingTime(article.content)}
