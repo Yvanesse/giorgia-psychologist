@@ -37,7 +37,7 @@ async function requireAdmin() {
 }
 
 const articleSelect =
-  "id, slug, title, category, excerpt, content, status, published_at, created_at, updated_at";
+  "id, slug, title, category, excerpt, content, cover_image_url, status, published_at, created_at, updated_at";
 
 export async function GET() {
   try {
@@ -73,6 +73,7 @@ export async function POST(request: Request) {
       category?: string;
       excerpt?: string;
       content?: string;
+      coverImageUrl?: string;
       status?: "draft" | "published";
     };
 
@@ -80,6 +81,7 @@ export async function POST(request: Request) {
     const category = safe(input.category) || "Psicologia";
     const excerpt = safe(input.excerpt);
     const content = safe(input.content);
+    const coverImageUrl = safe(input.coverImageUrl);
     const status = input.status === "published" ? "published" : "draft";
 
     if (!title) {
@@ -104,6 +106,7 @@ export async function POST(request: Request) {
         category,
         excerpt,
         content,
+        cover_image_url: coverImageUrl || null,
         status,
         author_id: user.id,
         published_at: status === "published" ? new Date().toISOString() : null,
@@ -133,6 +136,7 @@ export async function PATCH(request: Request) {
       category?: string;
       excerpt?: string;
       content?: string;
+      coverImageUrl?: string;
       status?: "draft" | "published";
     };
 
@@ -156,6 +160,8 @@ export async function PATCH(request: Request) {
     const category = input.category === undefined ? existing.category : safe(input.category) || "Psicologia";
     const excerpt = input.excerpt === undefined ? existing.excerpt : safe(input.excerpt);
     const content = input.content === undefined ? existing.content : safe(input.content);
+    const coverImageUrl =
+      input.coverImageUrl === undefined ? existing.cover_image_url : safe(input.coverImageUrl) || null;
     const status = input.status === undefined ? existing.status : input.status === "published" ? "published" : "draft";
 
     if (!title) {
@@ -181,6 +187,7 @@ export async function PATCH(request: Request) {
         category,
         excerpt,
         content,
+        cover_image_url: coverImageUrl,
         status,
         published_at: publishedAt,
         updated_at: new Date().toISOString(),
