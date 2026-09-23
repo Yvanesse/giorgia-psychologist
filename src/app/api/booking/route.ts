@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
 import {
+  sendAdminBookingRequestNotification,
+  sendPatientRequestReceived,
+} from "@/lib/booking-email";
+import {
   bookingSlotRange,
   isAllowedBookingDate,
   isAllowedBookingTime,
@@ -65,37 +69,6 @@ async function ensureCalendarAvailability(payload: Required<BookingPayload>) {
   const { start, end } = bookingSlotRange(payload.date, payload.time);
   const busy = await getBusyPeriods(start.toISOString(), end.toISOString());
   return !overlapsBusyPeriod(start, end, busy);
-}
-
-async function sendEmailNotification(payload: Required<BookingPayload>) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.BOOKING_NOTIFICATION_EMAIL;
-  const from = process.env.BOOKING_FROM_EMAIL;
-
-  if (!apiKey || !to || !from) return { configured: false, sent: false };
-
-  const subject = `Nuova richiesta di appuntamento — ${payload.firstName} ${payload.lastName}`;
-  const text = [
-    "Nuova richiesta di appuntamento",
-    "",
-    `Nome: ${payload.firstName} ${payload.lastName}`,
-    `Email: ${payload.email}`,
-    `Telefono: ${payload.phone}`,
-    `Modalità: ${payload.mode === "online" ? "Online" : "In presenza"}`,
-    `Data: ${payload.date}`,
-    `Ora: ${payload.time}`,
-  ].join("\n");
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ from, to: [to], subject, text, reply_to: payload.email }),
-  });
-
-  return { configured: true, sent: response.ok };
 }
 
 async function sendSmsNotification(payload: Required<BookingPayload>) {
@@ -182,13 +155,17 @@ export async function POST(request: Request) {
         { status: 409 },
       );
     }
-    const [emailResult, smsResult] = await Promise.all([
-      sendEmailNotification(payload),
+    const [adminEmailResult, smsResult] = await Promise.all([
+      sendAdminBookingRequestNotification(payload),
       sendSmsNotification(payload),
     ]);
 
-    const anyNotificationConfigured = emailResult.configured || smsResult.configured;
-    const notificationSent = emailResult.sent || smsResult.sent;
+    // The patient receipt is best-effort while the Resend test sender is in use.
+    // Booking persistence and the admin notification must never depend on it.
+    void sendPatientRequestReceived(payload).catch(() => undefined);
+
+    const anyNotificationConfigured = adminEmailResult.configured || smsResult.configured;
+    const notificationSent = adminEmailResult.sent || smsResult.sent;
 
     if (anyNotificationConfigured && !notificationSent) {
       return NextResponse.json(
