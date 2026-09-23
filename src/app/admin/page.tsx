@@ -76,14 +76,10 @@ function EmptyAppointments() {
       <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-xl">
         ◷
       </div>
-      <h3 className="mt-5 text-xl font-semibold tracking-[-0.025em] text-zinc-950">Nessun appuntamento sincronizzato</h3>
+      <h3 className="mt-5 text-xl font-semibold tracking-[-0.025em] text-zinc-950">Nessuna richiesta di appuntamento</h3>
       <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-zinc-600 sm:text-base">
-        Quando collegheremo Google Calendar, qui compariranno le richieste ricevute dal sito e gli appuntamenti confermati.
+        Le nuove richieste inviate dal sito compariranno qui e potranno essere confermate o annullate.
       </p>
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
-        <StatusBadge tone="orange">Google Calendar da collegare</StatusBadge>
-        <StatusBadge>Database da attivare</StatusBadge>
-      </div>
     </div>
   );
 }
@@ -168,6 +164,10 @@ export default function AdminPage() {
 
   const publishedCount = useMemo(() => drafts.filter((article) => article.status === "Pubblicato").length, [drafts]);
   const draftCount = drafts.length - publishedCount;
+  const pendingAppointmentsCount = useMemo(
+    () => appointments.filter((appointment) => appointment.status === "new").length,
+    [appointments],
+  );
 
   const saveDraft = async () => {
     const title = form.title.trim();
@@ -245,7 +245,12 @@ export default function AdminPage() {
         body: JSON.stringify({ id, status }),
       });
 
-      const data = (await response.json()) as { item?: Appointment; message?: string };
+      const data = (await response.json()) as {
+        item?: Appointment;
+        message?: string;
+        patientNotificationSent?: boolean;
+        patientNotificationConfigured?: boolean;
+      };
 
       if (!response.ok || !data.item) {
         setAppointmentMessage(data.message || "Non è stato possibile aggiornare l’appuntamento.");
@@ -257,9 +262,13 @@ export default function AdminPage() {
       );
       setAppointmentMessage(
         status === "confirmed"
-          ? "Appuntamento confermato e sincronizzato con Google Calendar."
+          ? data.patientNotificationSent
+            ? "Appuntamento confermato, sincronizzato con Google Calendar e email inviata al paziente."
+            : "Appuntamento confermato e sincronizzato con Google Calendar. L’email al paziente non è partita."
           : status === "cancelled"
-            ? "Appuntamento annullato."
+            ? data.patientNotificationSent
+              ? "Appuntamento annullato ed email inviata al paziente."
+              : "Appuntamento annullato. L’email al paziente non è partita."
             : "Appuntamento segnato come completato.",
       );
     } catch {
@@ -317,15 +326,20 @@ export default function AdminPage() {
                       {item.icon}
                     </span>
                     {item.label}
+                    {item.id === "appointments" && pendingAppointmentsCount > 0 ? (
+                      <span className="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-xs font-semibold text-white">
+                        {pendingAppointmentsCount}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
             </nav>
 
             <div className="mt-6 hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 lg:block">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Prossimo passo</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Sistema operativo</p>
               <p className="mt-2 text-sm leading-6 text-zinc-300">
-                Attivare accesso privato, database e sincronizzazione con Google Calendar.
+                Login, database e Google Calendar sono collegati. Le nuove richieste vengono gestite da qui.
               </p>
             </div>
 
@@ -402,12 +416,12 @@ export default function AdminPage() {
 
                   <article className="rounded-[2rem] border border-zinc-200 bg-[#f8f6ff] p-6 sm:p-7">
                     <p className="text-sm font-semibold text-primary-strong">Configurazione</p>
-                    <h2 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-zinc-950">Cosa manca per renderla operativa</h2>
+                    <h2 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-zinc-950">Integrazioni principali</h2>
                     <div className="mt-6 space-y-4">
                       {[
-                        ["Accesso privato", "Login riservato a Giorgia", "Da fare"],
-                        ["Google Calendar", "Disponibilità e sincronizzazione", "Da fare"],
-                        ["Database", "Appuntamenti e articoli persistenti", "Da fare"],
+                        ["Accesso privato", "Login riservato a Giorgia", "Attivo"],
+                        ["Google Calendar", "Disponibilità e sincronizzazione", calendarConnected ? "Attivo" : "Da verificare"],
+                        ["Database", "Appuntamenti e articoli persistenti", databaseConnected ? "Attivo" : "Da verificare"],
                       ].map(([title, description, status]) => (
                         <div className="flex gap-3 rounded-2xl bg-white p-4" key={title}>
                           <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/5 text-sm text-primary">✓</div>
@@ -415,7 +429,7 @@ export default function AdminPage() {
                             <p className="font-semibold text-zinc-950">{title}</p>
                             <p className="mt-1 text-sm leading-5 text-zinc-500">{description}</p>
                           </div>
-                          <StatusBadge>{status}</StatusBadge>
+                          <StatusBadge tone={status === "Attivo" ? "green" : "orange"}>{status}</StatusBadge>
                         </div>
                       ))}
                     </div>
