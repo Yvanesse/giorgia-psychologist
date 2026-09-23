@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { sendPatientAppointmentStatusNotification } from "@/lib/booking-email";
 import { bookingSlotRange } from "@/lib/booking-schedule";
 import {
   createCalendarAppointment,
@@ -71,7 +72,7 @@ export async function PATCH(request: Request) {
 
     const { data: appointment, error: appointmentError } = await context.supabase
       .from("appointment_requests")
-      .select("id, mode, appointment_date, appointment_time, status, google_event_id")
+      .select("id, mode, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id")
       .eq("id", input.id)
       .maybeSingle();
 
@@ -124,7 +125,20 @@ export async function PATCH(request: Request) {
         throw error;
       }
 
-      return NextResponse.json({ item: data });
+      const patientNotification = await sendPatientAppointmentStatusNotification({
+        status: "confirmed",
+        mode: data.mode,
+        date: data.appointment_date,
+        time: String(data.appointment_time).slice(0, 5),
+        firstName: data.first_name,
+        email: data.email,
+      }).catch(() => ({ configured: true, sent: false }));
+
+      return NextResponse.json({
+        item: data,
+        patientNotificationSent: patientNotification.sent,
+        patientNotificationConfigured: patientNotification.configured,
+      });
     }
 
     if (input.status === "cancelled" && appointment.google_event_id) {
@@ -149,6 +163,23 @@ export async function PATCH(request: Request) {
       .single();
 
     if (error) throw error;
+
+    if (input.status === "cancelled") {
+      const patientNotification = await sendPatientAppointmentStatusNotification({
+        status: "cancelled",
+        mode: data.mode,
+        date: data.appointment_date,
+        time: String(data.appointment_time).slice(0, 5),
+        firstName: data.first_name,
+        email: data.email,
+      }).catch(() => ({ configured: true, sent: false }));
+
+      return NextResponse.json({
+        item: data,
+        patientNotificationSent: patientNotification.sent,
+        patientNotificationConfigured: patientNotification.configured,
+      });
+    }
 
     return NextResponse.json({ item: data });
   } catch {
