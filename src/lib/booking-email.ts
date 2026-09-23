@@ -39,6 +39,10 @@ async function sendResendEmail(args: {
     }),
   });
 
+  if (!response.ok) {
+    console.warn("Resend email send failed", { status: response.status });
+  }
+
   return { configured: true, sent: response.ok };
 }
 
