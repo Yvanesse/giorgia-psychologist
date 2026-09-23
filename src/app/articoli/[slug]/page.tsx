@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ArticleContent } from "@/components/articles/ArticleContent";
 import { Button, Container, Heading, Section, Text } from "@/components/ui";
 import { estimateReadingTime, getPublishedArticleBySlug } from "@/lib/public-articles";
 
@@ -34,11 +35,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (!article) notFound();
 
-  const paragraphs = article.content
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
-
   return (
     <main id="main-content">
       <Section spacing="compact">
@@ -62,10 +58,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </Text>
             ) : null}
 
-            <div className="mt-10 space-y-6 text-[1.05rem] leading-8 text-ink-soft sm:text-lg sm:leading-8">
-              {paragraphs.map((paragraph, index) => (
-                <p key={`${article.id}-${index}`}>{paragraph}</p>
-              ))}
+            {article.cover_image_url ? (
+              <div
+                aria-label={`Immagine di copertina di ${article.title}`}
+                className="mt-10 aspect-[16/9] overflow-hidden rounded-[2rem] border border-border bg-cover bg-center"
+                role="img"
+                style={{ backgroundImage: `url("${article.cover_image_url}")` }}
+              />
+            ) : null}
+
+            <div className="mt-10">
+              <ArticleContent content={article.content} />
             </div>
 
             <div className="mt-12 border-t border-border pt-8">
