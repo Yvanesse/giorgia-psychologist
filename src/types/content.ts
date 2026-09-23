@@ -18,12 +18,25 @@ export type MediaAsset = {
 export type HeroContent = {
   readonly eyebrow: string | null;
   readonly title: string;
-  readonly highlight: string;
+  readonly highlight: string | null;
   readonly subtitle: string;
   readonly primaryCta: CallToAction;
   readonly secondaryCta: CallToAction;
   readonly image: MediaAsset;
   readonly isProvisional: boolean;
+};
+
+export type SectionContent<T> = {
+  readonly label?: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly items: readonly T[];
+};
+
+export type FinalCtaContent = {
+  readonly title: string;
+  readonly description: string;
+  readonly cta: CallToAction;
 };
 
 export type AboutContent = {

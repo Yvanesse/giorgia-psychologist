@@ -1,10 +1,16 @@
 import type { ArticlePreview } from "@/types/content";
 
 export const articlesContent: {
+  readonly label: string;
   readonly title: string;
+  readonly description: string;
+  readonly upcomingLabel: string;
   readonly items: readonly ArticlePreview[];
 } = {
+  label: "Articoli",
   title: "Pensieri e approfondimenti",
+  description: "Uno spazio editoriale dedicato alla psicologia, alle relazioni e ai cambiamenti.",
+  upcomingLabel: "Prossimamente",
   items: [
     {
       slug: "comprendere-ansia-oltre-sintomi",

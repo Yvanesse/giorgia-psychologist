@@ -11,9 +11,9 @@ type SectionProps<T extends ElementType = "section"> = {
 } & Omit<ComponentPropsWithoutRef<T>, "as" | "className">;
 
 const spacing: Record<SectionSpacing, string> = {
-  compact: "py-12 sm:py-16 lg:py-20",
-  default: "py-16 sm:py-24 lg:py-28",
-  spacious: "py-20 sm:py-28 lg:py-36",
+  compact: "py-10 sm:py-14 lg:py-16",
+  default: "py-14 sm:py-20 lg:py-24",
+  spacious: "py-16 sm:py-24 lg:py-28",
 };
 
 export function Section<T extends ElementType = "section">({

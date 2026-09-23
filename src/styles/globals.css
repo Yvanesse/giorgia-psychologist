@@ -23,6 +23,8 @@
 }
 
 html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -33,6 +35,49 @@ body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.section-label {
+  color: var(--color-primary-strong);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.hero-surface {
+  background-color: var(--color-surface);
+  background-image: radial-gradient(circle at 90% 12%, rgb(91 53 245 / 5%) 0, transparent 30rem);
+}
+
+.article-placeholder {
+  background-color: #f4f1fb;
+  background-image: linear-gradient(135deg, transparent 48%, rgb(91 53 245 / 9%) 48%, rgb(91 53 245 / 9%) 52%, transparent 52%);
+  background-size: 2rem 2rem;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  border-radius: 9999px;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid white;
+  outline-offset: 2px;
 }
 
 a {
@@ -49,4 +94,13 @@ select {
 
 ::selection {
   background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
