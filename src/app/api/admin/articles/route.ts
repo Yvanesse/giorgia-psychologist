@@ -13,6 +13,10 @@ function slugify(value: string) {
     .slice(0, 80);
 }
 
+function safe(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 async function requireAdmin() {
   const supabase = await createClient();
   const {
@@ -32,6 +36,9 @@ async function requireAdmin() {
   return { supabase, user, isAdmin: Boolean(membership) };
 }
 
+const articleSelect =
+  "id, slug, title, category, excerpt, content, status, published_at, created_at, updated_at";
+
 export async function GET() {
   try {
     const { supabase, isAdmin } = await requireAdmin();
@@ -42,7 +49,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("articles")
-      .select("id, slug, title, category, excerpt, content, status, published_at, created_at, updated_at")
+      .select(articleSelect)
       .order("updated_at", { ascending: false });
 
     if (error) throw error;
@@ -69,14 +76,21 @@ export async function POST(request: Request) {
       status?: "draft" | "published";
     };
 
-    const title = typeof input.title === "string" ? input.title.trim() : "";
-    const category = typeof input.category === "string" ? input.category.trim() : "";
-    const excerpt = typeof input.excerpt === "string" ? input.excerpt.trim() : "";
-    const content = typeof input.content === "string" ? input.content.trim() : "";
+    const title = safe(input.title);
+    const category = safe(input.category) || "Psicologia";
+    const excerpt = safe(input.excerpt);
+    const content = safe(input.content);
     const status = input.status === "published" ? "published" : "draft";
 
     if (!title) {
       return NextResponse.json({ message: "Inserisci un titolo." }, { status: 400 });
+    }
+
+    if (status === "published" && !content) {
+      return NextResponse.json(
+        { message: "Inserisci il testo dell’articolo prima di pubblicarlo." },
+        { status: 400 },
+      );
     }
 
     const baseSlug = slugify(title) || "articolo";
@@ -87,14 +101,14 @@ export async function POST(request: Request) {
       .insert({
         slug,
         title,
-        category: category || "Psicologia",
+        category,
         excerpt,
         content,
         status,
         author_id: user.id,
         published_at: status === "published" ? new Date().toISOString() : null,
       })
-      .select("id, slug, title, category, excerpt, content, status, published_at, created_at, updated_at")
+      .select(articleSelect)
       .single();
 
     if (error) throw error;
@@ -102,5 +116,108 @@ export async function POST(request: Request) {
     return NextResponse.json({ item: data }, { status: 201 });
   } catch {
     return NextResponse.json({ message: "Non è stato possibile salvare l’articolo." }, { status: 503 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { supabase, isAdmin } = await requireAdmin();
+
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Accesso non autorizzato." }, { status: 401 });
+    }
+
+    const input = (await request.json()) as {
+      id?: string;
+      title?: string;
+      category?: string;
+      excerpt?: string;
+      content?: string;
+      status?: "draft" | "published";
+    };
+
+    const id = safe(input.id);
+    if (!id) {
+      return NextResponse.json({ message: "Articolo non valido." }, { status: 400 });
+    }
+
+    const { data: existing, error: existingError } = await supabase
+      .from("articles")
+      .select(articleSelect)
+      .eq("id", id)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+    if (!existing) {
+      return NextResponse.json({ message: "Articolo non trovato." }, { status: 404 });
+    }
+
+    const title = input.title === undefined ? existing.title : safe(input.title);
+    const category = input.category === undefined ? existing.category : safe(input.category) || "Psicologia";
+    const excerpt = input.excerpt === undefined ? existing.excerpt : safe(input.excerpt);
+    const content = input.content === undefined ? existing.content : safe(input.content);
+    const status = input.status === undefined ? existing.status : input.status === "published" ? "published" : "draft";
+
+    if (!title) {
+      return NextResponse.json({ message: "Inserisci un titolo." }, { status: 400 });
+    }
+
+    if (status === "published" && !content) {
+      return NextResponse.json(
+        { message: "Inserisci il testo dell’articolo prima di pubblicarlo." },
+        { status: 400 },
+      );
+    }
+
+    const publishedAt =
+      status === "published"
+        ? existing.published_at || new Date().toISOString()
+        : null;
+
+    const { data, error } = await supabase
+      .from("articles")
+      .update({
+        title,
+        category,
+        excerpt,
+        content,
+        status,
+        published_at: publishedAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select(articleSelect)
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ item: data });
+  } catch {
+    return NextResponse.json({ message: "Non è stato possibile aggiornare l’articolo." }, { status: 503 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { supabase, isAdmin } = await requireAdmin();
+
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Accesso non autorizzato." }, { status: 401 });
+    }
+
+    const input = (await request.json()) as { id?: string };
+    const id = safe(input.id);
+
+    if (!id) {
+      return NextResponse.json({ message: "Articolo non valido." }, { status: 400 });
+    }
+
+    const { error } = await supabase.from("articles").delete().eq("id", id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ message: "Non è stato possibile eliminare l’articolo." }, { status: 503 });
   }
 }
