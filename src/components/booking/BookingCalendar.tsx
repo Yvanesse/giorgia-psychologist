@@ -13,6 +13,8 @@ type BookingForm = {
   phone: string;
 };
 
+type BookingFormErrors = Partial<Record<keyof BookingForm | "consent", string>>;
+
 const TEST_SLOTS = ["09:00", "11:00", "15:00", "17:00"] as const;
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
 
@@ -74,6 +76,14 @@ function buildMonthCells(month: Date) {
   return cells;
 }
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function isValidPhone(value: string) {
+  return /^[+\d][\d\s().-]{6,}$/.test(value.trim());
+}
+
 function buildMonths(firstMonth: Date, lastMonth: Date) {
   const months: Date[] = [];
   let cursor = firstDayOfMonth(firstMonth);
@@ -113,6 +123,7 @@ export function BookingCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [form, setForm] = useState<BookingForm>({ firstName: "", lastName: "", email: "", phone: "" });
+  const [formErrors, setFormErrors] = useState<BookingFormErrors>({});
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -173,20 +184,57 @@ export function BookingCalendar() {
     setMonthIndex(Math.max(0, Math.min(nextIndex, months.length - 1)));
   }
 
-  const canSubmit = Boolean(
-    selectedDate &&
-      selectedTime &&
-      form.firstName.trim() &&
-      form.lastName.trim() &&
-      form.email.trim() &&
-      form.phone.trim() &&
-      consent,
-  );
+  const canSubmit = Boolean(selectedDate && selectedTime);
+
+  function validateForm() {
+    const errors: BookingFormErrors = {};
+
+    if (!form.firstName.trim()) errors.firstName = "Inserisci il nome.";
+    if (!form.lastName.trim()) errors.lastName = "Inserisci il cognome.";
+
+    if (!form.email.trim()) {
+      errors.email = "Inserisci l’email.";
+    } else if (!isValidEmail(form.email)) {
+      errors.email = "Inserisci un indirizzo email valido.";
+    }
+
+    if (!form.phone.trim()) {
+      errors.phone = "Inserisci il numero di telefono.";
+    } else if (!isValidPhone(form.phone)) {
+      errors.phone = "Inserisci un numero di telefono valido.";
+    }
+
+    if (!consent) errors.consent = "Devi fornire il consenso per inviare la richiesta.";
+
+    return errors;
+  }
+
+  function clearFieldError(field: keyof BookingFormErrors) {
+    setFormErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+    if (status === "error") {
+      setStatus("idle");
+      setMessage("");
+    }
+  }
 
   async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSubmit || !selectedDate || !selectedTime || submittingRef.current || status === "success") return;
+    if (!selectedDate || !selectedTime || submittingRef.current || status === "success") return;
 
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      setStatus("error");
+      setMessage("Controlla i campi evidenziati e riprova.");
+      return;
+    }
+
+    setFormErrors({});
     submittingRef.current = true;
     setStatus("submitting");
     setMessage("");
@@ -432,63 +480,122 @@ export function BookingCalendar() {
               In questa fase il calendario è in modalità test. La richiesta viene inviata, ma lo slot non viene ancora bloccato in un calendario reale.
             </p>
 
-            <form className="mt-6 min-w-0 space-y-4" onSubmit={submitBooking}>
+            <form className="mt-6 min-w-0 space-y-4" noValidate onSubmit={submitBooking}>
           <div className="grid min-w-0 gap-4 sm:grid-cols-2">
             <label className="min-w-0 text-sm font-semibold text-ink">
               Nome
               <input
-                className="mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border border-border bg-white px-4 text-base font-normal outline-none transition focus:border-primary"
-                onChange={(event) => setForm((current) => ({ ...current, firstName: event.target.value }))}
-                required
+                aria-describedby={formErrors.firstName ? "first-name-error" : undefined}
+                aria-invalid={Boolean(formErrors.firstName)}
+                className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
+                  formErrors.firstName ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
+                }`}
+                onChange={(event) => {
+                  setForm((current) => ({ ...current, firstName: event.target.value }));
+                  clearFieldError("firstName");
+                }}
                 type="text"
                 value={form.firstName}
               />
+              {formErrors.firstName ? (
+                <span className="mt-2 block text-sm font-medium text-red-700" id="first-name-error">
+                  {formErrors.firstName}
+                </span>
+              ) : null}
             </label>
             <label className="min-w-0 text-sm font-semibold text-ink">
               Cognome
               <input
-                className="mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border border-border bg-white px-4 text-base font-normal outline-none transition focus:border-primary"
-                onChange={(event) => setForm((current) => ({ ...current, lastName: event.target.value }))}
-                required
+                aria-describedby={formErrors.lastName ? "last-name-error" : undefined}
+                aria-invalid={Boolean(formErrors.lastName)}
+                className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
+                  formErrors.lastName ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
+                }`}
+                onChange={(event) => {
+                  setForm((current) => ({ ...current, lastName: event.target.value }));
+                  clearFieldError("lastName");
+                }}
                 type="text"
                 value={form.lastName}
               />
+              {formErrors.lastName ? (
+                <span className="mt-2 block text-sm font-medium text-red-700" id="last-name-error">
+                  {formErrors.lastName}
+                </span>
+              ) : null}
             </label>
           </div>
 
           <label className="block min-w-0 text-sm font-semibold text-ink">
             Email
             <input
-              className="mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border border-border bg-white px-4 text-base font-normal outline-none transition focus:border-primary"
-              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-              required
+              aria-describedby={formErrors.email ? "email-error" : undefined}
+              aria-invalid={Boolean(formErrors.email)}
+              className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
+                formErrors.email ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
+              }`}
+              onChange={(event) => {
+                setForm((current) => ({ ...current, email: event.target.value }));
+                clearFieldError("email");
+              }}
               type="email"
               value={form.email}
             />
+            {formErrors.email ? (
+              <span className="mt-2 block text-sm font-medium text-red-700" id="email-error">
+                {formErrors.email}
+              </span>
+            ) : null}
           </label>
 
           <label className="block min-w-0 text-sm font-semibold text-ink">
             Telefono
             <input
-              className="mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border border-border bg-white px-4 text-base font-normal outline-none transition focus:border-primary"
+              aria-describedby={formErrors.phone ? "phone-error" : undefined}
+              aria-invalid={Boolean(formErrors.phone)}
+              className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
+                formErrors.phone ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
+              }`}
               inputMode="tel"
-              onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-              required
+              onChange={(event) => {
+                setForm((current) => ({ ...current, phone: event.target.value }));
+                clearFieldError("phone");
+              }}
               type="tel"
               value={form.phone}
             />
+            {formErrors.phone ? (
+              <span className="mt-2 block text-sm font-medium text-red-700" id="phone-error">
+                {formErrors.phone}
+              </span>
+            ) : null}
           </label>
 
-          <label className="flex min-w-0 items-start gap-3 rounded-2xl bg-surface-muted p-4 text-sm leading-6 text-ink-soft">
-            <input
-              checked={consent}
-              className="mt-1 size-4 shrink-0 accent-primary"
-              onChange={(event) => setConsent(event.target.checked)}
-              required
-              type="checkbox"
-            />
-            <span className="min-w-0">Acconsento all’utilizzo dei dati inseriti esclusivamente per gestire questa richiesta di appuntamento.</span>
-          </label>
+          <div>
+            <label
+              className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 text-sm leading-6 text-ink-soft ${
+                formErrors.consent ? "border-red-300 bg-red-50/60" : "border-transparent bg-surface-muted"
+              }`}
+            >
+              <input
+                aria-describedby={formErrors.consent ? "consent-error" : undefined}
+                aria-invalid={Boolean(formErrors.consent)}
+                checked={consent}
+                className="mt-1 size-4 shrink-0 accent-primary"
+                onChange={(event) => {
+                  setConsent(event.target.checked);
+                  clearFieldError("consent");
+                }}
+                type="checkbox"
+              />
+              <span className="min-w-0">Acconsento all’utilizzo dei dati inseriti esclusivamente per gestire questa richiesta di appuntamento.</span>
+            </label>
+            {formErrors.consent ? (
+              <span className="mt-2 block text-sm font-medium text-red-700" id="consent-error">
+                {formErrors.consent}
+              </span>
+            ) : null}
+          </div>
 
           {selectedDate && selectedTime ? (
             <div className="min-w-0 rounded-2xl border border-primary/15 bg-[#f8f6ff] p-4 text-sm leading-6 text-ink-soft">
