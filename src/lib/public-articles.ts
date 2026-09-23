@@ -7,6 +7,7 @@ export type PublicArticle = {
   category: string;
   excerpt: string;
   content: string;
+  cover_image_url: string | null;
   published_at: string | null;
 };
 
@@ -20,7 +21,7 @@ export async function getPublishedArticles(limit?: number): Promise<PublicArticl
     const supabase = await createClient();
     let query = supabase
       .from("articles")
-      .select("id, slug, title, category, excerpt, content, published_at")
+      .select("id, slug, title, category, excerpt, content, cover_image_url, published_at")
       .eq("status", "published")
       .order("published_at", { ascending: false });
 
@@ -40,7 +41,7 @@ export async function getPublishedArticleBySlug(slug: string): Promise<PublicArt
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("articles")
-      .select("id, slug, title, category, excerpt, content, published_at")
+      .select("id, slug, title, category, excerpt, content, cover_image_url, published_at")
       .eq("status", "published")
       .eq("slug", slug)
       .maybeSingle();
