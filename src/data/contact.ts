@@ -6,6 +6,6 @@ export const contactContent: ContactContent = {
     "Per informazioni o per richiedere un primo colloquio puoi utilizzare il modulo di contatto o il sistema di prenotazione.",
   email: null,
   phone: null,
-  address: null,
+  address: "Via Monte d'Alba 76, Trani",
   bookingHref: "/prenota",
 };
