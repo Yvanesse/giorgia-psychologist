@@ -1,6 +1,6 @@
 export const BOOKING_TIME_ZONE = "Europe/Rome";
 
-const BOOKING_SLOTS = [
+const BOOKING_SLOTS: readonly string[] = [
   "09:00",
   "10:00",
   "11:00",
@@ -13,7 +13,7 @@ const BOOKING_SLOTS = [
   "19:00",
   "20:00",
   "21:00",
-] as const;
+];
 
 export function getBookingSlots() {
   return [...BOOKING_SLOTS];
