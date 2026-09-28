@@ -1,12 +1,22 @@
 export const BOOKING_TIME_ZONE = "Europe/Rome";
 
-export function getBookingSlots() {
-  const configured = (process.env.BOOKING_SLOTS ?? "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter((value) => /^\d{2}:\d{2}$/.test(value));
+const BOOKING_SLOTS = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+] as const;
 
-  return configured.length > 0 ? configured : ["09:00", "11:00", "15:00", "17:00"];
+export function getBookingSlots() {
+  return [...BOOKING_SLOTS];
 }
 
 export function getBookingDurationMinutes() {
