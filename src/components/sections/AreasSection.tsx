@@ -1,0 +1,186 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+import { areasContent } from "@/data";
+import { Container, Heading, Section } from "@/components/ui";
+import { SectionHeading } from "./SectionHeading";
+
+const areaStyles = [
+  {
+    panel: "bg-[#f7f3ff]",
+    accent: "text-[#6848ed]",
+    chip: "border-[#ddcffd] bg-white/80 text-[#5d3ed7]",
+    gradient: "from-[#a58cff] via-[#6547ef] to-[#d1c4ff]",
+    bar: "bg-[#6848ed]",
+    ring: "border-[#6848ed]/15",
+    words: ["ANSIA", "AUTOSTIMA", "CAMBIAMENTO"],
+  },
+  {
+    panel: "bg-[#fff3ef]",
+    accent: "text-[#d36e59]",
+    chip: "border-[#f0d1c8] bg-white/80 text-[#b95a48]",
+    gradient: "from-[#f6a18d] via-[#d96a55] to-[#ffd0c4]",
+    bar: "bg-[#d36e59]",
+    ring: "border-[#d36e59]/15",
+    words: ["COPPIA", "DIALOGO", "RELAZIONI"],
+  },
+  {
+    panel: "bg-[#eff7f2]",
+    accent: "text-[#5d8f6f]",
+    chip: "border-[#d0e4d6] bg-white/80 text-[#4f7b60]",
+    gradient: "from-[#8fc3a1] via-[#4f8b66] to-[#c9e7d3]",
+    bar: "bg-[#5d8f6f]",
+    ring: "border-[#5d8f6f]/15",
+    words: ["CONTESTI", "VALUTAZIONE", "FORENSE"],
+  },
+] as const;
+
+export function AreasSection() {
+  const cardRefs = useRef<Array<HTMLElement | null>>([]);
+  const frameRef = useRef<number | null>(null);
+  const [isTouch, setIsTouch] = useState(false);
+  const [scrollIntensity, setScrollIntensity] = useState<number[]>(() => areasContent.items.map(() => 0));
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia("(hover: none), (pointer: coarse)");
+    const syncInputMode = () => setIsTouch(media.matches);
+
+    syncInputMode();
+    media.addEventListener?.("change", syncInputMode);
+
+    return () => media.removeEventListener?.("change", syncInputMode);
+  }, []);
+
+  useEffect(() => {
+    if (!isTouch) {
+      setScrollIntensity(areasContent.items.map(() => 0));
+      return;
+    }
+
+    const updateIntensity = () => {
+      frameRef.current = null;
+      const viewportCenter = window.innerHeight / 2;
+      const influenceRange = window.innerHeight * 0.72;
+
+      const next = cardRefs.current.map((card) => {
+        if (!card) return 0;
+
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(cardCenter - viewportCenter);
+        const raw = Math.max(0, Math.min(1, 1 - distance / influenceRange));
+
+        return raw * raw * (3 - 2 * raw);
+      });
+
+      setScrollIntensity(next);
+    };
+
+    const requestUpdate = () => {
+      if (frameRef.current !== null) return;
+      frameRef.current = window.requestAnimationFrame(updateIntensity);
+    };
+
+    updateIntensity();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+    };
+  }, [isTouch]);
+
+  return (
+    <Section id="ambiti">
+      <Container variant="wide">
+        <SectionHeading label={areasContent.label} title={areasContent.title} />
+
+        <div
+          className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-3"
+          onClick={() => {
+            if (isTouch) setActiveIndex(null);
+          }}
+        >
+          {areasContent.items.map((item, index) => {
+            const style = areaStyles[index];
+            const intensity = scrollIntensity[index] ?? 0;
+            const isActive = activeIndex === index;
+            const cardOpacity = 0.76 + intensity * 0.24;
+            const grayOpacity = 0.035 * (1 - intensity);
+            const gradientOpacity = 0.42 + intensity * 0.58;
+
+            return (
+              <article
+                className={`group relative min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                  isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
+                }`}
+                key={item.title}
+                onClick={(event) => {
+                  if (!isTouch) return;
+                  event.stopPropagation();
+                  setActiveIndex((current) => (current === index ? null : index));
+                }}
+                ref={(node) => {
+                  cardRefs.current[index] = node;
+                }}
+                style={isTouch ? { opacity: cardOpacity, transitionDuration: "120ms,1200ms,1200ms,120ms" } : undefined}
+              >
+                <div aria-hidden="true" className={`pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full border-[22px] opacity-70 sm:h-44 sm:w-44 sm:border-[28px] ${style.ring}`} />
+                <div aria-hidden="true" className={`pointer-events-none absolute right-8 top-8 h-3 w-3 rounded-full opacity-60 ${style.bar}`} />
+
+                <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-start px-5 sm:px-7 lg:px-0">
+                  {style.words.map((word, wordIndex) => (
+                    <span
+                      className="relative whitespace-nowrap text-[2.2rem] font-semibold leading-[0.9] tracking-[-0.055em] sm:text-[2.7rem] lg:text-[3.35rem]"
+                      key={word}
+                    >
+                      <span
+                        className="block text-black transition-opacity duration-150 lg:text-black/[0.075] lg:opacity-100 lg:transition-[opacity,transform] lg:duration-700 lg:group-hover:-translate-y-1 lg:group-hover:opacity-0 motion-reduce:transform-none"
+                        style={isTouch ? { opacity: grayOpacity } : { transitionDelay: `${wordIndex * 90}ms` }}
+                      >
+                        {word}
+                      </span>
+                      <span
+                        className={`absolute inset-0 block bg-gradient-to-r bg-clip-text text-transparent transition-opacity duration-150 [background-position:0%_50%] [background-size:200%_100%] lg:translate-y-2 lg:opacity-0 lg:transition-[opacity,transform,background-position] lg:duration-[1000ms] lg:[background-position:100%_50%] lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:[background-position:0%_50%] motion-reduce:transform-none ${style.gradient}`}
+                        style={
+                          isTouch
+                            ? { opacity: gradientOpacity }
+                            : { transitionDelay: `${120 + wordIndex * 120}ms` }
+                        }
+                      >
+                        {word}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="relative z-10 flex h-full flex-col pb-36 sm:pb-40 lg:pb-0">
+                  <div className={`h-1.5 w-14 rounded-full ${style.bar}`} />
+                  <Heading className="mt-5 max-w-sm" variant="h3">{item.title}</Heading>
+                  <p className="mt-5 max-w-md text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">{item.description}</p>
+
+                  <div className="mt-6 flex flex-wrap gap-2 sm:mt-7 sm:gap-2.5">
+                    {item.topics.map((topic) => (
+                      <span
+                        className={`rounded-full border px-3 py-1.5 text-[0.95rem] font-medium leading-6 sm:px-4 sm:py-2 sm:text-[1.05rem] ${style.chip}`}
+                        key={topic}
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+
+                  {item.note ? <p className="mt-auto pt-7 text-base leading-7 text-ink-muted">{item.note}</p> : <div className="mt-auto" />}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </Container>
+    </Section>
+  );
+}
