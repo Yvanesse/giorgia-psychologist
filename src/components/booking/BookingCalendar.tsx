@@ -204,7 +204,7 @@ export function BookingCalendar() {
       errors.phone = "Inserisci un numero di telefono valido.";
     }
 
-    if (!consent) errors.consent = "Devi fornire il consenso per inviare la richiesta.";
+    if (!consent) errors.consent = "Conferma di aver letto l’Informativa Privacy.";
 
     return errors;
   }
@@ -588,7 +588,9 @@ export function BookingCalendar() {
                 }}
                 type="checkbox"
               />
-              <span className="min-w-0">Acconsento all’utilizzo dei dati inseriti esclusivamente per gestire questa richiesta di appuntamento.</span>
+              <span className="min-w-0">
+                Ho letto l’<a className="font-semibold text-primary underline underline-offset-4" href="/privacy-policy" target="_blank" rel="noreferrer">Informativa Privacy</a> e chiedo di inviare questa richiesta di appuntamento.
+              </span>
             </label>
             {formErrors.consent ? (
               <span className="mt-2 block text-sm font-medium text-red-700" id="consent-error">
