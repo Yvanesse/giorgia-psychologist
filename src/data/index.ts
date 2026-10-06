@@ -7,6 +7,7 @@ export { faqContent } from "./faq";
 export { footerContent } from "./footer";
 export { formatsContent } from "./formats";
 export { heroContent } from "./hero";
+export { aboutManifesto, finalCtaContent, manifestoLabel, sharedContent } from "./home";
 export { journeyContent } from "./journey";
 export { manifestoContent } from "./manifesto";
 export { navigationCta, navigationItems } from "./navigation";

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 
 import { siteConfig } from "@/config/site.config";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { sharedContent } from "@/data";
 import "@/styles/globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://giorgiapetruzzellis.it";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -14,6 +17,8 @@ export const metadata: Metadata = {
     description: siteConfig.seo.description,
     locale: siteConfig.seo.locale,
     type: "website",
+    url: siteUrl,
+    siteName: siteConfig.name,
   },
 };
 
@@ -24,7 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main-content">{sharedContent.skipToContent}</a>
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
