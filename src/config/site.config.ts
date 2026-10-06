@@ -10,17 +10,17 @@ export const siteConfig = {
   navigation: navigationItems,
   cta: navigationCta,
   contacts: {
-    email: null,
-    phone: null,
-    address: null,
+    email: "petruzzellisgiorgia@gmail.com",
+    phone: "+393450606786",
+    address: "Via Monte d'Alba 76, Trani",
   },
   social: {
     instagram: null,
     linkedin: null,
   },
   seo: {
-    title: "Giorgia Petruzzellis | Psicologa",
-    description: "Sito professionale della psicologa Giorgia Petruzzellis.",
+    title: "Psicologa a Trani | Giorgia Petruzzellis",
+    description: "Giorgia Petruzzellis, psicologa a Trani. Percorsi di supporto psicologico per la persona, le relazioni e i contesti di vita, in presenza e online.",
     locale: "it_IT",
   },
 } as const;
