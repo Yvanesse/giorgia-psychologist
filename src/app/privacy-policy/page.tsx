@@ -36,15 +36,10 @@ export default function PrivacyPolicyPage() {
               Informativa resa ai sensi degli articoli 12 e 13 del Regolamento (UE) 2016/679 (“GDPR”).
             </Text>
 
-            <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-              <strong>Bozza pre-pubblicazione.</strong> Prima della messa online definitiva completeremo questa pagina con i recapiti professionali e gli eventuali dati obbligatori della titolare.
-            </div>
-
             <div className="mt-10 space-y-9">
               <PolicySection title="1. Titolare del trattamento">
                 <p>
-                  La titolare del trattamento è la <strong className="text-ink">Dott.ssa Giorgia Petruzzellis, Psicologa</strong>.
-                  I recapiti professionali per le richieste relative alla privacy saranno indicati nella versione definitiva del sito.
+                  La titolare del trattamento è la <strong className="text-ink">Dott.ssa Giorgia Petruzzellis, Psicologa</strong>, iscritta all’Ordine delle Psicologhe e degli Psicologi della Regione Puglia al n. 8714, P. IVA 09166050725, con studio professionale in Via Monte d'Alba 76, Trani. Per le richieste relative alla privacy è possibile scrivere a <a className="font-semibold text-primary underline underline-offset-4" href="mailto:petruzzellisgiorgia@gmail.com">petruzzellisgiorgia@gmail.com</a>.
                 </p>
               </PolicySection>
 
@@ -115,8 +110,7 @@ export default function PrivacyPolicyPage() {
                   legge, fiscali, amministrativi o professionali.
                 </p>
                 <p>
-                  Prima della pubblicazione definitiva verranno formalizzati anche i tempi operativi di cancellazione o
-                  anonimizzazione delle richieste non più necessarie nel sistema di prenotazione.
+                  Le richieste non più necessarie vengono periodicamente riesaminate e cancellate o anonimizzate quando non sussistono ulteriori necessità operative, professionali o obblighi di legge che ne giustifichino la conservazione.
                 </p>
               </PolicySection>
 
