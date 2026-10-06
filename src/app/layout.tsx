@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { sharedContent } from "@/data";
 import "@/styles/globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://giorgiapetruzzellis.it";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     description: siteConfig.seo.description,
     locale: siteConfig.seo.locale,
     type: "website",
+    url: siteUrl,
+    siteName: siteConfig.name,
   },
 };
 
