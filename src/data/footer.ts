@@ -12,7 +12,7 @@ export const footerContent: FooterContent = {
   baseYear: 2026,
   professionalDetails: {
     numeroAlbo: "Iscrizione all’Albo n. 8714",
-    ordine: null,
+    ordine: "Ordine delle Psicologhe e degli Psicologi della Regione Puglia",
     partitaIva: "P. IVA 09166050725",
   },
 };
