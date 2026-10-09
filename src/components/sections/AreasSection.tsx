@@ -32,7 +32,7 @@ const areaStyles = [
     gradient: "from-[#8fc3a1] via-[#4f8b66] to-[#c9e7d3]",
     bar: "bg-[#5d8f6f]",
     ring: "border-[#5d8f6f]/15",
-    words: ["CONTESTI", "VALUTAZIONE", "FORENSE"],
+    words: ["FAMIGLIA", "DIALOGO", "LEGAMI"],
   },
 ] as const;
 
@@ -95,7 +95,7 @@ export function AreasSection() {
   }, [isTouch]);
 
   return (
-    <Section id="ambiti">
+    <Section id="percorsi">
       <Container variant="wide">
         <SectionHeading label={areasContent.label} title={areasContent.title} />
 
