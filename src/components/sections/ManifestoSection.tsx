@@ -12,7 +12,7 @@ export function ManifestoSection() {
 
           <div className="relative z-10 max-w-xl">
             <p className="section-label">{aboutContent.name}</p>
-            <p className="mt-3 text-[1.65rem] font-semibold leading-[1.12] tracking-[-0.035em] text-ink sm:text-3xl lg:text-[2.15rem]">
+            <p className="mt-3 whitespace-pre-line text-[1.65rem] font-semibold leading-[1.12] tracking-[-0.035em] text-ink sm:text-3xl lg:text-[2.15rem]">
               {aboutContent.role}
             </p>
           </div>
@@ -20,7 +20,7 @@ export function ManifestoSection() {
           <div className="relative z-10 mt-7 border-t border-primary/12 pt-7 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-16 lg:pt-0">
             <p className="section-label">{manifestoLabel}</p>
             <p className="mt-4 max-w-4xl font-sans text-[2.05rem] font-semibold leading-[1.1] tracking-[-0.04em] text-ink sm:text-[2.55rem] lg:text-[3.25rem]">
-              Aiuto le persone a <span className="text-[#6848ed]">comprendere se stesse</span> e le proprie <span className="text-[#d36e59]">relazioni</span> attraverso un percorso psicologico fondato su <span className="text-[#5d8f6f]">competenza scientifica</span>, ascolto e rispetto della loro unicità.
+              Accompagno le persone nella <span className="text-[#6848ed]">comprensione di sé</span> e delle proprie <span className="text-[#d36e59]">relazioni</span>, valorizzando le <span className="text-[#5d8f6f]">risorse individuali</span> e favorendo nuove possibilità di cambiamento
             </p>
           </div>
         </div>
