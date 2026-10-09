@@ -136,11 +136,11 @@ export function WhenUsefulSection() {
               })}
             </div>
 
-            <div className="mt-6">
-              <p className="text-base font-medium leading-7 text-ink-soft sm:text-lg">
+            <div className="mt-8 rounded-[1.75rem] border border-[#6848ed]/12 bg-[#f7f3ff] px-6 py-7 sm:px-8 sm:py-8">
+              <p className="text-base leading-7 text-ink-soft sm:text-lg">
                 {whenUsefulContent.closing}
               </p>
-              <p className="mt-1 text-base leading-7 text-ink-soft sm:text-lg">
+              <p className="mt-2 text-[1.8rem] font-semibold leading-[1.08] tracking-[-0.035em] text-[#6848ed] sm:text-[2.2rem]">
                 {whenUsefulContent.closingDetail}
               </p>
             </div>
