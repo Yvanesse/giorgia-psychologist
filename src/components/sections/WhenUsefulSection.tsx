@@ -136,14 +136,14 @@ export function WhenUsefulSection() {
               })}
             </div>
 
-            <div className="mt-10 border-t border-black/10 pt-8 sm:mt-12 sm:pt-10">
-              <div className="grid gap-4 lg:grid-cols-[0.7fr_1.3fr] lg:items-end lg:gap-10">
-                <p className="max-w-md text-base leading-7 text-ink-soft sm:text-lg">
-                  {whenUsefulContent.closing}
+            <div className="mt-10 sm:mt-12">
+              <div className="relative overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-white px-6 py-7 shadow-[0_14px_40px_rgba(24,24,27,0.04)] sm:px-8 sm:py-8">
+                <div aria-hidden="true" className="absolute left-0 top-0 h-full w-1 bg-[#6848ed]" />
+                <p className="max-w-3xl text-[1.2rem] font-medium leading-8 tracking-[-0.015em] text-ink sm:text-[1.35rem] sm:leading-9">
+                  {whenUsefulContent.closing} A volte le domande emergono lungo il percorso.
                 </p>
-                <p className="max-w-3xl text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em] text-ink sm:text-[2.35rem] lg:text-[2.7rem]">
-                  A volte le domande emergono lungo il percorso.{" "}
-                  <span className="text-[#6848ed]">Possiamo cercarle insieme.</span>
+                <p className="mt-3 max-w-3xl text-[1.45rem] font-semibold leading-[1.2] tracking-[-0.025em] text-[#6848ed] sm:text-[1.7rem]">
+                  Possiamo cercarle insieme.
                 </p>
               </div>
             </div>
