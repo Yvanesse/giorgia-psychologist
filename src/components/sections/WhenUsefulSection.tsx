@@ -136,13 +136,16 @@ export function WhenUsefulSection() {
               })}
             </div>
 
-            <div className="mt-8 rounded-[1.75rem] border border-[#6848ed]/12 bg-[#f7f3ff] px-6 py-7 sm:px-8 sm:py-8">
-              <p className="text-base leading-7 text-ink-soft sm:text-lg">
-                {whenUsefulContent.closing}
-              </p>
-              <p className="mt-2 text-[1.8rem] font-semibold leading-[1.08] tracking-[-0.035em] text-[#6848ed] sm:text-[2.2rem]">
-                {whenUsefulContent.closingDetail}
-              </p>
+            <div className="mt-10 border-t border-black/10 pt-8 sm:mt-12 sm:pt-10">
+              <div className="grid gap-4 lg:grid-cols-[0.7fr_1.3fr] lg:items-end lg:gap-10">
+                <p className="max-w-md text-base leading-7 text-ink-soft sm:text-lg">
+                  {whenUsefulContent.closing}
+                </p>
+                <p className="max-w-3xl text-[1.9rem] font-semibold leading-[1.08] tracking-[-0.04em] text-ink sm:text-[2.35rem] lg:text-[2.7rem]">
+                  A volte le domande emergono lungo il percorso.{" "}
+                  <span className="text-[#6848ed]">Possiamo cercarle insieme.</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
