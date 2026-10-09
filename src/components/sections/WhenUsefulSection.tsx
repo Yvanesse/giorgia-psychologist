@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import { Container, Heading, Section } from "@/components/ui";
 import { whenUsefulContent } from "@/data/whenUseful";
 
@@ -63,6 +67,8 @@ function ContextIcon({ index }: { index: number }) {
 }
 
 export function WhenUsefulSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
     <Section className="bg-[#fbfaf7]" id="quando-puo-aiutare" spacing="compact">
       <Container variant="wide">
@@ -81,25 +87,63 @@ export function WhenUsefulSection() {
             <div className="divide-y divide-black/10 border-t border-black/10">
               {whenUsefulContent.items.map((item, index) => {
                 const style = rowStyles[index];
+                const isOpen = openIndex === index;
+                const panelId = `when-useful-panel-${index}`;
+                const buttonId = `when-useful-button-${index}`;
 
                 return (
-                  <div className="flex items-center gap-4 py-5 sm:gap-5 sm:py-6" key={item.title}>
-                    <div
-                      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-16 sm:w-16 ${style.iconBg} ${style.accent}`}
+                  <div className="py-2 sm:py-3" key={item.title}>
+                    <button
+                      aria-controls={panelId}
+                      aria-expanded={isOpen}
+                      className="group flex w-full items-center gap-4 py-4 text-left sm:gap-5 sm:py-5"
+                      id={buttonId}
+                      onClick={() => setOpenIndex((current) => (current === index ? null : index))}
+                      type="button"
                     >
-                      <ContextIcon index={index} />
+                      <div
+                        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full sm:h-16 sm:w-16 ${style.iconBg} ${style.accent}`}
+                      >
+                        <ContextIcon index={index} />
+                      </div>
+
+                      <p className="max-w-3xl flex-1 text-[1.4rem] font-semibold leading-[1.18] tracking-[-0.03em] text-ink sm:text-[1.75rem] lg:text-[2rem]">
+                        {item.title}
+                      </p>
+
+                      <span
+                        aria-hidden="true"
+                        className={`ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/10 text-2xl font-light text-ink transition-transform duration-300 sm:h-11 sm:w-11 ${isOpen ? "rotate-45" : ""}`}
+                      >
+                        +
+                      </span>
+                    </button>
+
+                    <div
+                      aria-labelledby={buttonId}
+                      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                      id={panelId}
+                      role="region"
+                    >
+                      <div className="overflow-hidden">
+                        <p className="pb-5 pl-[4.5rem] pr-2 text-base leading-7 text-ink-soft sm:pb-6 sm:pl-[5.25rem] sm:pr-12 sm:text-lg sm:leading-8">
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                    <p className="max-w-3xl text-[1.4rem] font-semibold leading-[1.18] tracking-[-0.03em] text-ink sm:text-[1.75rem] lg:text-[2rem]">
-                      {item.title}
-                    </p>
                   </div>
                 );
               })}
             </div>
 
-            <p className="mt-6 text-base font-medium leading-7 text-ink-soft sm:text-lg">
-              {whenUsefulContent.closing}
-            </p>
+            <div className="mt-6">
+              <p className="text-base font-medium leading-7 text-ink-soft sm:text-lg">
+                {whenUsefulContent.closing}
+              </p>
+              <p className="mt-1 text-base leading-7 text-ink-soft sm:text-lg">
+                {whenUsefulContent.closingDetail}
+              </p>
+            </div>
           </div>
         </div>
       </Container>
