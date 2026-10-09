@@ -1,5 +1,5 @@
 import type { ManifestoContent } from "@/types/content";
 
 export const manifestoContent: ManifestoContent = {
-  text: "Aiuto le persone a comprendere se stesse e le proprie relazioni attraverso un percorso psicologico fondato su competenza scientifica, ascolto e rispetto della loro unicità.",
+  text: "Accompagno le persone nella comprensione di sé e delle proprie relazioni, valorizzando le risorse individuali e favorendo nuove possibilità di cambiamento",
 };
