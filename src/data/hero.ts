@@ -2,7 +2,7 @@ import type { HeroContent } from "@/types/content";
 
 export const heroContent: HeroContent = {
   eyebrow: null,
-  title: "Comprendere è il primo passo verso il cambiamento.",
+  title: "Comprendere è il primo passo verso il cambiamento",
   highlight: null,
   subtitle:
     "Percorsi di supporto psicologico costruiti intorno alla persona, alle relazioni e ai contesti di vita.",
