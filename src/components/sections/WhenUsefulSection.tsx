@@ -137,14 +137,25 @@ export function WhenUsefulSection() {
             </div>
 
             <div className="mt-10 sm:mt-12">
-              <div className="relative overflow-hidden rounded-[1.5rem] border border-black/[0.06] bg-white px-6 py-7 shadow-[0_14px_40px_rgba(24,24,27,0.04)] sm:px-8 sm:py-8">
-                <div aria-hidden="true" className="absolute left-0 top-0 h-full w-1 bg-[#6848ed]" />
-                <p className="max-w-3xl text-[1.2rem] font-medium leading-8 tracking-[-0.015em] text-ink sm:text-[1.35rem] sm:leading-9">
-                  {whenUsefulContent.closing} A volte le domande emergono lungo il percorso.
-                </p>
-                <p className="mt-3 max-w-3xl text-[1.45rem] font-semibold leading-[1.2] tracking-[-0.025em] text-[#6848ed] sm:text-[1.7rem]">
-                  Possiamo cercarle insieme.
-                </p>
+              <div className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#f7f3ff_0%,#fff_58%,#f4f8f5_100%)] px-7 py-9 sm:px-10 sm:py-11">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full border-[24px] border-[#6848ed]/[0.06]" />
+                <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-10 h-px w-40 bg-gradient-to-r from-[#6848ed]/50 to-transparent sm:w-56" />
+
+                <div className="relative z-10 max-w-3xl">
+                  <div aria-hidden="true" className="mb-3 text-[3rem] font-semibold leading-none tracking-[-0.06em] text-[#6848ed]/30 sm:text-[4rem]">
+                    “
+                  </div>
+                  <p className="text-[1.45rem] font-semibold leading-[1.18] tracking-[-0.03em] text-ink sm:text-[1.8rem] lg:text-[2rem]">
+                    {whenUsefulContent.closing}
+                  </p>
+                  <p className="mt-3 text-[1.15rem] leading-8 text-ink-soft sm:text-[1.3rem] sm:leading-9">
+                    A volte le domande emergono lungo il percorso.
+                  </p>
+                  <p className="mt-5 inline-flex items-center gap-3 text-[1.35rem] font-semibold tracking-[-0.025em] text-[#6848ed] sm:text-[1.6rem]">
+                    <span aria-hidden="true" className="h-px w-8 bg-[#6848ed]/50 sm:w-10" />
+                    Cerchiamole insieme.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
