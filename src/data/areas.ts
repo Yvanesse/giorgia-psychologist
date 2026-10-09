@@ -6,28 +6,28 @@ export const areasContent: {
   readonly items: readonly AreaItem[];
 } = {
   label: "Il supporto psicologico",
-  title: "Ambiti di intervento",
+  title: "Percorsi",
   items: [
     {
-      title: "Persona",
+      title: "Individuale",
       description:
-        "Uno spazio dedicato alla comprensione dei vissuti emotivi e delle difficoltà individuali.",
-      topics: ["Ansia e stress", "Autostima e insicurezza", "Confusione emotiva", "Cambiamenti e blocchi decisionali"],
-      href: "/ambiti/persona",
+        "Uno spazio dedicato alla comprensione di sé, dei vissuti emotivi e delle difficoltà che possono emergere nei diversi momenti della vita.",
+      topics: ["Ansia e stress", "Autostima", "Cambiamenti", "Consapevolezza di sé"],
+      href: "/percorsi/individuale",
     },
     {
-      title: "Relazioni",
+      title: "Di coppia",
       description:
-        "Un percorso per osservare e comprendere le dinamiche che attraversano i legami significativi.",
-      topics: ["Difficoltà relazionali", "Dinamiche familiari", "Comunicazione e conflitti", "Percorsi dedicati alla coppia"],
-      href: "/ambiti/relazioni",
+        "Un percorso per comprendere le dinamiche della relazione, migliorare la comunicazione e affrontare insieme momenti di difficoltà o cambiamento.",
+      topics: ["Comunicazione", "Conflitti", "Cambiamenti", "Intimità e vicinanza"],
+      href: "/percorsi/coppia",
     },
     {
-      title: "Psicologia giuridica e forense",
+      title: "Familiare",
       description:
-        "Un ambito di formazione dedicato all’incontro tra psicologia, contesti giuridici e valutazione specialistica.",
-      topics: ["Psicologia giuridica", "Comprensione dei contesti legali", "Formazione specialistica"],
-      href: "/ambiti/psicologia-giuridica-forense",
+        "Uno spazio per leggere le dinamiche familiari, favorire nuove modalità di relazione e affrontare insieme passaggi delicati o situazioni di difficoltà.",
+      topics: ["Dinamiche familiari", "Comunicazione", "Cambiamenti", "Relazioni tra generazioni"],
+      href: "/percorsi/familiare",
     },
   ],
 };
