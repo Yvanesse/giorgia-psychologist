@@ -25,6 +25,6 @@ export const whenUsefulContent = {
         "Esperienze dolorose, vissuti familiari e modalità relazionali apprese possono continuare a influenzare il modo in cui ci percepiamo e viviamo i rapporti con gli altri.",
     },
   ],
-  closing: "Non serve avere già tutte le parole per iniziare.",
+  closing: "Le risposte possono emergere lungo il percorso.",
   closingDetail: "Possiamo cercarle insieme.",
 } as const;
