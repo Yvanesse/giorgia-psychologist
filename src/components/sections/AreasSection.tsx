@@ -23,7 +23,7 @@ const areaStyles = [
     gradient: "from-[#f6a18d] via-[#d96a55] to-[#ffd0c4]",
     bar: "bg-[#d36e59]",
     ring: "border-[#d36e59]/15",
-    words: ["COPPIA", "DIALOGO", "RELAZIONI"],
+    words: ["SESSUALITÀ", "DIALOGO", "RELAZIONI"],
   },
   {
     panel: "bg-[#eff7f2]",
