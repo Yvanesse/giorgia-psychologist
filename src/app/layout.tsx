@@ -6,10 +6,8 @@ import { Header } from "@/components/layout/Header";
 import { sharedContent } from "@/data";
 import "@/styles/globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://giorgiapetruzzellis.it";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteConfig.url),
   title: siteConfig.seo.title,
   description: siteConfig.seo.description,
   openGraph: {
@@ -17,8 +15,20 @@ export const metadata: Metadata = {
     description: siteConfig.seo.description,
     locale: siteConfig.seo.locale,
     type: "website",
-    url: siteUrl,
+    url: siteConfig.url,
     siteName: siteConfig.name,
+    images: [
+      {
+        url: "/images/giorgia-hero-final.jpg",
+        alt: "Dott.ssa Giorgia Petruzzellis, psicologa a Trani",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.seo.title,
+    description: siteConfig.seo.description,
+    images: ["/images/giorgia-hero-final.jpg"],
   },
 };
 
