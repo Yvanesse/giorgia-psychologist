@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site.config";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { WhatsAppContact } from "@/components/layout/WhatsAppContact";
 import { sharedContent } from "@/data";
 import "@/styles/globals.css";
 
@@ -58,6 +59,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <WhatsAppContact />
       </body>
     </html>
   );
