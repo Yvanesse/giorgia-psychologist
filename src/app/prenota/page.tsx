@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
 import { BookingCalendar } from "@/components/booking/BookingCalendar";
 import { BookingModeInitializer } from "@/components/booking/BookingModeInitializer";
 import { bookingContent } from "@/data/booking";
+
+export const metadata: Metadata = {
+  title: "Prenota un colloquio | Giorgia Petruzzellis",
+  description: "Richiedi un primo colloquio con la Dott.ssa Giorgia Petruzzellis, psicologa a Trani. Appuntamenti in presenza e online.",
+  alternates: {
+    canonical: "/prenota",
+  },
+  openGraph: {
+    title: "Prenota un colloquio | Giorgia Petruzzellis",
+    description: "Richiedi un primo colloquio psicologico in presenza a Trani oppure online.",
+    url: "/prenota",
+  },
+};
 
 export default function BookingPage() {
   return (
