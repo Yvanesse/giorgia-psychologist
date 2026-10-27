@@ -5,6 +5,9 @@ import { Button, Container, Heading, Section, Text } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Privacy Policy | Giorgia Petruzzellis",
   description: "Informativa sul trattamento dei dati personali ai sensi del Regolamento (UE) 2016/679.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
 };
 
 function PolicySection({
