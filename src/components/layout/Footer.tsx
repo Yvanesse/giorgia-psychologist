@@ -47,6 +47,18 @@ export function Footer() {
         </div>
 
         {details.length ? <p className="mt-8 text-base text-ink-muted">{details.join(" · ")}</p> : null}
+        <a
+          className="mt-5 inline-flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-primary"
+          href="https://www.miodottore.it/profilo/giorgia-petruzzellis"
+          rel="noopener noreferrer"
+          target="_blank"
+          aria-label="Leggi le recensioni di Giorgia Petruzzellis su MioDottore"
+        >
+          <span className="font-semibold text-ink-soft">MioDottore</span>
+          <span aria-hidden="true" className="text-amber-500">★★★★★</span>
+          <span>5,0/5 · 17 recensioni</span>
+          <span aria-hidden="true">↗</span>
+        </a>
         <p className="mt-8 border-t border-border pt-6 text-base text-ink-muted">
           © {footerContent.baseYear} {footerContent.name}
         </p>
