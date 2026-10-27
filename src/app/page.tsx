@@ -8,7 +8,6 @@ import { FinalCtaSection } from "@/components/sections/FinalCtaSection";
 import { FormatsSection } from "@/components/sections/FormatsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ManifestoSection } from "@/components/sections/ManifestoSection";
-import { ReviewsSection } from "@/components/sections/ReviewsSection";
 import { WhenUsefulSection } from "@/components/sections/WhenUsefulSection";
 import { siteConfig } from "@/config/site.config";
 
@@ -73,7 +72,6 @@ export default function Home() {
       <AreasSection />
       <WhenUsefulSection />
       <ApproachSection />
-      <ReviewsSection />
       <FormatsSection />
       <FaqSection />
       <ArticlesSection />
