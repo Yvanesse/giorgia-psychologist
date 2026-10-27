@@ -477,7 +477,7 @@ export function BookingCalendar() {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">Dati per la richiesta</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Completa la prenotazione</h2>
             <p className="mt-3 text-base leading-7 text-ink-soft">
-              In questa fase il calendario è in modalità test. La richiesta viene inviata, ma lo slot non viene ancora bloccato in un calendario reale.
+              La richiesta verrà registrata e resterà in attesa di conferma. Dopo l’invio, lo slot non verrà più mostrato tra quelli disponibili.
             </p>
 
             <form className="mt-6 min-w-0 space-y-4" noValidate onSubmit={submitBooking}>
