@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { ApproachSection } from "@/components/sections/ApproachSection";
 import { AreasSection } from "@/components/sections/AreasSection";
 import { ArticlesSection } from "@/components/sections/ArticlesSection";
@@ -7,6 +9,12 @@ import { FormatsSection } from "@/components/sections/FormatsSection";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ManifestoSection } from "@/components/sections/ManifestoSection";
 import { WhenUsefulSection } from "@/components/sections/WhenUsefulSection";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   return (
