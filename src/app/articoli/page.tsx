@@ -7,6 +7,14 @@ import { estimateReadingTime, getPublishedArticles } from "@/lib/public-articles
 export const metadata: Metadata = {
   title: "Articoli | Giorgia Petruzzellis",
   description: articlesContent.description,
+  alternates: {
+    canonical: "/articoli",
+  },
+  openGraph: {
+    title: "Articoli | Giorgia Petruzzellis",
+    description: articlesContent.description,
+    url: "/articoli",
+  },
 };
 
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
