@@ -10,6 +10,20 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: siteConfig.seo.title,
   description: siteConfig.seo.description,
+  icons: {
+    icon: [
+      {
+        url: "/logo/giorgia-petruzzellis-header.png",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "/logo/giorgia-petruzzellis-header.png",
+        type: "image/png",
+      },
+    ],
+  },
   openGraph: {
     title: siteConfig.seo.title,
     description: siteConfig.seo.description,
