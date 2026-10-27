@@ -3,6 +3,7 @@ import { navigationCta, navigationItems } from "@/data/navigation";
 export const siteConfig = {
   name: "Giorgia Petruzzellis",
   profession: "Psicologa",
+  url: "https://giorgiapetruzzellis.it",
   logo: {
     src: "/logo/giorgia-petruzzellis-header.png",
     alt: "Giorgia Petruzzellis — Psicologa",
