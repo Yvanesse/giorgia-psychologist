@@ -5,6 +5,9 @@ import { Button, Container, Heading, Section, Text } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Cookie Policy | Giorgia Petruzzellis",
   description: "Informazioni sui cookie e sugli strumenti tecnici utilizzati dal sito.",
+  alternates: {
+    canonical: "/cookie-policy",
+  },
 };
 
 export default function CookiePolicyPage() {
