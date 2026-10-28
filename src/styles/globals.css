@@ -39,8 +39,10 @@ body {
 
 html,
 body {
+  width: 100%;
   max-width: 100%;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 .section-label {
