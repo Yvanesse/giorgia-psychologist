@@ -21,11 +21,11 @@ export const metadata: Metadata = {
 
 export default function BookingPage() {
   return (
-    <main className="overflow-x-clip bg-white py-16 sm:py-20 lg:py-24">
+    <main className="relative w-full max-w-full overflow-x-hidden bg-white py-16 sm:py-20 lg:py-24">
       <Suspense fallback={null}>
         <BookingModeInitializer />
       </Suspense>
-      <div className="mx-auto w-full max-w-[100vw] overflow-x-clip px-4 sm:px-6 lg:px-[4vw]">
+      <div className="mx-auto w-full min-w-0 max-w-full overflow-x-hidden px-4 sm:px-6 lg:px-[4vw]">
         <div className="w-full min-w-0 max-w-full">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-strong">
