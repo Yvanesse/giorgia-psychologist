@@ -114,7 +114,6 @@ export function BookingCalendar() {
     [firstAvailableMonth, lastAvailableMonth],
   );
 
-  const carouselRef = useRef<HTMLDivElement>(null);
   const submittingRef = useRef(false);
   const [monthIndex, setMonthIndex] = useState(0);
   const [mode, setMode] = useState<BookingMode>("in-presenza");
@@ -169,21 +168,6 @@ export function BookingCalendar() {
   const availableTimes = selectedDateKey ? availability[selectedDateKey] ?? [] : [];
 
   function goToMonth(nextIndex: number) {
-    const clampedIndex = Math.max(0, Math.min(nextIndex, months.length - 1));
-    const carousel = carouselRef.current;
-    if (!carousel) return;
-
-    carousel.scrollTo({
-      left: carousel.clientWidth * clampedIndex,
-      behavior: "smooth",
-    });
-    setMonthIndex(clampedIndex);
-  }
-
-  function syncMonthIndex() {
-    const carousel = carouselRef.current;
-    if (!carousel || carousel.clientWidth === 0) return;
-    const nextIndex = Math.round(carousel.scrollLeft / carousel.clientWidth);
     setMonthIndex(Math.max(0, Math.min(nextIndex, months.length - 1)));
   }
 
@@ -367,71 +351,53 @@ export function BookingCalendar() {
               </button>
             </div>
 
-            <div
-              className="mt-4 flex w-full min-w-0 max-w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              onScroll={syncMonthIndex}
-              ref={carouselRef}
-            >
-              {months.map((month) => {
-                const monthCells = buildMonthCells(month);
-                const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
-
-                return (
-                  <div className="w-full min-w-0 shrink-0 snap-start snap-always px-0.5" key={monthKey}>
-                    <div className="grid min-w-0 grid-cols-7 text-center">
-                      {WEEKDAYS.map((day) => (
-                        <div className="min-w-0 pb-2 text-[10px] font-semibold uppercase tracking-wide text-ink-muted sm:text-xs" key={day}>
-                          {day}
-                        </div>
-                      ))}
-
-                      {monthCells.map((date, index) => {
-                        if (!date) {
-                          return <div aria-hidden="true" className="min-w-0 aspect-square" key={`blank-${index}`} />;
-                        }
-
-                        const iso = toIsoDate(date);
-                        const available = availableDates.has(iso);
-                        const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
-
-                        return (
-                          <div className="flex min-w-0 aspect-square items-center justify-center p-0.5 sm:p-1" key={iso}>
-                            <button
-                              aria-label={fullDateFormatter.format(date)}
-                              className={`flex aspect-square w-full max-w-11 items-center justify-center rounded-full text-xs font-semibold transition sm:text-base ${
-                                active
-                                  ? "bg-primary text-white shadow-sm"
-                                  : available
-                                    ? "text-ink hover:bg-[#f2efff] hover:text-primary"
-                                    : "cursor-not-allowed text-ink-muted/35"
-                              }`}
-                              disabled={!available}
-                              onClick={() => {
-                                setSelectedDate(date);
-                                setSelectedTime(null);
-                                setStatus("idle");
-                                setMessage("");
-                              }}
-                              type="button"
-                            >
-                              {date.getDate()}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
+            <div className="mt-4 w-full min-w-0" aria-live="polite">
+              <div className="grid w-full min-w-0 grid-cols-7 text-center">
+                {WEEKDAYS.map((day) => (
+                  <div className="min-w-0 pb-2 text-[10px] font-semibold uppercase tracking-wide text-ink-muted sm:text-xs" key={day}>
+                    {day}
                   </div>
-                );
-              })}
-            </div>
+                ))}
+                {buildMonthCells(months[monthIndex]).map((date, index) => {
+                  if (!date) {
+                    return <div aria-hidden="true" className="min-w-0 aspect-square" key={`blank-${index}`} />;
+                  }
 
-            <div className="mt-4 flex items-center justify-between gap-3 px-1 text-xs text-ink-muted">
-              <span className="flex min-w-0 items-center gap-2">
-                <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
-                <span className="truncate">Seleziona uno dei giorni disponibili</span>
-              </span>
-              <span className="shrink-0">Scorri →</span>
+                  const iso = toIsoDate(date);
+                  const available = availableDates.has(iso);
+                  const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
+
+                  return (
+                    <div className="flex min-w-0 aspect-square items-center justify-center p-0.5 sm:p-1" key={iso}>
+                      <button
+                        aria-label={fullDateFormatter.format(date)}
+                        aria-pressed={active}
+                        className={`flex aspect-square w-full max-w-11 items-center justify-center rounded-full text-xs font-semibold transition sm:text-base ${
+                          active
+                            ? "bg-primary text-white shadow-sm"
+                            : available
+                              ? "text-ink hover:bg-[#f2efff] hover:text-primary"
+                              : "cursor-not-allowed text-ink-muted/35"
+                        }`}
+                        disabled={!available}
+                        onClick={() => {
+                          setSelectedDate(date);
+                          setSelectedTime(null);
+                          setStatus("idle");
+                          setMessage("");
+                        }}
+                        type="button"
+                      >
+                        {date.getDate()}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+            <p className="mt-4 px-1 text-xs text-ink-muted">
+              Seleziona uno dei giorni disponibili. Usa le frecce per cambiare mese.
+            </p>
           </div>
         </section>
 
