@@ -443,9 +443,9 @@ export function BookingCalendar() {
         ) : null}
       </div>
 
-      <Card as="section" variant="bordered" className="h-fit min-w-0 max-w-full lg:sticky lg:top-28">
+      <Card as="section" variant="bordered" className="h-fit w-full min-w-0 max-w-full overflow-hidden lg:sticky lg:top-28">
         {status === "success" ? (
-          <div className="py-4 text-center sm:py-8" role="status" aria-live="polite">
+          <div className="min-w-0 max-w-full overflow-hidden py-4 text-center sm:py-8" role="status" aria-live="polite">
             <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 text-3xl font-semibold text-emerald-700">
               ✓
             </div>
@@ -456,7 +456,7 @@ export function BookingCalendar() {
             </p>
 
             {selectedDate && selectedTime ? (
-              <div className="mx-auto mt-6 max-w-md rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-left">
+              <div className="mx-auto mt-6 w-full min-w-0 max-w-md overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-left">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Riepilogo richiesta</p>
                 <p className="mt-2 font-semibold capitalize text-ink">{fullDateFormatter.format(selectedDate)}</p>
                 <p className="mt-1 text-sm leading-6 text-ink-soft">
@@ -468,7 +468,7 @@ export function BookingCalendar() {
               </div>
             ) : null}
 
-            <p className="mx-auto mt-6 max-w-md text-sm leading-6 text-ink-muted">
+            <p className="mx-auto mt-6 max-w-md break-words px-1 text-sm leading-6 text-ink-muted">
               Giorgia potrà gestire la richiesta dalla sua area riservata.
             </p>
           </div>
