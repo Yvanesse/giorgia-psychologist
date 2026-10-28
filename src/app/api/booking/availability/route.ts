@@ -53,7 +53,7 @@ export async function GET() {
         : Promise.resolve([]),
       (async () => {
         const supabase = createAdminClient();
-        if (!supabase) return [] as Array<{ appointment_date: string; appointment_time: string; status: string }>;
+        if (!supabase) throw new Error("Booking database unavailable");
 
         const { data, error } = await supabase
           .from("appointment_requests")
