@@ -15,7 +15,6 @@ type BookingForm = {
 
 type BookingFormErrors = Partial<Record<keyof BookingForm | "consent", string>>;
 
-const TEST_SLOTS = ["09:00", "11:00", "15:00", "17:00"] as const;
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
 
 const monthFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -98,9 +97,8 @@ function buildMonths(firstMonth: Date, lastMonth: Date) {
 
 export function BookingCalendar() {
   const availableDays = useMemo(() => buildTestDays(), []);
-  const [availability, setAvailability] = useState<Record<string, string[]>>(() =>
-    Object.fromEntries(availableDays.map((date) => [toIsoDate(date), [...TEST_SLOTS]])),
-  );
+  const [availability, setAvailability] = useState<Record<string, string[]>>({});
+  const [availabilityState, setAvailabilityState] = useState<"loading" | "ready" | "error">("loading");
   const [calendarConnected, setCalendarConnected] = useState(false);
   const availableDates = useMemo(
     () => new Set(Object.entries(availability).filter(([, slots]) => slots.length > 0).map(([date]) => date)),
@@ -134,21 +132,26 @@ export function BookingCalendar() {
     async function loadAvailability() {
       try {
         const response = await fetch("/api/booking/availability", { cache: "no-store" });
-        if (!response.ok) return;
+        if (!response.ok) throw new Error("Disponibilità non disponibili");
 
         const data = (await response.json()) as {
           calendarConfigured?: boolean;
           dates?: Array<{ date: string; availableSlots: string[] }>;
         };
 
-        if (cancelled || !data.dates) return;
+        if (cancelled) return;
+        if (!Array.isArray(data.dates)) throw new Error("Risposta disponibilità non valida");
 
         setAvailability(
           Object.fromEntries(data.dates.map((item) => [item.date, item.availableSlots])),
         );
         setCalendarConnected(Boolean(data.calendarConfigured));
+        setAvailabilityState("ready");
       } catch {
-        // Keep the safe fallback schedule if live availability is temporarily unavailable.
+        if (!cancelled) {
+          setAvailability({});
+          setAvailabilityState("error");
+        }
       }
     }
 
@@ -184,7 +187,7 @@ export function BookingCalendar() {
     setMonthIndex(Math.max(0, Math.min(nextIndex, months.length - 1)));
   }
 
-  const canSubmit = Boolean(selectedDate && selectedTime);
+  const canSubmit = availabilityState === "ready" && Boolean(selectedDate && selectedTime && availableTimes.includes(selectedTime));
 
   function validateForm() {
     const errors: BookingFormErrors = {};
@@ -224,7 +227,7 @@ export function BookingCalendar() {
 
   async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedDate || !selectedTime || submittingRef.current || status === "success") return;
+    if (!canSubmit || !selectedDate || !selectedTime || submittingRef.current || status === "success") return;
 
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
@@ -258,6 +261,21 @@ export function BookingCalendar() {
       setMessage(data.message || "Richiesta inviata correttamente.");
     } catch (error) {
       setStatus("error");
+      if (error instanceof Error && /slot|orario/i.test(error.message)) {
+        setSelectedTime(null);
+        setAvailabilityState("loading");
+        try {
+          const refresh = await fetch("/api/booking/availability", { cache: "no-store" });
+          if (!refresh.ok) throw new Error();
+          const data = (await refresh.json()) as { dates?: Array<{ date: string; availableSlots: string[] }> };
+          if (!Array.isArray(data.dates)) throw new Error();
+          setAvailability(Object.fromEntries(data.dates.map((item) => [item.date, item.availableSlots])));
+          setAvailabilityState("ready");
+        } catch {
+          setAvailability({});
+          setAvailabilityState("error");
+        }
+      }
       setMessage(error instanceof Error ? error.message : "Si è verificato un errore.");
     } finally {
       submittingRef.current = false;
@@ -315,10 +333,15 @@ export function BookingCalendar() {
               </h2>
             </div>
             <p className="text-sm text-ink-muted">
-              {calendarConnected ? "Sincronizzato con Google Calendar" : "Disponibilità attuali"}
+              {availabilityState === "loading" ? "Caricamento disponibilità…" : availabilityState === "error" ? "Disponibilità non disponibili" : calendarConnected ? "Sincronizzato con Google Calendar" : "Disponibilità attuali"}
             </p>
           </div>
 
+          {availabilityState === "error" ? (
+            <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-ink-soft" role="alert">
+              Il calendario non è temporaneamente disponibile. Nessuna richiesta verrà inviata finché non sarà possibile verificare gli orari. Ricarica la pagina o contatta Giorgia tramite i recapiti del sito.
+            </p>
+          ) : null}
           <div className="mt-5 w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-border bg-white p-3 sm:p-5">
             <div className="flex min-w-0 items-center justify-between gap-3 px-1">
               <button
