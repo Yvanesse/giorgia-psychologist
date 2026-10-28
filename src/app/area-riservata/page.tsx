@@ -35,7 +35,9 @@ export default function PrivateAreaPage() {
         return;
       }
 
-      router.replace("/admin");
+      const next = new URLSearchParams(window.location.search).get("next");
+      const destination = next?.startsWith("/admin") && !next.startsWith("//") ? next : "/admin";
+      router.replace(destination);
       router.refresh();
     } catch {
       setError("Non è stato possibile accedere. Riprova tra poco.");
