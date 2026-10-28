@@ -40,7 +40,7 @@ function safe(value: unknown) {
 
 async function saveBooking(payload: Required<BookingPayload>) {
   const supabase = createAdminClient();
-  if (!supabase) return { configured: false, saved: false };
+  if (!supabase) throw new Error("Booking database unavailable");
 
   const { error } = await supabase.from("appointment_requests").insert({
     mode: payload.mode,
@@ -184,9 +184,7 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({
-      message: "Richiesta registrata in modalità test. Il database non è ancora configurato.",
-    });
+    return NextResponse.json({ message: "Servizio prenotazioni non disponibile." }, { status: 503 });
   } catch {
     return NextResponse.json(
       { message: "Non è stato possibile elaborare la richiesta. Riprova tra poco." },
