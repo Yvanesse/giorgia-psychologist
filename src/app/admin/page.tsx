@@ -90,7 +90,10 @@ function EmptyAppointments() {
 }
 
 export default function AdminPage() {
-  const [view, setView] = useState<AdminView>("overview");
+  const [view, setView] = useState<AdminView>(() => {
+    if (typeof window === "undefined") return "overview";
+    return new URLSearchParams(window.location.search).get("view") === "appointments" ? "appointments" : "overview";
+  });
   const [editorOpen, setEditorOpen] = useState(false);
   const [drafts, setDrafts] = useState<ArticleDraft[]>(
     articlesContent.items.map((article) => ({
