@@ -37,8 +37,10 @@ body {
   font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
+html,
 body {
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .section-label {
