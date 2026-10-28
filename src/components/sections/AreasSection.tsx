@@ -8,15 +8,6 @@ import { SectionHeading } from "./SectionHeading";
 
 const areaStyles = [
   {
-    panel: "bg-[#fff3ef]",
-    accent: "text-[#d36e59]",
-    chip: "border-[#f0d1c8] bg-white/80 text-[#b95a48]",
-    gradient: "from-[#f6a18d] via-[#d96a55] to-[#ffd0c4]",
-    bar: "bg-[#d36e59]",
-    ring: "border-[#d36e59]/15",
-    words: ["ANSIA", "AUTOSTIMA", "CAMBIAMENTO"],
-  },
-  {
     panel: "bg-[#f7f3ff]",
     accent: "text-[#6848ed]",
     chip: "border-[#ddcffd] bg-white/80 text-[#5d3ed7]",
@@ -24,6 +15,15 @@ const areaStyles = [
     bar: "bg-[#6848ed]",
     ring: "border-[#6848ed]/15",
     words: ["SESSUALITÀ", "DIALOGO", "RELAZIONI"],
+  },
+  {
+    panel: "bg-[#fff3ef]",
+    accent: "text-[#d36e59]",
+    chip: "border-[#f0d1c8] bg-white/80 text-[#b95a48]",
+    gradient: "from-[#f6a18d] via-[#d96a55] to-[#ffd0c4]",
+    bar: "bg-[#d36e59]",
+    ring: "border-[#d36e59]/15",
+    words: ["ANSIA", "AUTOSTIMA", "CAMBIAMENTO"],
   },
   {
     panel: "bg-[#eff7f2]",
