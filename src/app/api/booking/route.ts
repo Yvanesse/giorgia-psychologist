@@ -17,6 +17,7 @@ import {
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type BookingPayload = {
+  serviceType?: "individuale" | "coppia" | "familiare";
   mode?: "in-presenza" | "online";
   date?: string;
   time?: string;
@@ -44,6 +45,7 @@ async function saveBooking(payload: Required<BookingPayload>) {
 
   const { error } = await supabase.from("appointment_requests").insert({
     mode: payload.mode,
+    service_type: payload.serviceType,
     appointment_date: payload.date,
     appointment_time: payload.time,
     first_name: payload.firstName,
@@ -79,7 +81,8 @@ async function sendSmsNotification(payload: Required<BookingPayload>) {
 
   if (!accountSid || !authToken || !from || !to) return { configured: false, sent: false };
 
-  const body = `Nuova richiesta: ${payload.firstName} ${payload.lastName}, ${payload.date} ${payload.time}, ${
+  const serviceLabel = payload.serviceType === "coppia" ? "di coppia" : payload.serviceType === "familiare" ? "familiare" : "individuale";
+  const body = `Nuova richiesta (${serviceLabel}): ${payload.firstName} ${payload.lastName}, ${payload.date} ${payload.time}, ${
     payload.mode === "online" ? "online" : "in presenza"
   }.`;
 
@@ -111,6 +114,7 @@ export async function POST(request: Request) {
   }
 
   const payload: Required<BookingPayload> = {
+    serviceType: input.serviceType === "individuale" || input.serviceType === "coppia" || input.serviceType === "familiare" ? input.serviceType : "",
     mode: input.mode === "online" ? "online" : "in-presenza",
     date: safe(input.date),
     time: safe(input.time),
@@ -121,6 +125,7 @@ export async function POST(request: Request) {
   };
 
   if (
+    !payload.serviceType ||
     !payload.date ||
     !/^\d{4}-\d{2}-\d{2}$/.test(payload.date) ||
     !isAllowedBookingDate(payload.date) ||
