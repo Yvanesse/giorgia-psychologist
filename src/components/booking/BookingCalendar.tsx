@@ -354,7 +354,7 @@ export function BookingCalendar() {
     <div ref={wizardRef} className="mx-auto mt-7 w-full min-w-0 max-w-3xl scroll-mt-24 pb-28 sm:mt-10 sm:pb-0">
       <div
         aria-label="Avanzamento della prenotazione"
-        aria-valuemin={0}
+        aria-valuemin={1}
         aria-valuemax={STEP_TITLES.length}
         aria-valuenow={step + 1}
         aria-valuetext={STEP_TITLES[step]}
@@ -586,7 +586,7 @@ export function BookingCalendar() {
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-border bg-white/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(24,24,27,0.07)] backdrop-blur-lg sm:static sm:mt-5 sm:rounded-2xl sm:border sm:px-5 sm:py-4 sm:shadow-none">
         <button
           className="min-h-12 rounded-full px-2 text-base font-semibold text-primary hover:text-primary-strong disabled:cursor-not-allowed disabled:opacity-30"
-          disabled={step === 1 || status === "submitting"}
+          disabled={step === 0 || status === "submitting"}
           onClick={() => setStep((current) => Math.max(0, current - 1))}
           type="button"
         >
