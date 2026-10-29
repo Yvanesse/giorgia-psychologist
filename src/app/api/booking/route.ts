@@ -113,8 +113,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Richiesta non valida." }, { status: 400 });
   }
 
+  if (
+    input.serviceType !== "individuale" &&
+    input.serviceType !== "coppia" &&
+    input.serviceType !== "familiare"
+  ) {
+    return NextResponse.json({ message: "Seleziona la tipologia del colloquio." }, { status: 400 });
+  }
+
   const payload: Required<BookingPayload> = {
-    serviceType: input.serviceType === "individuale" || input.serviceType === "coppia" || input.serviceType === "familiare" ? input.serviceType : "",
+    serviceType: input.serviceType,
     mode: input.mode === "online" ? "online" : "in-presenza",
     date: safe(input.date),
     time: safe(input.time),
