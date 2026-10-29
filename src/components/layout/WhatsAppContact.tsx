@@ -1,8 +1,17 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 import { siteConfig } from "@/config/site.config";
 
 const message = "Ciao Giorgia, ti contatto dal sito per avere alcune informazioni.";
 
 export function WhatsAppContact() {
+  const pathname = usePathname();
+
+  // Keep the booking action bar unobstructed on mobile and desktop.
+  if (pathname === "/prenota" || pathname.startsWith("/prenota/")) return null;
+
   const phone = siteConfig.contacts.phone.replace(/\D/g, "");
   const href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
