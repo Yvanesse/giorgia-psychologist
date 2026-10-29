@@ -41,7 +41,7 @@ export async function GET() {
 
     const { data, error } = await context.supabase
       .from("appointment_requests")
-      .select("id, mode, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
+      .select("id, mode, service_type, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
       .order("appointment_date", { ascending: true })
       .order("appointment_time", { ascending: true });
 
@@ -72,7 +72,7 @@ export async function PATCH(request: Request) {
 
     const { data: appointment, error: appointmentError } = await context.supabase
       .from("appointment_requests")
-      .select("id, mode, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id")
+      .select("id, mode, service_type, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id")
       .eq("id", input.id)
       .maybeSingle();
 
@@ -111,13 +111,14 @@ export async function PATCH(request: Request) {
         start: start.toISOString(),
         end: end.toISOString(),
         mode: appointment.mode,
+        serviceType: appointment.service_type,
       });
 
       const { data, error } = await context.supabase
         .from("appointment_requests")
         .update({ status: "confirmed", google_event_id: googleEventId })
         .eq("id", appointment.id)
-        .select("id, mode, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
+        .select("id, mode, service_type, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
         .single();
 
       if (error) {
@@ -128,6 +129,7 @@ export async function PATCH(request: Request) {
       const patientNotification = await sendPatientAppointmentStatusNotification({
         status: "confirmed",
         mode: data.mode,
+        serviceType: data.service_type,
         date: data.appointment_date,
         time: String(data.appointment_time).slice(0, 5),
         firstName: data.first_name,
@@ -159,7 +161,7 @@ export async function PATCH(request: Request) {
         google_event_id: input.status === "cancelled" ? null : appointment.google_event_id,
       })
       .eq("id", appointment.id)
-      .select("id, mode, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
+      .select("id, mode, service_type, appointment_date, appointment_time, first_name, last_name, email, phone, status, google_event_id, created_at")
       .single();
 
     if (error) throw error;
@@ -168,6 +170,7 @@ export async function PATCH(request: Request) {
       const patientNotification = await sendPatientAppointmentStatusNotification({
         status: "cancelled",
         mode: data.mode,
+        serviceType: data.service_type,
         date: data.appointment_date,
         time: String(data.appointment_time).slice(0, 5),
         firstName: data.first_name,
