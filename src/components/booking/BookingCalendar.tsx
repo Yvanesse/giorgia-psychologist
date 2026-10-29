@@ -2,75 +2,45 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { Button, Card } from "@/components/ui";
-
 type BookingMode = "in-presenza" | "online";
-
 type BookingForm = {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
 };
-
 type BookingFormErrors = Partial<Record<keyof BookingForm | "consent", string>>;
+type AvailabilityState = "loading" | "ready" | "error";
+type SubmissionState = "idle" | "submitting" | "success" | "error";
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
+const STEP_TITLES = ["Modalità", "Data", "Orario", "I tuoi dati", "Riepilogo"] as const;
 
-const monthFormatter = new Intl.DateTimeFormat("it-IT", {
-  month: "long",
-  year: "numeric",
-});
-
-const fullDateFormatter = new Intl.DateTimeFormat("it-IT", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
+const monthFormatter = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" });
+const dateFormatter = new Intl.DateTimeFormat("it-IT", {
+  weekday: "long", day: "numeric", month: "long", year: "numeric",
 });
 
 function toIsoDate(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 }
 
 function firstDayOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1, 12);
 }
 
-function addMonths(date: Date, amount: number) {
-  return new Date(date.getFullYear(), date.getMonth() + amount, 1, 12);
-}
-
-function buildTestDays() {
-  const days: Date[] = [];
-  const cursor = new Date();
-  cursor.setHours(12, 0, 0, 0);
-  cursor.setDate(cursor.getDate() + 1);
-
-  while (days.length < 60) {
-    const weekday = cursor.getDay();
-    if (weekday !== 0 && weekday !== 6) {
-      days.push(new Date(cursor));
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  return days;
-}
-
 function buildMonthCells(month: Date) {
   const first = firstDayOfMonth(month);
-  const mondayOffset = (first.getDay() + 6) % 7;
-  const cells: Array<Date | null> = Array.from({ length: mondayOffset }, () => null);
-  const daysInMonth = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-
-  for (let day = 1; day <= daysInMonth; day += 1) {
+  const offset = (first.getDay() + 6) % 7;
+  const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  const cells: Array<Date | null> = Array(offset).fill(null);
+  for (let day = 1; day <= days; day += 1) {
     cells.push(new Date(first.getFullYear(), first.getMonth(), day, 12));
   }
-
   while (cells.length % 7 !== 0) cells.push(null);
   return cells;
 }
@@ -83,47 +53,42 @@ function isValidPhone(value: string) {
   return /^[+\d][\d\s().-]{6,}$/.test(value.trim());
 }
 
-function buildMonths(firstMonth: Date, lastMonth: Date) {
-  const months: Date[] = [];
-  let cursor = firstDayOfMonth(firstMonth);
-
-  while (cursor.getTime() <= lastMonth.getTime()) {
-    months.push(cursor);
-    cursor = addMonths(cursor, 1);
-  }
-
-  return months;
+function modeLabel(mode: BookingMode | null) {
+  return mode === "online" ? "Online" : "In presenza";
 }
 
-export function BookingCalendar() {
-  const availableDays = useMemo(() => buildTestDays(), []);
-  const [availability, setAvailability] = useState<Record<string, string[]>>({});
-  const [availabilityState, setAvailabilityState] = useState<"loading" | "ready" | "error">("loading");
-  const [calendarConnected, setCalendarConnected] = useState(false);
-  const availableDates = useMemo(
-    () => new Set(Object.entries(availability).filter(([, slots]) => slots.length > 0).map(([date]) => date)),
-    [availability],
-  );
-  const firstAvailableMonth = useMemo(() => firstDayOfMonth(availableDays[0]), [availableDays]);
-  const lastAvailableMonth = useMemo(
-    () => firstDayOfMonth(availableDays[availableDays.length - 1]),
-    [availableDays],
-  );
-  const months = useMemo(
-    () => buildMonths(firstAvailableMonth, lastAvailableMonth),
-    [firstAvailableMonth, lastAvailableMonth],
-  );
+const fieldClass = "mt-2 min-h-12 w-full min-w-0 rounded-2xl border border-border bg-white px-4 text-base font-normal text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary/10";
 
+export function BookingCalendar() {
+  const wizardRef = useRef<HTMLDivElement>(null);
+  const stepTitleRef = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef(0);
   const submittingRef = useRef(false);
+
+  const [step, setStep] = useState(0);
+  const [mode, setMode] = useState<BookingMode | null>(null);
+  const [availability, setAvailability] = useState<Record<string, string[]>>({});
+  const [availabilityState, setAvailabilityState] = useState<AvailabilityState>("loading");
+  const [calendarConnected, setCalendarConnected] = useState(false);
   const [monthIndex, setMonthIndex] = useState(0);
-  const [mode, setMode] = useState<BookingMode>("in-presenza");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [form, setForm] = useState<BookingForm>({ firstName: "", lastName: "", email: "", phone: "" });
+  const [form, setForm] = useState<BookingForm>({
+    firstName: "", lastName: "", email: "", phone: "",
+  });
   const [formErrors, setFormErrors] = useState<BookingFormErrors>({});
   const [consent, setConsent] = useState(false);
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<SubmissionState>("idle");
   const [message, setMessage] = useState("");
+
+  // Links from the homepage can pre-select the mode without relying on DOM clicks.
+  useEffect(() => {
+    const requestedMode = new URLSearchParams(window.location.search).get("mode");
+    if (requestedMode === "online" || requestedMode === "in-presenza") {
+      setMode(requestedMode);
+      setStep(1);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,20 +96,15 @@ export function BookingCalendar() {
     async function loadAvailability() {
       try {
         const response = await fetch("/api/booking/availability", { cache: "no-store" });
-        if (!response.ok) throw new Error("Disponibilità non disponibili");
-
-        const data = (await response.json()) as {
+        if (!response.ok) throw new Error("Availability unavailable");
+        const result = (await response.json()) as {
           calendarConfigured?: boolean;
           dates?: Array<{ date: string; availableSlots: string[] }>;
         };
-
+        if (!Array.isArray(result.dates)) throw new Error("Invalid availability");
         if (cancelled) return;
-        if (!Array.isArray(data.dates)) throw new Error("Risposta disponibilità non valida");
-
-        setAvailability(
-          Object.fromEntries(data.dates.map((item) => [item.date, item.availableSlots])),
-        );
-        setCalendarConnected(Boolean(data.calendarConfigured));
+        setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
+        setCalendarConnected(Boolean(result.calendarConfigured));
         setAvailabilityState("ready");
       } catch {
         if (!cancelled) {
@@ -155,73 +115,135 @@ export function BookingCalendar() {
     }
 
     void loadAvailability();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    if (step === previousStep.current) return;
+    previousStep.current = step;
+    const frame = window.requestAnimationFrame(() => {
+      wizardRef.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      });
+      stepTitleRef.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [step]);
 
-  const canGoBack = monthIndex > 0;
-  const canGoForward = monthIndex < months.length - 1;
+  const availableDates = useMemo(() =>
+    new Set(
+      Object.entries(availability)
+        .filter(([, times]) => times.length > 0)
+        .map(([day]) => day),
+    ), [availability]);
+
+  const months = useMemo(() => {
+    const now = new Date();
+    const first = firstDayOfMonth(now);
+    // The server supplies up to 90 days; include four possible calendar months.
+    return Array.from({ length: 4 }, (_, offset) =>
+      new Date(first.getFullYear(), first.getMonth() + offset, 1, 12),
+    );
+  }, []);
+
   const selectedDateKey = selectedDate ? toIsoDate(selectedDate) : null;
   const availableTimes = selectedDateKey ? availability[selectedDateKey] ?? [] : [];
+  const canSubmit = Boolean(
+    mode && selectedDate && selectedTime &&
+    availabilityState === "ready" && availableTimes.includes(selectedTime),
+  );
 
-  function goToMonth(nextIndex: number) {
-    setMonthIndex(Math.max(0, Math.min(nextIndex, months.length - 1)));
+  function chooseMode(value: BookingMode) {
+    setMode(value);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setStatus("idle");
+    setMessage("");
+    setStep(1);
   }
 
-  const canSubmit = availabilityState === "ready" && Boolean(selectedDate && selectedTime && availableTimes.includes(selectedTime));
+  function chooseDate(value: Date) {
+    setSelectedDate(value);
+    setSelectedTime(null);
+    setStatus("idle");
+    setMessage("");
+    setStep(2);
+  }
+
+  function chooseTime(value: string) {
+    setSelectedTime(value);
+    setStatus("idle");
+    setMessage("");
+    setStep(3);
+  }
 
   function validateForm() {
     const errors: BookingFormErrors = {};
-
     if (!form.firstName.trim()) errors.firstName = "Inserisci il nome.";
     if (!form.lastName.trim()) errors.lastName = "Inserisci il cognome.";
-
-    if (!form.email.trim()) {
-      errors.email = "Inserisci l’email.";
-    } else if (!isValidEmail(form.email)) {
-      errors.email = "Inserisci un indirizzo email valido.";
-    }
-
-    if (!form.phone.trim()) {
-      errors.phone = "Inserisci il numero di telefono.";
-    } else if (!isValidPhone(form.phone)) {
-      errors.phone = "Inserisci un numero di telefono valido.";
-    }
-
+    if (!form.email.trim()) errors.email = "Inserisci l’email.";
+    else if (!isValidEmail(form.email)) errors.email = "Inserisci un indirizzo email valido.";
+    if (!form.phone.trim()) errors.phone = "Inserisci il numero di telefono.";
+    else if (!isValidPhone(form.phone)) errors.phone = "Inserisci un numero di telefono valido.";
     if (!consent) errors.consent = "Conferma di aver letto l’Informativa Privacy.";
-
     return errors;
   }
 
   function clearFieldError(field: keyof BookingFormErrors) {
     setFormErrors((current) => {
       if (!current[field]) return current;
-      const next = { ...current };
-      delete next[field];
-      return next;
+      const updated = { ...current };
+      delete updated[field];
+      return updated;
     });
-    if (status === "error") {
-      setStatus("idle");
-      setMessage("");
+    if (status === "error") { setStatus("idle"); setMessage(""); }
+  }
+
+  function continueToReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length) {
+      setFormErrors(errors);
+      setMessage("Controlla i campi evidenziati.");
+      return;
+    }
+    setFormErrors({});
+    setMessage("");
+    setStatus("idle");
+    setStep(4);
+  }
+
+  async function refreshAvailability() {
+    setAvailabilityState("loading");
+    try {
+      const response = await fetch("/api/booking/availability", { cache: "no-store" });
+      if (!response.ok) throw new Error();
+      const result = (await response.json()) as {
+        dates?: Array<{ date: string; availableSlots: string[] }>;
+        calendarConfigured?: boolean;
+      };
+      if (!Array.isArray(result.dates)) throw new Error();
+      setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
+      setCalendarConnected(Boolean(result.calendarConfigured));
+      setAvailabilityState("ready");
+    } catch {
+      setAvailability({});
+      setAvailabilityState("error");
     }
   }
 
   async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!canSubmit || !selectedDate || !selectedTime || submittingRef.current || status === "success") return;
+    if (step !== 4 || !canSubmit || !selectedDate || !selectedTime || !mode ||
+        submittingRef.current || status === "success") return;
 
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      setStatus("error");
-      setMessage("Controlla i campi evidenziati e riprova.");
+    if (Object.keys(validateForm()).length > 0) {
+      setFormErrors(validateForm());
+      setStep(3);
       return;
     }
 
-    setFormErrors({});
     submittingRef.current = true;
     setStatus("submitting");
     setMessage("");
@@ -237,384 +259,262 @@ export function BookingCalendar() {
           ...form,
         }),
       });
-
-      const data = (await response.json()) as { message?: string };
-      if (!response.ok) throw new Error(data.message || "Non è stato possibile inviare la richiesta.");
-
+      const result = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        if (response.status === 409) {
+          setSelectedTime(null);
+          setStep(2);
+          await refreshAvailability();
+        }
+        throw new Error(result.message || "Non è stato possibile inviare la richiesta.");
+      }
       setStatus("success");
-      setMessage(data.message || "Richiesta inviata correttamente.");
+      setMessage(result.message || "Richiesta ricevuta correttamente.");
     } catch (error) {
       setStatus("error");
-      if (error instanceof Error && /slot|orario/i.test(error.message)) {
-        setSelectedTime(null);
-        setAvailabilityState("loading");
-        try {
-          const refresh = await fetch("/api/booking/availability", { cache: "no-store" });
-          if (!refresh.ok) throw new Error();
-          const data = (await refresh.json()) as { dates?: Array<{ date: string; availableSlots: string[] }> };
-          if (!Array.isArray(data.dates)) throw new Error();
-          setAvailability(Object.fromEntries(data.dates.map((item) => [item.date, item.availableSlots])));
-          setAvailabilityState("ready");
-        } catch {
-          setAvailability({});
-          setAvailabilityState("error");
-        }
-      }
       setMessage(error instanceof Error ? error.message : "Si è verificato un errore.");
     } finally {
       submittingRef.current = false;
     }
   }
 
+  const field = (
+    key: keyof BookingForm,
+    label: string,
+    type: string,
+    autoComplete: string,
+  ) => (
+    <label className="block min-w-0 text-sm font-semibold text-ink" key={key}>
+      {label}
+      <input
+        aria-invalid={Boolean(formErrors[key])}
+        autoComplete={autoComplete}
+        className={[fieldClass, formErrors[key] ? "border-red-500 bg-red-50/30" : ""].join(" ")}
+        inputMode={key === "phone" ? "tel" : undefined}
+        onChange={(event) => {
+          setForm((current) => ({ ...current, [key]: event.target.value }));
+          clearFieldError(key);
+        }}
+        required
+        type={type}
+        value={form[key]}
+      />
+      {formErrors[key] ? <span className="mt-1 block text-xs text-red-700">{formErrors[key]}</span> : null}
+    </label>
+  );
+
+  if (status === "success") {
+    return (
+      <section className="mx-auto mt-7 w-full max-w-3xl rounded-[2rem] border border-emerald-200 bg-white px-5 py-10 text-center sm:p-10" role="status" aria-live="polite">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 text-3xl font-semibold text-emerald-700">✓</div>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-emerald-700">Richiesta ricevuta</p>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-ink">Richiesta inviata con successo</h2>
+        <p className="mt-4 text-base leading-7 text-ink-soft">
+          La richiesta è in attesa della conferma di Giorgia. Riceverai una comunicazione via email.
+        </p>
+        <div className="mx-auto mt-6 max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left">
+          <p className="text-sm font-semibold text-emerald-800">Riepilogo</p>
+          <p className="mt-2 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
+          <p className="mt-1 text-sm text-ink-soft">{selectedTime} · {modeLabel(mode)}</p>
+          <p className="mt-3 border-t border-emerald-200 pt-3 text-sm text-ink-soft">Stato: in attesa di conferma</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="mt-12 grid w-full min-w-0 max-w-full gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)]">
-      <div className="min-w-0 space-y-8">
-        <section className="min-w-0" aria-labelledby="booking-mode-title">
-          <h2 id="booking-mode-title" className="text-2xl font-semibold tracking-tight text-ink">
-            Modalità del colloquio
-          </h2>
-          <div className="mt-5 grid min-w-0 gap-4 sm:grid-cols-2">
-            {[
-              ["in-presenza", "In presenza", "Colloquio presso lo studio professionale."],
-              ["online", "Online", "Colloquio da remoto, in videochiamata."],
-            ].map(([id, title, description]) => {
-              const active = mode === id;
-              return (
-                <button
-                  className={`min-w-0 rounded-3xl border p-5 text-left transition-colors sm:p-6 ${
-                    active ? "border-primary bg-[#f8f6ff]" : "border-border bg-white hover:border-primary/40"
-                  }`}
-                  key={id}
-                  onClick={() => setMode(id as BookingMode)}
-                  type="button"
-                >
-                  <span className="flex min-w-0 items-start gap-4">
-                    <span
-                      aria-hidden="true"
-                      className={`mt-1 size-4 shrink-0 rounded-full border-2 ${
-                        active ? "border-primary bg-primary shadow-[inset_0_0_0_3px_white]" : "border-border bg-white"
-                      }`}
-                    />
-                    <span className="min-w-0">
-                      <span className="block text-xl font-semibold tracking-tight text-ink">{title}</span>
-                      <span className="mt-2 block text-base leading-7 text-ink-soft">{description}</span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="min-w-0" aria-labelledby="booking-date-title">
-          <div className="flex min-w-0 flex-wrap items-end justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">
-                {calendarConnected ? "Disponibilità" : "Calendario"}
-              </p>
-              <h2 id="booking-date-title" className="mt-2 text-2xl font-semibold tracking-tight text-ink">
-                Scegli un giorno
-              </h2>
-            </div>
-            <p className="text-sm text-ink-muted">
-              {availabilityState === "loading" ? "Caricamento disponibilità…" : availabilityState === "error" ? "Disponibilità non disponibili" : calendarConnected ? "Sincronizzato con Google Calendar" : "Disponibilità attuali"}
-            </p>
-          </div>
-
-          {availabilityState === "error" ? (
-            <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-ink-soft" role="alert">
-              Il calendario non è temporaneamente disponibile. Nessuna richiesta verrà inviata finché non sarà possibile verificare gli orari. Ricarica la pagina o contatta Giorgia tramite i recapiti del sito.
-            </p>
-          ) : null}
-          <div className="mt-5 w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-border bg-white p-3 sm:p-5">
-            <div className="flex min-w-0 items-center justify-between gap-3 px-1">
-              <button
-                aria-label="Mese precedente"
-                className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border text-xl text-ink transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-                disabled={!canGoBack}
-                onClick={() => goToMonth(monthIndex - 1)}
-                type="button"
-              >
-                ‹
-              </button>
-              <h3 className="min-w-0 truncate text-center text-lg font-semibold capitalize tracking-tight text-ink sm:text-xl">
-                {monthFormatter.format(months[monthIndex])}
-              </h3>
-              <button
-                aria-label="Mese successivo"
-                className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border text-xl text-ink transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-                disabled={!canGoForward}
-                onClick={() => goToMonth(monthIndex + 1)}
-                type="button"
-              >
-                ›
-              </button>
-            </div>
-
-            <div className="mt-4 w-full min-w-0" aria-live="polite">
-              <div className="grid w-full min-w-0 grid-cols-7 text-center">
-                {WEEKDAYS.map((day) => (
-                  <div className="min-w-0 pb-2 text-[10px] font-semibold uppercase tracking-wide text-ink-muted sm:text-xs" key={day}>
-                    {day}
-                  </div>
-                ))}
-                {buildMonthCells(months[monthIndex]).map((date, index) => {
-                  if (!date) {
-                    return <div aria-hidden="true" className="min-w-0 aspect-square" key={`blank-${index}`} />;
-                  }
-
-                  const iso = toIsoDate(date);
-                  const available = availableDates.has(iso);
-                  const active = selectedDate ? toIsoDate(selectedDate) === iso : false;
-
-                  return (
-                    <div className="flex min-w-0 aspect-square items-center justify-center p-0.5 sm:p-1" key={iso}>
-                      <button
-                        aria-label={fullDateFormatter.format(date)}
-                        aria-pressed={active}
-                        className={`flex aspect-square w-full max-w-11 items-center justify-center rounded-full text-xs font-semibold transition sm:text-base ${
-                          active
-                            ? "bg-primary text-white shadow-sm"
-                            : available
-                              ? "text-ink hover:bg-[#f2efff] hover:text-primary"
-                              : "cursor-not-allowed text-ink-muted/35"
-                        }`}
-                        disabled={!available}
-                        onClick={() => {
-                          setSelectedDate(date);
-                          setSelectedTime(null);
-                          setStatus("idle");
-                          setMessage("");
-                        }}
-                        type="button"
-                      >
-                        {date.getDate()}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <p className="mt-4 px-1 text-xs text-ink-muted">
-              Seleziona uno dei giorni disponibili. Usa le frecce per cambiare mese.
-            </p>
-          </div>
-        </section>
-
-        {selectedDate ? (
-          <section className="min-w-0" aria-labelledby="booking-time-title">
-            <h2 id="booking-time-title" className="text-2xl font-semibold tracking-tight text-ink">
-              Scegli un orario
-            </h2>
-            <p className="mt-2 capitalize text-base text-ink-soft">{fullDateFormatter.format(selectedDate)}</p>
-            <div className="mt-5 grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4">
-              {availableTimes.map((time) => {
-                const active = selectedTime === time;
-                return (
-                  <button
-                    className={`min-h-12 min-w-0 rounded-full border px-4 font-semibold transition-colors ${
-                      active ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:border-primary hover:text-primary"
-                    }`}
-                    key={time}
-                    onClick={() => {
-                      setSelectedTime(time);
-                      setStatus("idle");
-                      setMessage("");
-                    }}
-                    type="button"
-                  >
-                    {time}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
+    <div ref={wizardRef} className="mx-auto mt-7 w-full min-w-0 max-w-3xl scroll-mt-24 sm:mt-10">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold text-primary-strong">Passaggio {step + 1} di {STEP_TITLES.length}</span>
+        <span className="text-sm text-ink-muted">Richiesta di appuntamento</span>
+      </div>
+      <div aria-label={"Avanzamento prenotazione: " + STEP_TITLES[step]} className="mb-6 grid grid-cols-5 gap-1.5" role="progressbar" aria-valuemin={1} aria-valuemax={5} aria-valuenow={step + 1}>
+        {STEP_TITLES.map((title, index) => (
+          <span
+            aria-hidden="true"
+            className={["h-1.5 rounded-full", index <= step ? "bg-primary" : "bg-[#e9e5f1]"].join(" ")}
+            key={title}
+          />
+        ))}
       </div>
 
-      <Card as="section" variant="bordered" className="h-fit w-full min-w-0 max-w-full overflow-hidden lg:sticky lg:top-28">
-        {status === "success" ? (
-          <div className="min-w-0 max-w-full overflow-hidden py-4 text-center sm:py-8" role="status" aria-live="polite">
-            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 text-3xl font-semibold text-emerald-700">
-              ✓
-            </div>
-            <p className="mt-6 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">Richiesta ricevuta</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">Richiesta inviata con successo</h2>
-            <p className="mx-auto mt-4 max-w-md text-base leading-7 text-ink-soft">
-              La richiesta è stata registrata correttamente. Non è necessario inviarla di nuovo.
-            </p>
+      <div className="min-w-0 rounded-[1.8rem] border border-border bg-white p-5 shadow-[0_18px_55px_rgba(24,24,27,0.045)] sm:p-8">
+        <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl" ref={stepTitleRef} tabIndex={-1}>
+          {step === 0 ? "Come preferisci incontrarci?" :
+            step === 1 ? "Quale giorno preferisci?" :
+            step === 2 ? "Scegli l’orario" :
+            step === 3 ? "Come possiamo contattarti?" :
+            "Controlla la tua richiesta"}
+        </h2>
 
-            {selectedDate && selectedTime ? (
-              <div className="mx-auto mt-6 w-full min-w-0 max-w-md overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-left">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">Riepilogo richiesta</p>
-                <p className="mt-2 font-semibold capitalize text-ink">{fullDateFormatter.format(selectedDate)}</p>
-                <p className="mt-1 text-sm leading-6 text-ink-soft">
-                  {selectedTime} · {mode === "online" ? "Online" : "In presenza"}
-                </p>
-                <div className="mt-4 border-t border-emerald-200 pt-4 text-sm leading-6 text-ink-soft">
-                  <strong className="text-ink">Stato:</strong> in attesa di conferma.
-                </div>
+        {step === 0 ? (
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {([
+              ["in-presenza", "In presenza", "Presso lo studio professionale a Trani."],
+              ["online", "Online", "Colloquio da remoto in videochiamata."],
+            ] as const).map(([value, label, description]) => (
+              <button
+                aria-label={label}
+                className="group min-h-36 rounded-3xl border border-border bg-white p-5 text-left transition-colors hover:border-primary hover:bg-[#f8f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                key={value}
+                onClick={() => chooseMode(value)}
+                type="button"
+              >
+                <span className="flex items-center gap-3">
+                  <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-[#f2efff] text-xl text-primary">
+                    {value === "online" ? "◉" : "⌂"}
+                  </span>
+                  <span className="text-xl font-semibold text-ink">{label}</span>
+                  <span aria-hidden="true" className="ml-auto text-lg text-primary">→</span>
+                </span>
+                <span className="mt-4 block text-sm leading-6 text-ink-soft">{description}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {step === 1 ? (
+          <div className="mt-5 min-w-0">
+            <p className="mb-4 text-sm leading-6 text-ink-soft">
+              Seleziona un giorno disponibile. Gli orari compariranno nel passaggio successivo.
+            </p>
+            {availabilityState === "error" ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-ink-soft" role="alert">
+                Il calendario non è temporaneamente disponibile. Riprova oppure contatta Giorgia attraverso i recapiti del sito.
+                <button className="mt-3 block font-semibold text-primary underline underline-offset-4" onClick={() => void refreshAvailability()} type="button">Ricarica disponibilità</button>
               </div>
-            ) : null}
-
-            <p className="mx-auto mt-6 max-w-md break-words px-1 text-sm leading-6 text-ink-muted">
-              Giorgia potrà gestire la richiesta dalla sua area riservata.
-            </p>
+            ) : (
+              <div className="min-w-0 rounded-2xl border border-border p-3 sm:p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <button aria-label="Mese precedente" className="flex size-10 items-center justify-center rounded-full border border-border text-xl disabled:opacity-30" disabled={monthIndex === 0} onClick={() => setMonthIndex((value) => value - 1)} type="button">‹</button>
+                  <h3 className="min-w-0 text-center text-lg font-semibold capitalize text-ink">{monthFormatter.format(months[monthIndex])}</h3>
+                  <button aria-label="Mese successivo" className="flex size-10 items-center justify-center rounded-full border border-border text-xl disabled:opacity-30" disabled={monthIndex === months.length - 1} onClick={() => setMonthIndex((value) => value + 1)} type="button">›</button>
+                </div>
+                <div className="mt-5 grid min-w-0 grid-cols-7 text-center" aria-label="Calendario delle disponibilità">
+                  {WEEKDAYS.map((day) => <span className="min-w-0 pb-2 text-[11px] font-semibold uppercase text-ink-muted" key={day}>{day}</span>)}
+                  {buildMonthCells(months[monthIndex]).map((date, index) => {
+                    if (!date) return <span aria-hidden="true" className="aspect-square" key={"empty-" + index} />;
+                    const available = availabilityState === "ready" && availableDates.has(toIsoDate(date));
+                    return (
+                      <div className="flex aspect-square min-w-0 items-center justify-center p-0.5" key={toIsoDate(date)}>
+                        <button
+                          aria-label={dateFormatter.format(date)}
+                          className={["flex aspect-square w-full max-w-11 items-center justify-center rounded-full text-sm font-semibold transition",
+                            available ? "text-ink hover:bg-[#f2efff] focus-visible:outline-primary" : "cursor-not-allowed text-ink-muted/30"].join(" ")}
+                          disabled={!available}
+                          onClick={() => chooseDate(date)}
+                          type="button"
+                        >{date.getDate()}</button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-4 px-1 text-xs text-ink-muted">
+                  {availabilityState === "loading" ? "Caricamento disponibilità…" :
+                    calendarConnected ? "Disponibilità aggiornate dal calendario." : "Seleziona uno dei giorni disponibili."}
+                </p>
+              </div>
+            )}
           </div>
-        ) : (
-          <>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-strong">Dati per la richiesta</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Completa la prenotazione</h2>
-            <p className="mt-3 text-base leading-7 text-ink-soft">
-              La richiesta verrà registrata e resterà in attesa di conferma. Dopo l’invio, lo slot non verrà più mostrato tra quelli disponibili.
-            </p>
+        ) : null}
 
-            <form className="mt-6 min-w-0 space-y-4" noValidate onSubmit={submitBooking}>
-          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-            <label className="min-w-0 text-sm font-semibold text-ink">
-              Nome
-              <input
-                aria-describedby={formErrors.firstName ? "first-name-error" : undefined}
-                aria-invalid={Boolean(formErrors.firstName)}
-                className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
-                  formErrors.firstName ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
-                }`}
-                onChange={(event) => {
-                  setForm((current) => ({ ...current, firstName: event.target.value }));
-                  clearFieldError("firstName");
-                }}
-                type="text"
-                value={form.firstName}
-              />
-              {formErrors.firstName ? (
-                <span className="mt-2 block text-sm font-medium text-red-700" id="first-name-error">
-                  {formErrors.firstName}
-                </span>
-              ) : null}
-            </label>
-            <label className="min-w-0 text-sm font-semibold text-ink">
-              Cognome
-              <input
-                aria-describedby={formErrors.lastName ? "last-name-error" : undefined}
-                aria-invalid={Boolean(formErrors.lastName)}
-                className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
-                  formErrors.lastName ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
-                }`}
-                onChange={(event) => {
-                  setForm((current) => ({ ...current, lastName: event.target.value }));
-                  clearFieldError("lastName");
-                }}
-                type="text"
-                value={form.lastName}
-              />
-              {formErrors.lastName ? (
-                <span className="mt-2 block text-sm font-medium text-red-700" id="last-name-error">
-                  {formErrors.lastName}
-                </span>
-              ) : null}
-            </label>
+        {step === 2 ? (
+          <div className="mt-6">
+            <p className="mb-5 capitalize text-base text-ink-soft">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
+            {availabilityState === "error" ? (
+              <p className="rounded-2xl bg-amber-50 p-4 text-sm text-ink-soft">Non possiamo verificare gli orari. Torna alla data e aggiorna il calendario.</p>
+            ) : availableTimes.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {availableTimes.map((time) => (
+                  <button
+                    className="min-h-14 rounded-2xl border border-border bg-white px-3 text-lg font-semibold text-ink transition-colors hover:border-primary hover:bg-[#f8f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                    key={time}
+                    onClick={() => chooseTime(time)}
+                    type="button"
+                  >{time}</button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-2xl bg-surface-muted p-4 text-sm text-ink-soft">
+                Non ci sono più orari disponibili per questo giorno. Torna indietro e scegli un'altra data.
+              </p>
+            )}
           </div>
+        ) : null}
 
-          <label className="block min-w-0 text-sm font-semibold text-ink">
-            Email
-            <input
-              aria-describedby={formErrors.email ? "email-error" : undefined}
-              aria-invalid={Boolean(formErrors.email)}
-              className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
-                formErrors.email ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
-              }`}
-              onChange={(event) => {
-                setForm((current) => ({ ...current, email: event.target.value }));
-                clearFieldError("email");
-              }}
-              type="email"
-              value={form.email}
-            />
-            {formErrors.email ? (
-              <span className="mt-2 block text-sm font-medium text-red-700" id="email-error">
-                {formErrors.email}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block min-w-0 text-sm font-semibold text-ink">
-            Telefono
-            <input
-              aria-describedby={formErrors.phone ? "phone-error" : undefined}
-              aria-invalid={Boolean(formErrors.phone)}
-              className={`mt-2 min-h-12 w-full min-w-0 max-w-full rounded-2xl border bg-white px-4 text-base font-normal outline-none transition ${
-                formErrors.phone ? "border-red-500 bg-red-50/40 focus:border-red-600" : "border-border focus:border-primary"
-              }`}
-              inputMode="tel"
-              onChange={(event) => {
-                setForm((current) => ({ ...current, phone: event.target.value }));
-                clearFieldError("phone");
-              }}
-              type="tel"
-              value={form.phone}
-            />
-            {formErrors.phone ? (
-              <span className="mt-2 block text-sm font-medium text-red-700" id="phone-error">
-                {formErrors.phone}
-              </span>
-            ) : null}
-          </label>
-
-          <div>
-            <label
-              className={`flex min-w-0 items-start gap-3 rounded-2xl border p-4 text-sm leading-6 text-ink-soft ${
-                formErrors.consent ? "border-red-300 bg-red-50/60" : "border-transparent bg-surface-muted"
-              }`}
-            >
+        {step === 3 ? (
+          <form className="mt-6 space-y-4" noValidate onSubmit={continueToReview}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {field("firstName", "Nome", "text", "given-name")}
+              {field("lastName", "Cognome", "text", "family-name")}
+            </div>
+            {field("email", "Email", "email", "email")}
+            {field("phone", "Telefono", "tel", "tel")}
+            <label className={["flex min-w-0 items-start gap-3 rounded-2xl border p-4 text-sm leading-6 text-ink-soft",
+              formErrors.consent ? "border-red-300 bg-red-50/40" : "border-border bg-surface-muted"].join(" ")}>
               <input
-                aria-describedby={formErrors.consent ? "consent-error" : undefined}
                 aria-invalid={Boolean(formErrors.consent)}
                 checked={consent}
                 className="mt-1 size-4 shrink-0 accent-primary"
-                onChange={(event) => {
-                  setConsent(event.target.checked);
-                  clearFieldError("consent");
-                }}
+                onChange={(event) => { setConsent(event.target.checked); clearFieldError("consent"); }}
+                required
                 type="checkbox"
               />
-              <span className="min-w-0">
-                Ho letto l’<a className="font-semibold text-primary underline underline-offset-4" href="/privacy-policy" target="_blank" rel="noreferrer">Informativa Privacy</a> e chiedo di inviare questa richiesta di appuntamento.
-              </span>
+              <span>Ho letto l’<a className="font-semibold text-primary underline underline-offset-4" href="/privacy-policy" rel="noreferrer" target="_blank">Informativa Privacy</a> e chiedo di inviare questa richiesta di appuntamento.</span>
             </label>
-            {formErrors.consent ? (
-              <span className="mt-2 block text-sm font-medium text-red-700" id="consent-error">
-                {formErrors.consent}
-              </span>
-            ) : null}
-          </div>
-
-          {selectedDate && selectedTime ? (
-            <div className="min-w-0 rounded-2xl border border-primary/15 bg-[#f8f6ff] p-4 text-sm leading-6 text-ink-soft">
-              <strong className="text-ink">Riepilogo:</strong> {mode === "online" ? "Online" : "In presenza"}, {fullDateFormatter.format(selectedDate)} alle {selectedTime}.
+            {formErrors.consent ? <p className="text-sm text-red-700">{formErrors.consent}</p> : null}
+            {message && status !== "submitting" ? <p className="text-sm text-red-700" role="alert">{message}</p> : null}
+            <div className="flex items-center justify-between gap-4 pt-2">
+              <button className="min-h-12 px-2 text-sm font-semibold text-ink-soft hover:text-primary" onClick={() => setStep(2)} type="button">← Indietro</button>
+              <button className="min-h-12 rounded-full border-[1.5px] border-black bg-primary px-7 font-semibold text-white hover:bg-primary-strong" type="submit">Continua →</button>
             </div>
-          ) : null}
+          </form>
+        ) : null}
 
-          <Button
-            className="w-full max-w-full"
-            disabled={!canSubmit || status === "submitting"}
-            size="lg"
-            type="submit"
-          >
-            {status === "submitting" ? "Invio in corso…" : "Invia richiesta"}
-          </Button>
-
-          {message ? (
-            <p
-              className="min-w-0 rounded-2xl bg-red-50 p-4 text-sm leading-6 text-red-800"
-              role="status"
-            >
-              {message}
+        {step === 4 ? (
+          <form className="mt-6" onSubmit={(event) => void submitBooking(event)}>
+            <div className="divide-y divide-border rounded-2xl border border-border bg-surface-muted px-5">
+              <div className="flex items-center justify-between gap-4 py-4">
+                <div><p className="text-xs text-ink-muted">Modalità</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)}</p></div>
+                <button className="text-sm font-semibold text-primary" onClick={() => setStep(0)} type="button">Modifica</button>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <div><p className="text-xs text-ink-muted">Data e ora</p><p className="mt-1 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""} · {selectedTime}</p></div>
+                <button className="text-sm font-semibold text-primary" onClick={() => setStep(1)} type="button">Modifica</button>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
+                <div className="min-w-0"><p className="text-xs text-ink-muted">Contatti</p><p className="mt-1 font-semibold text-ink">{form.firstName} {form.lastName}</p><p className="break-all text-sm text-ink-soft">{form.email}</p><p className="text-sm text-ink-soft">{form.phone}</p></div>
+                <button className="text-sm font-semibold text-primary" onClick={() => setStep(3)} type="button">Modifica</button>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-6 text-ink-soft">
+              L'appuntamento non è ancora confermato. Dopo l'invio Giorgia verificherà la richiesta e riceverai una comunicazione via email.
             </p>
-          ) : null}
-            </form>
-          </>
-        )}
-      </Card>
+            {message ? <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{message}</p> : null}
+            <button
+              className="mt-6 min-h-14 w-full rounded-full border-[1.5px] border-black bg-primary px-6 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!canSubmit || status === "submitting"}
+              type="submit"
+            >{status === "submitting" ? "Invio in corso…" : "Invia richiesta di appuntamento"}</button>
+            <button className="mt-3 min-h-11 w-full text-sm font-semibold text-ink-muted" disabled={status === "submitting"} onClick={() => setStep(3)} type="button">← Torna ai tuoi dati</button>
+          </form>
+        ) : null}
+
+        {step >= 1 && step <= 2 ? (
+          <div className="mt-7 border-t border-border pt-4">
+            <button className="min-h-11 text-sm font-semibold text-ink-muted hover:text-primary" onClick={() => setStep(step - 1)} type="button">
+              ← Indietro
+            </button>
+          </div>
+        ) : null}
+      </div>
+      {step >= 1 && step < 4 ? (
+        <p className="mt-4 text-center text-sm text-ink-muted">
+          {mode ? modeLabel(mode) : ""}
+          {selectedDate && step >= 2 ? " · " + dateFormatter.format(selectedDate) : ""}
+          {selectedTime && step >= 3 ? " · " + selectedTime : ""}
+        </p>
+      ) : null}
     </div>
   );
 }
