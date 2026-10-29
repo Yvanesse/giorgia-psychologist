@@ -108,3 +108,11 @@ select {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Keep WhatsApp reachable above the mobile booking dock, not underneath it. */
+@media (max-width: 639px) {
+  html.has-sticky-booking-cta .whatsapp-contact {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
