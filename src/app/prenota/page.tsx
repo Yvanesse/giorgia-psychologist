@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 
 import { BookingCalendar } from "@/components/booking/BookingCalendar";
-import { BookingModeInitializer } from "@/components/booking/BookingModeInitializer";
 import { bookingContent } from "@/data/booking";
 
 export const metadata: Metadata = {
@@ -21,21 +19,18 @@ export const metadata: Metadata = {
 
 export default function BookingPage() {
   return (
-    <main className="relative w-full max-w-full overflow-x-hidden bg-white py-16 sm:py-20 lg:py-24">
-      <Suspense fallback={null}>
-        <BookingModeInitializer />
-      </Suspense>
+    <main className="relative w-full max-w-full overflow-x-hidden bg-white py-8 sm:py-14 lg:py-16">
       <div className="mx-auto w-full min-w-0 max-w-full overflow-x-hidden px-4 sm:px-6 lg:px-[4vw]">
         <div className="w-full min-w-0 max-w-full">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-strong">
               {bookingContent.eyebrow}
             </p>
-            <h1 className="mt-4 text-[2.65rem] font-semibold leading-[1.04] tracking-[-0.052em] text-ink min-[390px]:text-5xl sm:text-[3.5rem] lg:text-[4.4rem]">
+            <h1 className="mt-3 text-[2.2rem] font-semibold leading-[1.08] tracking-[-0.045em] text-ink sm:text-[3.5rem] lg:text-[4.1rem]">
               {bookingContent.title}
             </h1>
-            <p className="mt-6 text-[1.2rem] leading-8 text-ink-soft sm:text-[1.35rem]">
-              Scegli modalità, giorno e orario e lascia i tuoi recapiti per inviare una richiesta di appuntamento.
+            <p className="mt-3 max-w-xl text-base leading-7 text-ink-soft sm:mt-5 sm:text-lg">
+              Ti guideremo nella scelta di modalità, data e orario, un passaggio alla volta.
             </p>
           </div>
 
