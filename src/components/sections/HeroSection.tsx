@@ -12,7 +12,7 @@ export function HeroSection() {
   const canHighlightTitle = startIndex !== -1 && endIndex > startIndex;
 
   return (
-    <section className="hero-surface overflow-hidden pb-12 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16">
+    <section id="homepage-hero" className="hero-surface overflow-hidden pb-12 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16">
       <Container variant="wide">
         <div className="grid items-center gap-7 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:gap-14">
           <div className="max-w-3xl">
