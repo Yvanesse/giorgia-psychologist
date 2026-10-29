@@ -15,6 +15,7 @@ type SubmissionState = "idle" | "submitting" | "success" | "error";
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
 const STEP_TITLES = ["Modalità", "Data", "Orario", "I tuoi dati", "Riepilogo"] as const;
+const SESSION_DURATION_MINUTES = 50;
 
 const monthFormatter = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" });
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -325,7 +326,7 @@ export function BookingCalendar() {
         <div className="mx-auto mt-6 max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left">
           <p className="text-sm font-semibold text-emerald-800">Riepilogo</p>
           <p className="mt-2 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
-          <p className="mt-1 text-sm text-ink-soft">{selectedTime} · {modeLabel(mode)}</p>
+          <p className="mt-1 text-sm text-ink-soft">{selectedTime} · {modeLabel(mode)} · {SESSION_DURATION_MINUTES} minuti</p>
           <p className="mt-3 border-t border-emerald-200 pt-3 text-sm text-ink-soft">Stato: in attesa di conferma</p>
         </div>
       </section>
@@ -392,6 +393,9 @@ export function BookingCalendar() {
                 <span className="mt-4 block text-sm leading-6 text-ink-soft">{description}</span>
               </button>
             ))}
+            <p className="rounded-2xl bg-surface-muted px-4 py-3 text-sm text-ink-soft">
+              <span className="font-semibold text-ink">Durata del colloquio:</span> {SESSION_DURATION_MINUTES} minuti
+            </p>
           </div>
         ) : null}
 
@@ -502,7 +506,7 @@ export function BookingCalendar() {
           <form className="mt-6" id="booking-confirm-form" onSubmit={(event) => void submitBooking(event)}>
             <div className="divide-y divide-border rounded-2xl border border-border bg-surface-muted px-5">
               <div className="flex items-center justify-between gap-4 py-4">
-                <div><p className="text-xs text-ink-muted">Modalità</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)}</p></div>
+                <div><p className="text-xs text-ink-muted">Modalità e durata</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)} · {SESSION_DURATION_MINUTES} minuti</p></div>
                 <button className="text-sm font-semibold text-primary" onClick={() => setStep(0)} type="button">Modifica</button>
               </div>
               <div className="flex items-center justify-between gap-4 py-4">
