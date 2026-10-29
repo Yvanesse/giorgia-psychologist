@@ -1,4 +1,5 @@
 type BookingEmailPayload = {
+  serviceType: "individuale" | "coppia" | "familiare";
   mode: "in-presenza" | "online";
   date: string;
   time: string;
@@ -66,6 +67,10 @@ function modeLabel(mode: BookingEmailPayload["mode"]) {
   return mode === "online" ? "Online" : "In presenza";
 }
 
+function serviceLabel(service: BookingEmailPayload["serviceType"] | null | undefined) {
+  return service === "coppia" ? "Di coppia" : service === "familiare" ? "Familiare" : service === "individuale" ? "Individuale" : "Non specificato";
+}
+
 export async function sendAdminBookingRequestNotification(
   payload: BookingEmailPayload,
 ): Promise<EmailResult> {
@@ -77,6 +82,7 @@ export async function sendAdminBookingRequestNotification(
     ["Paziente", `${payload.firstName} ${payload.lastName}`],
     ["Email", payload.email],
     ["Telefono", payload.phone],
+    ["Percorso", serviceLabel(payload.serviceType)],
     ["Modalità", modeLabel(payload.mode)],
     ["Data", payload.date],
     ["Ora", payload.time],
@@ -103,6 +109,7 @@ export async function sendAdminBookingRequestNotification(
       `Nome: ${payload.firstName} ${payload.lastName}`,
       `Email: ${payload.email}`,
       `Telefono: ${payload.phone}`,
+      `Percorso: ${serviceLabel(payload.serviceType)}`,
       `Modalità: ${modeLabel(payload.mode)}`,
       `Data: ${payload.date}`,
       `Ora: ${payload.time}`,
@@ -128,6 +135,7 @@ export async function sendPatientRequestReceived(
       "",
       `Data richiesta: ${payload.date}`,
       `Ora: ${payload.time}`,
+      `Percorso: ${serviceLabel(payload.serviceType)}`,
       `Modalità: ${modeLabel(payload.mode)}`,
       "",
       "La richiesta non è ancora confermata. Riceverai una nuova comunicazione dopo la verifica della disponibilità.",
@@ -139,6 +147,7 @@ export async function sendPatientRequestReceived(
 
 export async function sendPatientAppointmentStatusNotification(args: {
   status: "confirmed" | "cancelled";
+  serviceType: BookingEmailPayload["serviceType"] | null;
   mode: BookingEmailPayload["mode"];
   date: string;
   time: string;
@@ -159,6 +168,7 @@ export async function sendPatientAppointmentStatusNotification(args: {
       "",
       `Data: ${args.date}`,
       `Ora: ${args.time}`,
+      `Percorso: ${serviceLabel(args.serviceType)}`,
       `Modalità: ${modeLabel(args.mode)}`,
       "",
       confirmed
