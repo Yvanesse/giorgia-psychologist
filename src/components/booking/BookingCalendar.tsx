@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type BookingMode = "in-presenza" | "online";
+type ServiceType = "individuale" | "coppia" | "familiare";
 type BookingForm = {
   firstName: string;
   lastName: string;
@@ -14,7 +15,7 @@ type AvailabilityState = "loading" | "ready" | "error";
 type SubmissionState = "idle" | "submitting" | "success" | "error";
 
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] as const;
-const STEP_TITLES = ["Modalità", "Data", "Orario", "I tuoi dati", "Riepilogo"] as const;
+const STEP_TITLES = ["Percorso", "Modalità", "Data", "Orario", "I tuoi dati", "Riepilogo"] as const;
 const SESSION_DURATION_MINUTES = 50;
 
 const monthFormatter = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" });
@@ -54,6 +55,10 @@ function isValidPhone(value: string) {
   return /^[+\d][\d\s().-]{6,}$/.test(value.trim());
 }
 
+function serviceLabel(service: ServiceType | null) {
+  return service === "coppia" ? "Di coppia" : service === "familiare" ? "Familiare" : service === "individuale" ? "Individuale" : "Da scegliere";
+}
+
 function modeLabel(mode: BookingMode | null) {
   return mode === "online" ? "Online" : "In presenza";
 }
@@ -67,6 +72,7 @@ export function BookingCalendar() {
   const submittingRef = useRef(false);
 
   const [step, setStep] = useState(0);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [mode, setMode] = useState<BookingMode | null>(null);
   const [availability, setAvailability] = useState<Record<string, string[]>>({});
   const [availabilityState, setAvailabilityState] = useState<AvailabilityState>("loading");
@@ -150,9 +156,17 @@ export function BookingCalendar() {
   const selectedDateKey = selectedDate ? toIsoDate(selectedDate) : null;
   const availableTimes = selectedDateKey ? availability[selectedDateKey] ?? [] : [];
   const canSubmit = Boolean(
-    mode && selectedDate && selectedTime &&
+    serviceType && mode && selectedDate && selectedTime &&
     availabilityState === "ready" && availableTimes.includes(selectedTime),
   );
+
+  function chooseService(value: ServiceType) {
+    setServiceType(value);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setStatus("idle");
+    setMessage("");
+  }
 
   function chooseMode(value: BookingMode) {
     setMode(value);
@@ -176,15 +190,17 @@ export function BookingCalendar() {
   }
 
   const canContinue = step === 0
-    ? Boolean(mode)
+    ? Boolean(serviceType)
     : step === 1
-      ? Boolean(selectedDateKey && availableDates.has(selectedDateKey) && availabilityState === "ready")
+      ? Boolean(mode)
       : step === 2
-        ? Boolean(selectedTime && availableTimes.includes(selectedTime) && availabilityState === "ready")
-        : true;
+        ? Boolean(selectedDateKey && availableDates.has(selectedDateKey) && availabilityState === "ready")
+        : step === 3
+          ? Boolean(selectedTime && availableTimes.includes(selectedTime) && availabilityState === "ready")
+          : true;
 
   function goForward() {
-    if (!canContinue || step >= 3) return;
+    if (!canContinue || step >= 4) return;
     setMessage("");
     setStep((current) => current + 1);
   }
@@ -222,7 +238,7 @@ export function BookingCalendar() {
     setFormErrors({});
     setMessage("");
     setStatus("idle");
-    setStep(4);
+    setStep(5);
   }
 
   async function refreshAvailability() {
@@ -246,12 +262,12 @@ export function BookingCalendar() {
 
   async function submitBooking(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (step !== 4 || !canSubmit || !selectedDate || !selectedTime || !mode ||
+    if (step !== 5 || !canSubmit || !selectedDate || !selectedTime || !mode ||
         submittingRef.current || status === "success") return;
 
     if (Object.keys(validateForm()).length > 0) {
       setFormErrors(validateForm());
-      setStep(3);
+      setStep(4);
       return;
     }
 
@@ -264,6 +280,7 @@ export function BookingCalendar() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          serviceType,
           mode,
           date: toIsoDate(selectedDate),
           time: selectedTime,
@@ -274,7 +291,7 @@ export function BookingCalendar() {
       if (!response.ok) {
         if (response.status === 409) {
           setSelectedTime(null);
-          setStep(2);
+          setStep(3);
           await refreshAvailability();
         }
         throw new Error(result.message || "Non è stato possibile inviare la richiesta.");
@@ -326,7 +343,7 @@ export function BookingCalendar() {
         <div className="mx-auto mt-6 max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left">
           <p className="text-sm font-semibold text-emerald-800">Riepilogo</p>
           <p className="mt-2 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
-          <p className="mt-1 text-sm text-ink-soft">{selectedTime} · {modeLabel(mode)} · {SESSION_DURATION_MINUTES} minuti</p>
+          <p className="mt-1 text-sm text-ink-soft">{selectedTime} · {modeLabel(mode)} · {serviceLabel(serviceType)} · {SESSION_DURATION_MINUTES} minuti</p>
           <p className="mt-3 border-t border-emerald-200 pt-3 text-sm text-ink-soft">Stato: in attesa di conferma</p>
         </div>
       </section>
@@ -353,14 +370,49 @@ export function BookingCalendar() {
 
       <div className="min-w-0 rounded-[1.8rem] border border-border bg-white p-5 shadow-[0_18px_55px_rgba(24,24,27,0.045)] sm:p-8">
         <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl" ref={stepTitleRef} tabIndex={-1}>
-          {step === 0 ? "Come preferisci incontrarci?" :
-            step === 1 ? "Quale giorno preferisci?" :
-            step === 2 ? "Scegli l’orario" :
-            step === 3 ? "Come possiamo contattarti?" :
+          {step === 0 ? "Quale percorso desideri iniziare?" :
+            step === 1 ? "Come preferisci incontrarci?" :
+            step === 2 ? "Quale giorno preferisci?" :
+            step === 3 ? "Scegli l’orario" :
+            step === 4 ? "Come possiamo contattarti?" :
             "Controlla la tua richiesta"}
         </h2>
 
         {step === 0 ? (
+          <div className="mt-6 grid gap-3">
+            {([
+              ["individuale", "Individuale", "Un colloquio dedicato a te."],
+              ["coppia", "Di coppia", "Uno spazio dedicato alla relazione."],
+              ["familiare", "Familiare", "Un colloquio dedicato alle relazioni familiari."],
+            ] as const).map(([value, label, description]) => (
+              <button
+                aria-label={label}
+                aria-pressed={serviceType === value}
+                className={[
+                  "min-h-24 rounded-2xl border px-5 py-4 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  serviceType === value ? "border-primary bg-[#f8f6ff] ring-2 ring-primary/15" : "border-border bg-white hover:bg-[#f8f6ff]",
+                ].join(" ")}
+                key={value}
+                onClick={() => chooseService(value)}
+                type="button"
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <span className="text-lg font-semibold text-ink">{label}</span>
+                  <span aria-hidden="true" className={["flex size-6 items-center justify-center rounded-full border-2",
+                    serviceType === value ? "border-primary bg-primary" : "border-primary/60"].join(" ")}>
+                    {serviceType === value ? <span className="size-2.5 rounded-full bg-white" /> : null}
+                  </span>
+                </span>
+                <span className="mt-1 block text-sm leading-6 text-ink-soft">{description}</span>
+              </button>
+            ))}
+            <p className="text-sm leading-6 text-ink-muted">
+              Non sai quale percorso scegliere? Puoi contattare Giorgia prima di prenotare.
+            </p>
+          </div>
+        ) : null}
+
+        {step === 1 ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {([
               ["in-presenza", "In presenza", "Presso lo studio professionale a Trani."],
@@ -399,7 +451,7 @@ export function BookingCalendar() {
           </div>
         ) : null}
 
-        {step === 1 ? (
+        {step === 2 ? (
           <div className="mt-5 min-w-0">
             <p className="mb-4 text-sm leading-6 text-ink-soft">
               Seleziona un giorno disponibile. Gli orari compariranno nel passaggio successivo.
@@ -447,7 +499,7 @@ export function BookingCalendar() {
           </div>
         ) : null}
 
-        {step === 2 ? (
+        {step === 3 ? (
           <div className="mt-6">
             <p className="mb-5 capitalize text-base text-ink-soft">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
             {message && status === "error" ? (
@@ -476,7 +528,7 @@ export function BookingCalendar() {
           </div>
         ) : null}
 
-        {step === 3 ? (
+        {step === 4 ? (
           <form className="mt-6 space-y-4" id="booking-contact-form" noValidate onSubmit={continueToReview}>
             <div className="grid gap-4 sm:grid-cols-2">
               {field("firstName", "Nome", "text", "given-name")}
@@ -502,20 +554,24 @@ export function BookingCalendar() {
           </form>
         ) : null}
 
-        {step === 4 ? (
+        {step === 5 ? (
           <form className="mt-6" id="booking-confirm-form" onSubmit={(event) => void submitBooking(event)}>
             <div className="divide-y divide-border rounded-2xl border border-border bg-surface-muted px-5">
               <div className="flex items-center justify-between gap-4 py-4">
-                <div><p className="text-xs text-ink-muted">Modalità e durata</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)} · {SESSION_DURATION_MINUTES} minuti</p></div>
+                <div><p className="text-xs text-ink-muted">Percorso</p><p className="mt-1 font-semibold text-ink">{serviceLabel(serviceType)}</p></div>
                 <button className="text-sm font-semibold text-primary" onClick={() => setStep(0)} type="button">Modifica</button>
               </div>
               <div className="flex items-center justify-between gap-4 py-4">
-                <div><p className="text-xs text-ink-muted">Data e ora</p><p className="mt-1 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""} · {selectedTime}</p></div>
+                <div><p className="text-xs text-ink-muted">Modalità e durata</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)} · {SESSION_DURATION_MINUTES} minuti</p></div>
                 <button className="text-sm font-semibold text-primary" onClick={() => setStep(1)} type="button">Modifica</button>
               </div>
               <div className="flex items-center justify-between gap-4 py-4">
+                <div><p className="text-xs text-ink-muted">Data e ora</p><p className="mt-1 font-semibold capitalize text-ink">{selectedDate ? dateFormatter.format(selectedDate) : ""} · {selectedTime}</p></div>
+                <button className="text-sm font-semibold text-primary" onClick={() => setStep(2)} type="button">Modifica</button>
+              </div>
+              <div className="flex items-center justify-between gap-4 py-4">
                 <div className="min-w-0"><p className="text-xs text-ink-muted">Contatti</p><p className="mt-1 font-semibold text-ink">{form.firstName} {form.lastName}</p><p className="break-all text-sm text-ink-soft">{form.email}</p><p className="text-sm text-ink-soft">{form.phone}</p></div>
-                <button className="text-sm font-semibold text-primary" onClick={() => setStep(3)} type="button">Modifica</button>
+                <button className="text-sm font-semibold text-primary" onClick={() => setStep(4)} type="button">Modifica</button>
               </div>
             </div>
             <p className="mt-5 text-sm leading-6 text-ink-soft">
@@ -530,7 +586,7 @@ export function BookingCalendar() {
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-border bg-white/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(24,24,27,0.07)] backdrop-blur-lg sm:static sm:mt-5 sm:rounded-2xl sm:border sm:px-5 sm:py-4 sm:shadow-none">
         <button
           className="min-h-12 rounded-full px-2 text-base font-semibold text-primary hover:text-primary-strong disabled:cursor-not-allowed disabled:opacity-30"
-          disabled={step === 0 || status === "submitting"}
+          disabled={step === 1 || status === "submitting"}
           onClick={() => setStep((current) => Math.max(0, current - 1))}
           type="button"
         >
@@ -538,19 +594,20 @@ export function BookingCalendar() {
         </button>
         <button
           className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
-          disabled={step < 3 ? !canContinue : step === 4 ? !canSubmit || status === "submitting" : false}
-          form={step === 3 ? "booking-contact-form" : step === 4 ? "booking-confirm-form" : undefined}
-          onClick={step < 3 ? goForward : undefined}
-          type={step < 3 ? "button" : "submit"}
+          disabled={step < 4 ? !canContinue : step === 5 ? !canSubmit || status === "submitting" : false}
+          form={step === 4 ? "booking-contact-form" : step === 5 ? "booking-confirm-form" : undefined}
+          onClick={step < 4 ? goForward : undefined}
+          type={step < 4 ? "button" : "submit"}
         >
-          {step === 4 ? (status === "submitting" ? "Invio in corso…" : "Invia richiesta") : "Avanti"}
+          {step === 5 ? (status === "submitting" ? "Invio in corso…" : "Invia richiesta") : "Avanti"}
         </button>
       </div>
-      {step >= 1 && step < 4 ? (
+      {step >= 2 && step < 5 ? (
         <p className="mt-4 text-center text-sm text-ink-muted">
-          {mode ? modeLabel(mode) : ""}
-          {selectedDate && step >= 2 ? " · " + dateFormatter.format(selectedDate) : ""}
-          {selectedTime && step >= 3 ? " · " + selectedTime : ""}
+          {serviceType ? serviceLabel(serviceType) : ""}
+          {mode && step >= 2 ? " · " + modeLabel(mode) : ""}
+          {selectedDate && step >= 3 ? " · " + dateFormatter.format(selectedDate) : ""}
+          {selectedTime && step >= 4 ? " · " + selectedTime : ""}
         </p>
       ) : null}
     </div>
