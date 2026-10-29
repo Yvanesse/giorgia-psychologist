@@ -133,7 +133,7 @@ export function AreasSection() {
 
         <div
           aria-label="Percorsi di supporto psicologico"
-          className="-mx-4 mt-10 flex min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-5 scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 sm:scroll-px-6 lg:mx-0 lg:mt-12 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0"
+          className="-mx-4 mt-10 flex min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-5 scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 sm:scroll-px-6 lg:mx-0 lg:mt-12 lg:grid lg:grid-cols-3 lg:overflow-visible lg:snap-none lg:px-0 lg:pb-0"
           onClick={() => {
             if (isTouch) setActiveIndex(null);
           }}
@@ -150,7 +150,7 @@ export function AreasSection() {
 
             return (
               <article
-                className={`group relative w-[min(84vw,26rem)] shrink-0 snap-start min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out sm:w-[min(76vw,30rem)] lg:w-auto lg:shrink lg:snap-align-none lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                className={`group relative w-[min(84vw,26rem)] shrink-0 snap-start min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out sm:w-[min(76vw,30rem)] lg:w-auto lg:shrink lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
                   isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
                 }`}
                 key={item.title}
