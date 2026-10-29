@@ -421,6 +421,9 @@ export function BookingCalendar() {
         {step === 2 ? (
           <div className="mt-6">
             <p className="mb-5 capitalize text-base text-ink-soft">{selectedDate ? dateFormatter.format(selectedDate) : ""}</p>
+            {message && status === "error" ? (
+              <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-ink-soft" role="alert">{message}</p>
+            ) : null}
             {availabilityState === "error" ? (
               <p className="rounded-2xl bg-amber-50 p-4 text-sm text-ink-soft">Non possiamo verificare gli orari. Torna alla data e aggiorna il calendario.</p>
             ) : availableTimes.length > 0 ? (
