@@ -22,6 +22,7 @@ type ArticleDraft = {
 type Appointment = {
   id: string;
   mode: "in-presenza" | "online";
+  service_type: "individuale" | "coppia" | "familiare" | null;
   appointment_date: string;
   appointment_time: string;
   first_name: string;
@@ -38,6 +39,10 @@ const navItems: Array<{ id: AdminView; label: string; icon: string }> = [
   { id: "articles", label: "Articoli", icon: "✎" },
   { id: "settings", label: "Impostazioni", icon: "⚙" },
 ];
+
+function serviceTypeLabel(type: Appointment["service_type"]) {
+  return type === "coppia" ? "Di coppia" : type === "familiare" ? "Familiare" : type === "individuale" ? "Individuale" : "Non specificato";
+}
 
 function StatusBadge({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "purple" | "green" | "orange" }) {
   const tones = {
@@ -590,7 +595,7 @@ export default function AdminPage() {
                                   {appointment.first_name} {appointment.last_name}
                                 </p>
                                 <p className="mt-1 text-sm text-zinc-500">
-                                  {appointment.appointment_date} · {appointment.appointment_time.slice(0, 5)} · {appointment.mode === "online" ? "Online" : "In presenza"}
+                                  {appointment.appointment_date} · {appointment.appointment_time.slice(0, 5)} · {appointment.mode === "online" ? "Online" : "In presenza"} · {serviceTypeLabel(appointment.service_type)}
                                 </p>
                               </div>
                               <StatusBadge tone={appointment.status === "confirmed" ? "green" : "purple"}>
@@ -680,7 +685,7 @@ export default function AdminPage() {
                               </div>
                               <p className="mt-2 text-sm text-zinc-600">
                                 {appointment.appointment_date} · {appointment.appointment_time.slice(0, 5)} ·{" "}
-                                {appointment.mode === "online" ? "Online" : "In presenza"}
+                                {appointment.mode === "online" ? "Online" : "In presenza"} · {serviceTypeLabel(appointment.service_type)}
                               </p>
                               <p className="mt-2 text-sm text-zinc-500">
                                 {appointment.email} · {appointment.phone}
