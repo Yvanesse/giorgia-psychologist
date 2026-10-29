@@ -157,6 +157,7 @@ export async function createCalendarAppointment(input: {
   start: string;
   end: string;
   mode: "in-presenza" | "online";
+  serviceType?: "individuale" | "coppia" | "familiare" | null;
 }) {
   const config = getGoogleCalendarConfig();
   if (!config) {
@@ -172,6 +173,7 @@ export async function createCalendarAppointment(input: {
         description: [
           `Richiesta sito: ${input.appointmentId}`,
           `Modalità: ${input.mode === "online" ? "Online" : "In presenza"}`,
+          `Percorso: ${input.serviceType === "coppia" ? "Di coppia" : input.serviceType === "familiare" ? "Familiare" : input.serviceType === "individuale" ? "Individuale" : "Non specificato"}`,
         ].join("\n"),
         location: input.mode === "in-presenza" ? "Via Monte d'Alba 76, Trani" : undefined,
         start: { dateTime: input.start, timeZone: "Europe/Rome" },
