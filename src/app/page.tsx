@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { StickyBookingCTA } from "@/components/layout/StickyBookingCTA";
 import { ApproachSection } from "@/components/sections/ApproachSection";
 import { AreasSection } from "@/components/sections/AreasSection";
 import { ArticlesSection } from "@/components/sections/ArticlesSection";
@@ -76,6 +77,7 @@ export default function Home() {
       <FaqSection />
       <ArticlesSection />
       <FinalCtaSection />
+      <StickyBookingCTA />
     </main>
   );
 }
