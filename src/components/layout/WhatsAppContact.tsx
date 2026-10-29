@@ -9,7 +9,7 @@ export function WhatsAppContact() {
   return (
     <a
       aria-label="Contatta Giorgia su WhatsApp"
-      className="group fixed bottom-5 right-4 z-40 inline-flex min-h-14 items-center gap-2 rounded-full border border-black/10 bg-[#25D366] px-4 font-semibold text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(0,0,0,0.2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:bottom-6 sm:right-6"
+      className="whatsapp-contact group fixed bottom-5 right-4 z-40 inline-flex min-h-14 items-center gap-2 rounded-full border border-black/10 bg-[#25D366] px-4 font-semibold text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(0,0,0,0.2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:bottom-6 sm:right-6"
       href={href}
       rel="noreferrer"
       target="_blank"
