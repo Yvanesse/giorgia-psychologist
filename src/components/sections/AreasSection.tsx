@@ -38,6 +38,38 @@ const areaStyles = [
 
 export function AreasSection() {
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  function goToSlide(index: number) {
+    const carousel = carouselRef.current;
+    const card = cardRefs.current[index];
+    if (!carousel || !card) return;
+
+    carousel.scrollTo({
+      left: index * (card.getBoundingClientRect().width + 16),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+    setCurrentSlide(index);
+  }
+
+  function updateCurrentSlide() {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const leftEdge = carousel.getBoundingClientRect().left + 16;
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    cardRefs.current.forEach((card, index) => {
+      if (!card) return;
+      const distance = Math.abs(card.getBoundingClientRect().left - leftEdge);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+    setCurrentSlide(closestIndex);
+  }
   const frameRef = useRef<number | null>(null);
   const [isTouch, setIsTouch] = useState(false);
   const [scrollIntensity, setScrollIntensity] = useState<number[]>(() => areasContent.items.map(() => 0));
@@ -100,10 +132,13 @@ export function AreasSection() {
         <SectionHeading label={areasContent.label} title={areasContent.title} />
 
         <div
-          className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-3"
+          aria-label="Percorsi di supporto psicologico"
+          className="-mx-4 mt-10 flex min-w-0 snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-5 scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 sm:scroll-px-6 lg:mx-0 lg:mt-12 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0"
           onClick={() => {
             if (isTouch) setActiveIndex(null);
           }}
+          onScroll={updateCurrentSlide}
+          ref={carouselRef}
         >
           {areasContent.items.map((item, index) => {
             const style = areaStyles[index];
@@ -115,7 +150,7 @@ export function AreasSection() {
 
             return (
               <article
-                className={`group relative min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
+                className={`group relative w-[min(84vw,26rem)] shrink-0 snap-start min-h-[34rem] overflow-hidden rounded-[2rem] border border-black/[0.04] p-6 transform-gpu origin-center will-change-[transform,opacity] transition-[transform,box-shadow,border-color,opacity] duration-[1200ms] ease-in-out sm:w-[min(76vw,30rem)] lg:w-auto lg:shrink lg:snap-align-none lg:min-h-[32rem] lg:hover:z-20 lg:hover:scale-[1.045] lg:hover:border-black/[0.07] lg:hover:shadow-[0_30px_80px_rgba(24,24,27,.11)] motion-reduce:transform-none motion-reduce:transition-none sm:p-8 ${style.panel} ${
                   isTouch && isActive ? "z-20 scale-[1.018] shadow-[0_22px_54px_rgba(24,24,27,.08)]" : ""
                 }`}
                 key={item.title}
@@ -179,6 +214,33 @@ export function AreasSection() {
               </article>
             );
           })}
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-4 lg:hidden">
+          <p className="text-sm text-ink-muted">Scorri per esplorare i percorsi</p>
+          <div className="flex shrink-0 items-center gap-2" aria-label="Navigazione carosello percorsi">
+            <button
+              aria-label="Percorso precedente"
+              className="flex size-10 items-center justify-center rounded-full border border-border bg-white text-xl text-ink disabled:opacity-30"
+              disabled={currentSlide === 0}
+              onClick={() => goToSlide(currentSlide - 1)}
+              type="button"
+            >
+              ‹
+            </button>
+            <span className="min-w-10 text-center text-sm font-medium tabular-nums text-ink-soft">
+              {currentSlide + 1} / {areasContent.items.length}
+            </span>
+            <button
+              aria-label="Percorso successivo"
+              className="flex size-10 items-center justify-center rounded-full border border-border bg-white text-xl text-ink disabled:opacity-30"
+              disabled={currentSlide === areasContent.items.length - 1}
+              onClick={() => goToSlide(currentSlide + 1)}
+              type="button"
+            >
+              ›
+            </button>
+          </div>
         </div>
       </Container>
     </Section>
