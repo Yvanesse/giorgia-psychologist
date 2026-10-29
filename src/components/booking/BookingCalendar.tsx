@@ -86,7 +86,6 @@ export function BookingCalendar() {
     const requestedMode = new URLSearchParams(window.location.search).get("mode");
     if (requestedMode === "online" || requestedMode === "in-presenza") {
       setMode(requestedMode);
-      setStep(1);
     }
   }, []);
 
@@ -160,7 +159,6 @@ export function BookingCalendar() {
     setSelectedTime(null);
     setStatus("idle");
     setMessage("");
-    setStep(1);
   }
 
   function chooseDate(value: Date) {
@@ -168,14 +166,26 @@ export function BookingCalendar() {
     setSelectedTime(null);
     setStatus("idle");
     setMessage("");
-    setStep(2);
   }
 
   function chooseTime(value: string) {
     setSelectedTime(value);
     setStatus("idle");
     setMessage("");
-    setStep(3);
+  }
+
+  const canContinue = step === 0
+    ? Boolean(mode)
+    : step === 1
+      ? Boolean(selectedDateKey && availableDates.has(selectedDateKey) && availabilityState === "ready")
+      : step === 2
+        ? Boolean(selectedTime && availableTimes.includes(selectedTime) && availabilityState === "ready")
+        : true;
+
+  function goForward() {
+    if (!canContinue || step >= 3) return;
+    setMessage("");
+    setStep((current) => current + 1);
   }
 
   function validateForm() {
@@ -323,19 +333,21 @@ export function BookingCalendar() {
   }
 
   return (
-    <div ref={wizardRef} className="mx-auto mt-7 w-full min-w-0 max-w-3xl scroll-mt-24 sm:mt-10">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-primary-strong">Passaggio {step + 1} di {STEP_TITLES.length}</span>
-        <span className="text-sm text-ink-muted">Richiesta di appuntamento</span>
-      </div>
-      <div aria-label={"Avanzamento prenotazione: " + STEP_TITLES[step]} className="mb-6 grid grid-cols-5 gap-1.5" role="progressbar" aria-valuemin={1} aria-valuemax={5} aria-valuenow={step + 1}>
-        {STEP_TITLES.map((title, index) => (
-          <span
-            aria-hidden="true"
-            className={["h-1.5 rounded-full", index <= step ? "bg-primary" : "bg-[#e9e5f1]"].join(" ")}
-            key={title}
-          />
-        ))}
+    <div ref={wizardRef} className="mx-auto mt-7 w-full min-w-0 max-w-3xl scroll-mt-24 pb-28 sm:mt-10 sm:pb-0">
+      <div
+        aria-label="Avanzamento della prenotazione"
+        aria-valuemin={0}
+        aria-valuemax={STEP_TITLES.length}
+        aria-valuenow={step + 1}
+        aria-valuetext={STEP_TITLES[step]}
+        className="mb-7 h-2 w-full overflow-hidden rounded-full bg-[#eae5f0]"
+        role="progressbar"
+      >
+        <div
+          aria-hidden="true"
+          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out motion-reduce:transition-none"
+          style={{ width: `${((step + 1) / STEP_TITLES.length) * 100}%` }}
+        />
       </div>
 
       <div className="min-w-0 rounded-[1.8rem] border border-border bg-white p-5 shadow-[0_18px_55px_rgba(24,24,27,0.045)] sm:p-8">
@@ -355,7 +367,11 @@ export function BookingCalendar() {
             ] as const).map(([value, label, description]) => (
               <button
                 aria-label={label}
-                className="group min-h-36 rounded-3xl border border-border bg-white p-5 text-left transition-colors hover:border-primary hover:bg-[#f8f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                aria-pressed={mode === value}
+                className={[
+                  "group min-h-36 rounded-3xl border p-5 text-left transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  mode === value ? "border-primary bg-[#f8f6ff] ring-2 ring-primary/15" : "border-border bg-white hover:bg-[#f8f6ff]",
+                ].join(" ")}
                 key={value}
                 onClick={() => chooseMode(value)}
                 type="button"
@@ -365,7 +381,13 @@ export function BookingCalendar() {
                     {value === "online" ? "◉" : "⌂"}
                   </span>
                   <span className="text-xl font-semibold text-ink">{label}</span>
-                  <span aria-hidden="true" className="ml-auto text-lg text-primary">→</span>
+                  <span
+                    aria-hidden="true"
+                    className={["ml-auto flex size-6 items-center justify-center rounded-full border-2",
+                      mode === value ? "border-primary bg-primary" : "border-primary/60"].join(" ")}
+                  >
+                    {mode === value ? <span className="size-2.5 rounded-full bg-white" /> : null}
+                  </span>
                 </span>
                 <span className="mt-4 block text-sm leading-6 text-ink-soft">{description}</span>
               </button>
@@ -399,8 +421,11 @@ export function BookingCalendar() {
                       <div className="flex aspect-square min-w-0 items-center justify-center p-0.5" key={toIsoDate(date)}>
                         <button
                           aria-label={dateFormatter.format(date)}
+                          aria-pressed={selectedDateKey === toIsoDate(date)}
                           className={["flex aspect-square w-full max-w-11 items-center justify-center rounded-full text-sm font-semibold transition",
-                            available ? "text-ink hover:bg-[#f2efff] focus-visible:outline-primary" : "cursor-not-allowed text-ink-muted/30"].join(" ")}
+                            !available ? "cursor-not-allowed text-ink-muted/30" :
+                            selectedDateKey === toIsoDate(date) ? "bg-primary text-white" :
+                            "text-ink hover:bg-[#f2efff] focus-visible:outline-primary"].join(" ")}
                           disabled={!available}
                           onClick={() => chooseDate(date)}
                           type="button"
@@ -430,7 +455,9 @@ export function BookingCalendar() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {availableTimes.map((time) => (
                   <button
-                    className="min-h-14 rounded-2xl border border-border bg-white px-3 text-lg font-semibold text-ink transition-colors hover:border-primary hover:bg-[#f8f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                    aria-pressed={selectedTime === time}
+                    className={["min-h-14 rounded-2xl border px-3 text-lg font-semibold transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+                      selectedTime === time ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:bg-[#f8f6ff]"].join(" ")}
                     key={time}
                     onClick={() => chooseTime(time)}
                     type="button"
@@ -446,7 +473,7 @@ export function BookingCalendar() {
         ) : null}
 
         {step === 3 ? (
-          <form className="mt-6 space-y-4" noValidate onSubmit={continueToReview}>
+          <form className="mt-6 space-y-4" id="booking-contact-form" noValidate onSubmit={continueToReview}>
             <div className="grid gap-4 sm:grid-cols-2">
               {field("firstName", "Nome", "text", "given-name")}
               {field("lastName", "Cognome", "text", "family-name")}
@@ -467,15 +494,12 @@ export function BookingCalendar() {
             </label>
             {formErrors.consent ? <p className="text-sm text-red-700">{formErrors.consent}</p> : null}
             {message && status !== "submitting" ? <p className="text-sm text-red-700" role="alert">{message}</p> : null}
-            <div className="flex items-center justify-between gap-4 pt-2">
-              <button className="min-h-12 px-2 text-sm font-semibold text-ink-soft hover:text-primary" onClick={() => setStep(2)} type="button">← Indietro</button>
-              <button className="min-h-12 rounded-full border-[1.5px] border-black bg-primary px-7 font-semibold text-white hover:bg-primary-strong" type="submit">Continua →</button>
-            </div>
+
           </form>
         ) : null}
 
         {step === 4 ? (
-          <form className="mt-6" onSubmit={(event) => void submitBooking(event)}>
+          <form className="mt-6" id="booking-confirm-form" onSubmit={(event) => void submitBooking(event)}>
             <div className="divide-y divide-border rounded-2xl border border-border bg-surface-muted px-5">
               <div className="flex items-center justify-between gap-4 py-4">
                 <div><p className="text-xs text-ink-muted">Modalità</p><p className="mt-1 font-semibold text-ink">{modeLabel(mode)}</p></div>
@@ -494,22 +518,29 @@ export function BookingCalendar() {
               L'appuntamento non è ancora confermato. Dopo l'invio Giorgia verificherà la richiesta e riceverai una comunicazione via email.
             </p>
             {message ? <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">{message}</p> : null}
-            <button
-              className="mt-6 min-h-14 w-full rounded-full border-[1.5px] border-black bg-primary px-6 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!canSubmit || status === "submitting"}
-              type="submit"
-            >{status === "submitting" ? "Invio in corso…" : "Invia richiesta di appuntamento"}</button>
-            <button className="mt-3 min-h-11 w-full text-sm font-semibold text-ink-muted" disabled={status === "submitting"} onClick={() => setStep(3)} type="button">← Torna ai tuoi dati</button>
+
           </form>
         ) : null}
 
-        {step >= 1 && step <= 2 ? (
-          <div className="mt-7 border-t border-border pt-4">
-            <button className="min-h-11 text-sm font-semibold text-ink-muted hover:text-primary" onClick={() => setStep(step - 1)} type="button">
-              ← Indietro
-            </button>
-          </div>
-        ) : null}
+      </div>
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-border bg-white/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(24,24,27,0.07)] backdrop-blur-lg sm:static sm:mt-5 sm:rounded-2xl sm:border sm:px-5 sm:py-4 sm:shadow-none">
+        <button
+          className="min-h-12 rounded-full px-2 text-base font-semibold text-primary hover:text-primary-strong disabled:cursor-not-allowed disabled:opacity-30"
+          disabled={step === 0 || status === "submitting"}
+          onClick={() => setStep((current) => Math.max(0, current - 1))}
+          type="button"
+        >
+          ← Indietro
+        </button>
+        <button
+          className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={step < 3 ? !canContinue : step === 4 ? !canSubmit || status === "submitting" : false}
+          form={step === 3 ? "booking-contact-form" : step === 4 ? "booking-confirm-form" : undefined}
+          onClick={step < 3 ? goForward : undefined}
+          type={step < 3 ? "button" : "submit"}
+        >
+          {step === 4 ? (status === "submitting" ? "Invio in corso…" : "Invia richiesta") : "Avanti"}
+        </button>
       </div>
       {step >= 1 && step < 4 ? (
         <p className="mt-4 text-center text-sm text-ink-muted">
