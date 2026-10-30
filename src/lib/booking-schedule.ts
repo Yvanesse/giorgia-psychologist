@@ -20,8 +20,8 @@ export function getBookingSlots() {
 }
 
 export function getBookingDurationMinutes() {
-  const parsed = Number(process.env.BOOKING_DURATION_MINUTES ?? "60");
-  return Number.isFinite(parsed) && parsed > 0 && parsed <= 240 ? parsed : 60;
+  const parsed = Number(process.env.BOOKING_DURATION_MINUTES ?? "55");
+  return Number.isFinite(parsed) && parsed > 0 && parsed <= 240 ? parsed : 55;
 }
 
 function timeZoneOffsetMs(date: Date, timeZone: string) {
