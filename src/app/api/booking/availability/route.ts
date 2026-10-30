@@ -5,6 +5,7 @@ import {
   bookingSlotRange,
   bookingSlotToDate,
   getBookingSlots,
+  getBookingDurationMinutes,
   isAllowedBookingDate,
 } from "@/lib/booking-schedule";
 import {
@@ -94,7 +95,7 @@ export async function GET() {
     return NextResponse.json({
       calendarConfigured,
       timeZone: BOOKING_TIME_ZONE,
-      durationMinutes: Number(process.env.BOOKING_DURATION_MINUTES ?? "60") || 60,
+      durationMinutes: getBookingDurationMinutes(),
       slots,
       dates,
     });
