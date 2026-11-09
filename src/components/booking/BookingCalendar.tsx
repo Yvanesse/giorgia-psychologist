@@ -74,6 +74,7 @@ export function BookingCalendar() {
   const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [mode, setMode] = useState<BookingMode | null>(null);
   const [availability, setAvailability] = useState<Record<string, string[]>>({});
+  const [bookingSlots, setBookingSlots] = useState<string[]>([]);
   const [availabilityState, setAvailabilityState] = useState<AvailabilityState>("loading");
   const [sessionDurationMinutes, setSessionDurationMinutes] = useState(55);
   const [calendarConnected, setCalendarConnected] = useState(false);
@@ -106,11 +107,14 @@ export function BookingCalendar() {
         const result = (await response.json()) as {
           calendarConfigured?: boolean;
           durationMinutes?: number;
+          slots?: string[];
           dates?: Array<{ date: string; availableSlots: string[] }>;
         };
-        if (!Array.isArray(result.dates)) throw new Error("Invalid availability");
+        if (!Array.isArray(result.dates) || !Array.isArray(result.slots)) throw new Error("Invalid availability");
         if (cancelled) return;
         setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
+      setBookingSlots(result.slots);
+        setBookingSlots(result.slots);
         setCalendarConnected(Boolean(result.calendarConfigured));
         if (typeof result.durationMinutes === "number" && result.durationMinutes > 0) {
           setSessionDurationMinutes(result.durationMinutes);
@@ -119,6 +123,7 @@ export function BookingCalendar() {
       } catch {
         if (!cancelled) {
           setAvailability({});
+          setBookingSlots([]);
           setAvailabilityState("error");
         }
       }
@@ -259,8 +264,9 @@ export function BookingCalendar() {
         dates?: Array<{ date: string; availableSlots: string[] }>;
         calendarConfigured?: boolean;
         durationMinutes?: number;
+        slots?: string[];
       };
-      if (!Array.isArray(result.dates)) throw new Error();
+      if (!Array.isArray(result.dates) || !Array.isArray(result.slots)) throw new Error();
       setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
       setCalendarConnected(Boolean(result.calendarConfigured));
       if (typeof result.durationMinutes === "number" && result.durationMinutes > 0) {
@@ -269,6 +275,7 @@ export function BookingCalendar() {
       setAvailabilityState("ready");
     } catch {
       setAvailability({});
+      setBookingSlots([]);
       setAvailabilityState("error");
     }
   }
@@ -520,22 +527,52 @@ export function BookingCalendar() {
             ) : null}
             {availabilityState === "error" ? (
               <p className="rounded-2xl bg-amber-50 p-4 text-sm text-ink-soft">Non possiamo verificare gli orari. Torna alla data e aggiorna il calendario.</p>
-            ) : availableTimes.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {availableTimes.map((time) => (
-                  <button
-                    aria-pressed={selectedTime === time}
-                    className={["min-h-14 rounded-2xl border px-3 text-lg font-semibold transition-colors hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-                      selectedTime === time ? "border-primary bg-primary text-white" : "border-border bg-white text-ink hover:bg-[#f8f6ff]"].join(" ")}
-                    key={time}
-                    onClick={() => chooseTime(time)}
-                    type="button"
-                  >{time}</button>
-                ))}
-              </div>
+            ) : availabilityState === "loading" ? (
+              <p className="rounded-2xl bg-surface-muted p-4 text-sm text-ink-soft" role="status">
+                Caricamento degli orari…
+              </p>
+            ) : bookingSlots.length > 0 ? (
+              <>
+                <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-ink-soft" aria-label="Legenda disponibilità">
+                  <span className="flex items-center gap-2"><span aria-hidden="true" className="size-2.5 rounded-full bg-primary" />Disponibile</span>
+                  <span className="flex items-center gap-2"><span aria-hidden="true" className="size-2.5 rounded-full bg-zinc-300" />Non disponibile</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {bookingSlots.map((time) => {
+                    const isAvailable = availableTimes.includes(time);
+                    const isSelected = isAvailable && selectedTime === time;
+                    return (
+                      <button
+                        aria-label={isAvailable ? `Ore ${time}, disponibile` : `Ore ${time}, non disponibile`}
+                        aria-pressed={isAvailable ? isSelected : undefined}
+                        className={[
+                          "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-2 text-center transition-colors",
+                          !isAvailable
+                            ? "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-400"
+                            : isSelected
+                              ? "border-primary bg-primary text-white"
+                              : "border-border bg-white text-ink hover:border-primary hover:bg-[#f8f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+                        ].join(" ")}
+                        disabled={!isAvailable}
+                        key={time}
+                        onClick={() => chooseTime(time)}
+                        type="button"
+                      >
+                        <span className="text-lg font-semibold">{time}</span>
+                        <span className="text-[11px] font-medium">{isAvailable ? "Disponibile" : "Non disponibile"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {availableTimes.length === 0 ? (
+                  <p className="mt-4 text-sm text-ink-soft" role="status">
+                    Tutti gli orari di questa data sono occupati. Torna indietro e scegli un altro giorno.
+                  </p>
+                ) : null}
+              </>
             ) : (
               <p className="rounded-2xl bg-surface-muted p-4 text-sm text-ink-soft">
-                Non ci sono più orari disponibili per questo giorno. Torna indietro e scegli un'altra data.
+                Nessun orario configurato. Torna indietro e scegli un'altra data.
               </p>
             )}
           </div>
