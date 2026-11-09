@@ -113,7 +113,6 @@ export function BookingCalendar() {
         if (!Array.isArray(result.dates) || !Array.isArray(result.slots)) throw new Error("Invalid availability");
         if (cancelled) return;
         setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
-      setBookingSlots(result.slots);
         setBookingSlots(result.slots);
         setCalendarConnected(Boolean(result.calendarConfigured));
         if (typeof result.durationMinutes === "number" && result.durationMinutes > 0) {
@@ -268,6 +267,7 @@ export function BookingCalendar() {
       };
       if (!Array.isArray(result.dates) || !Array.isArray(result.slots)) throw new Error();
       setAvailability(Object.fromEntries(result.dates.map((day) => [day.date, day.availableSlots])));
+      setBookingSlots(result.slots);
       setCalendarConnected(Boolean(result.calendarConfigured));
       if (typeof result.durationMinutes === "number" && result.durationMinutes > 0) {
         setSessionDurationMinutes(result.durationMinutes);
