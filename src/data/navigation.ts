@@ -2,7 +2,7 @@ import type { CallToAction, NavigationItem } from "@/types/content";
 
 export const navigationItems: readonly NavigationItem[] = [
   { label: "Home", href: "/" },
-  { label: "Chi sono", href: "/#chi-sono" },
+  { label: "Chi sono", href: "/chi-sono" },
   { label: "Come lavoro", href: "/#approccio" },
   { label: "Percorsi", href: "/#percorsi" },
   { label: "Articoli", href: "/articoli" },
