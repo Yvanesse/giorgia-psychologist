@@ -451,7 +451,12 @@ export function BookingCalendar() {
               >
                 <span className="flex items-center gap-3">
                   <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-[#f2efff] text-xl text-primary">
-                    {value === "online" ? "◉" : "⌂"}
+                    {value === "online" ? (
+                      <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="5" width="13" height="14" rx="2" />
+                        <path d="m16 10 5-3v10l-5-3" />
+                      </svg>
+                    ) : "⌂"}
                   </span>
                   <span className="text-xl font-semibold text-ink">{label}</span>
                   <span
