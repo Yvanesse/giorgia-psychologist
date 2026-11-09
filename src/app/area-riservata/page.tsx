@@ -25,13 +25,30 @@ export default function PrivateAreaPage() {
 
     try {
       const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
+      if (signInError || !signInData.user) {
         setError("Email o password non corretti.");
+        return;
+      }
+
+      // A valid Supabase account alone is not enough to access the dashboard.
+      const { data: membership, error: membershipError } = await supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", signInData.user.id)
+        .maybeSingle();
+
+      if (membershipError || !membership) {
+        await supabase.auth.signOut();
+        setError(
+          membershipError
+            ? "Impossibile verificare le autorizzazioni. Riprova tra poco."
+            : "Questo account non è autorizzato ad accedere all’area riservata.",
+        );
         return;
       }
 
