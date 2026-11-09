@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { aboutContent, manifestoLabel } from "@/data";
 import { Container, Section } from "@/components/ui";
 
@@ -15,6 +17,12 @@ export function ManifestoSection() {
             <p className="mt-3 whitespace-pre-line text-[1.65rem] font-semibold leading-[1.12] tracking-[-0.035em] text-ink sm:text-3xl lg:text-[2.15rem]">
               {aboutContent.role}
             </p>
+            <Link
+              className="mt-6 inline-flex min-h-11 items-center gap-2 border-b border-primary/40 text-base font-semibold text-primary transition-colors hover:border-primary hover:text-primary-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              href="/chi-sono"
+            >
+              Scopri di più su di me <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
           <div className="relative z-10 mt-7 border-t border-primary/12 pt-7 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-16 lg:pt-0">
