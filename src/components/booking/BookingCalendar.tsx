@@ -206,6 +206,11 @@ export function BookingCalendar() {
   function goForward() {
     if (!canContinue || step >= 4) return;
     setMessage("");
+    if (step === 3) {
+      // Opening the contact form must never show stale validation feedback.
+      setFormErrors({});
+      setStatus("idle");
+    }
     setStep((current) => current + 1);
   }
 
@@ -600,15 +605,36 @@ export function BookingCalendar() {
         >
           ← Indietro
         </button>
-        <button
-          className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
-          disabled={step < 4 ? !canContinue : step === 5 ? !canSubmit || status === "submitting" : false}
-          form={step === 4 ? "booking-contact-form" : step === 5 ? "booking-confirm-form" : undefined}
-          onClick={step < 4 ? goForward : undefined}
-          type={step < 4 ? "button" : "submit"}
-        >
-          {step === 5 ? (status === "submitting" ? "Invio in corso…" : "Invia richiesta") : "Avanti"}
-        </button>
+        {step < 4 ? (
+          <button
+            key="selection-next"
+            className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!canContinue}
+            onClick={goForward}
+            type="button"
+          >
+            Avanti
+          </button>
+        ) : step === 4 ? (
+          <button
+            key="contact-next"
+            className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong"
+            form="booking-contact-form"
+            type="submit"
+          >
+            Avanti
+          </button>
+        ) : (
+          <button
+            key="booking-submit"
+            className="min-h-12 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-colors hover:bg-primary-strong disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!canSubmit || status === "submitting"}
+            form="booking-confirm-form"
+            type="submit"
+          >
+            {status === "submitting" ? "Invio in corso…" : "Invia richiesta"}
+          </button>
+        )}
       </div>
       {step >= 2 && step < 5 ? (
         <p className="mt-4 text-center text-sm text-ink-muted">
