@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Button, Container } from "@/components/ui";
 
@@ -71,58 +70,6 @@ const editorialSections = [
 ] as const;
 
 
-const themes = [
-  { name: "Ascolto", text: "text-primary", background: "bg-primary/10" },
-  { name: "Relazioni", text: "text-[#5d8f6f]", background: "bg-[#5d8f6f]/10" },
-  { name: "Consapevolezza", text: "text-[#d36e59]", background: "bg-[#d36e59]/10" },
-  { name: "Cambiamento", text: "text-primary-strong", background: "bg-primary/10" },
-] as const;
-
-function ThemeIcon({ index }: { index: number }) {
-  const common = {
-    "aria-hidden": true as const,
-    className: "size-6 shrink-0",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.7,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-
-  if (index === 0) {
-    return (
-      <svg {...common}>
-        <path d="M4.5 13V12a7.5 7.5 0 0 1 15 0v1" />
-        <rect x="3" y="12" width="4.5" height="7" rx="2" />
-        <rect x="16.5" y="12" width="4.5" height="7" rx="2" />
-      </svg>
-    );
-  }
-  if (index === 1) {
-    return (
-      <svg {...common}>
-        <circle cx="8" cy="8" r="3" />
-        <circle cx="17.5" cy="9.5" r="2.5" />
-        <path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2M15 15a4.5 4.5 0 0 1 6.5 4v1" />
-      </svg>
-    );
-  }
-  if (index === 2) {
-    return (
-      <svg {...common}>
-        <path d="M12 20c-3.5-2-6-4.2-6-7.6A6 6 0 0 1 12 6a6 6 0 0 1 6 6.4C18 15.8 15.5 18 12 20Z" />
-        <path d="M12 20v-8M9 13l3 2 3-2" />
-      </svg>
-    );
-  }
-  return (
-    <svg {...common}>
-      <path d="m4 17 6-6 4 4 6-7M15 8h5v5" />
-    </svg>
-  );
-}
-
 function ReadMore({ label, paragraphs }: { label: string; paragraphs: readonly string[] }) {
   return (
     <details className="group mt-6 rounded-2xl border border-border bg-white open:shadow-[0_12px_32px_rgba(24,24,27,.04)]">
@@ -182,28 +129,13 @@ export default function AboutPage() {
         </svg>
       </section>
 
-      <section aria-label="I valori del mio lavoro" className="bg-white pb-14 pt-5 sm:pb-20 sm:pt-9">
-        <Container variant="wide">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            {themes.map((theme, index) => (
-              <div className="flex min-h-[5.3rem] items-center gap-3 rounded-[1.35rem] border border-border bg-white px-3 py-4 shadow-[0_8px_24px_rgba(24,24,27,.035)] sm:px-5" key={theme.name}>
-                <span className={"flex size-10 shrink-0 items-center justify-center rounded-full " + theme.text + " " + theme.background}>
-                  <ThemeIcon index={index} />
-                </span>
-                <span className="text-[.93rem] font-semibold text-ink sm:text-base">{theme.name}</span>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section className="scroll-mt-24 bg-white pb-20 sm:pb-28" id="presentazione" aria-labelledby="intro-title">
+      <section className="scroll-mt-24 bg-white pb-20 pt-10 sm:pb-28 sm:pt-16" id="presentazione" aria-labelledby="intro-title">
         <Container variant="wide">
           <div className="mx-auto max-w-[53rem]">
             <div>
               <p className="section-label">Chi sono</p>
-              <h2 id="intro-title" className="mt-4 text-4xl font-semibold leading-[1.08] tracking-[-.045em] text-ink sm:text-5xl lg:text-[3.5rem]">
-                Sono Giorgia <span className="text-[#5d8f6f]">Petruzzellis.</span>
+              <h2 id="intro-title" className="mt-3 text-[clamp(2.15rem,5.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-.04em] text-ink">
+                Sono Giorgia Petruzzellis.
               </h2>
               <p className="mt-6 text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">
                 Sono psicologa clinica e forense, iscritta all'Albo delle Psicologhe e degli Psicologi della Puglia (n. 8714) e psicoterapeuta in formazione a orientamento sistemico-relazionale.
