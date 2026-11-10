@@ -139,32 +139,6 @@ function ReadMore({ label, paragraphs }: { label: string; paragraphs: readonly s
   );
 }
 
-function RelationshipsIllustration() {
-  return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-border bg-surface-muted p-4 sm:p-7" role="img" aria-label="Illustrazione astratta: la persona al centro delle sue relazioni, esperienze e contesti">
-      <div aria-hidden="true" className="absolute -right-12 -top-12 size-40 rounded-full bg-primary/10 blur-2xl" />
-      <div aria-hidden="true" className="absolute -bottom-12 -left-12 size-40 rounded-full bg-[#5d8f6f]/10 blur-2xl" />
-      <svg aria-hidden="true" className="relative mx-auto h-auto w-full max-w-[33rem]" viewBox="0 0 550 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M274 173C205 120 177 98 117 92" stroke="#5b35f5" strokeWidth="2" strokeDasharray="5 7" />
-        <path d="M275 178C342 125 386 113 452 102" stroke="#5d8f6f" strokeWidth="2" strokeDasharray="5 7" />
-        <path d="M270 188C214 237 178 259 123 277" stroke="#d36e59" strokeWidth="2" strokeDasharray="5 7" />
-        <path d="M281 192C340 231 387 266 453 276" stroke="#5b35f5" strokeWidth="2" strokeDasharray="5 7" />
-        <circle cx="274" cy="181" r="91" fill="white" stroke="#5b35f5" strokeWidth="2.5" />
-        <circle cx="113" cy="91" r="64" fill="#f2efff" stroke="#5b35f5" strokeWidth="1.3" />
-        <circle cx="455" cy="103" r="62" fill="#edf4ef" stroke="#5d8f6f" strokeWidth="1.3" />
-        <circle cx="121" cy="274" r="60" fill="#fff2ed" stroke="#d36e59" strokeWidth="1.3" />
-        <circle cx="450" cy="275" r="64" fill="#f2efff" stroke="#5b35f5" strokeWidth="1.3" />
-        <text x="274" y="176" textAnchor="middle" fontSize="23" fontWeight="700" fill="#18181b">La persona</text>
-        <text x="274" y="204" textAnchor="middle" fontSize="15" fill="#3f3f46">al centro</text>
-        <text x="113" y="96" textAnchor="middle" fontSize="17" fontWeight="600" fill="#4320d6">Relazioni</text>
-        <text x="455" y="109" textAnchor="middle" fontSize="18" fontWeight="600" fill="#436b50">Contesti</text>
-        <text x="121" y="280" textAnchor="middle" fontSize="18" fontWeight="600" fill="#a44f3d">Esperienze</text>
-        <text x="450" y="281" textAnchor="middle" fontSize="18" fontWeight="600" fill="#4320d6">Risorse</text>
-      </svg>
-    </div>
-  );
-}
-
 export default function AboutPage() {
   const training = editorialSections[0];
   const approach = editorialSections[1];
@@ -225,8 +199,8 @@ export default function AboutPage() {
 
       <section className="scroll-mt-24 bg-white pb-20 sm:pb-28" id="presentazione" aria-labelledby="intro-title">
         <Container variant="wide">
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] lg:gap-16">
-            <div className="max-w-[41rem]">
+          <div className="mx-auto max-w-[53rem]">
+            <div>
               <p className="section-label">Chi sono</p>
               <h2 id="intro-title" className="mt-4 text-4xl font-semibold leading-[1.08] tracking-[-.045em] text-ink sm:text-5xl lg:text-[3.5rem]">
                 Sono Giorgia <span className="text-[#5d8f6f]">Petruzzellis.</span>
@@ -245,12 +219,6 @@ export default function AboutPage() {
                   "Il mio intento è costruire uno spazio di ascolto autentico, rispettoso e privo di giudizio, nel quale ciascuno possa sentirsi accolto nella propria unicità, riconoscere le proprie risorse e dare un nuovo significato alle esperienze che sta vivendo.",
                 ]}
               />
-            </div>
-            <div>
-              <RelationshipsIllustration />
-              <p className="mx-auto mt-4 max-w-[32rem] text-center text-sm leading-6 text-ink-muted">
-                Una prospettiva che tiene insieme la persona, la sua storia e le relazioni.
-              </p>
             </div>
           </div>
         </Container>
