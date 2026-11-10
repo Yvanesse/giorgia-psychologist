@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { LocalPhoto } from "@/components/sections/LocalPhoto";
 import { Button, Container } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -71,128 +70,304 @@ const editorialSections = [
   },
 ] as const;
 
+
+const themes = [
+  { name: "Ascolto", text: "text-primary", background: "bg-primary/10" },
+  { name: "Relazioni", text: "text-[#5d8f6f]", background: "bg-[#5d8f6f]/10" },
+  { name: "Consapevolezza", text: "text-[#d36e59]", background: "bg-[#d36e59]/10" },
+  { name: "Cambiamento", text: "text-primary-strong", background: "bg-primary/10" },
+] as const;
+
+function ThemeIcon({ index }: { index: number }) {
+  const common = {
+    "aria-hidden": true as const,
+    className: "size-6 shrink-0",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.7,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (index === 0) {
+    return (
+      <svg {...common}>
+        <path d="M4.5 13V12a7.5 7.5 0 0 1 15 0v1" />
+        <rect x="3" y="12" width="4.5" height="7" rx="2" />
+        <rect x="16.5" y="12" width="4.5" height="7" rx="2" />
+      </svg>
+    );
+  }
+  if (index === 1) {
+    return (
+      <svg {...common}>
+        <circle cx="8" cy="8" r="3" />
+        <circle cx="17.5" cy="9.5" r="2.5" />
+        <path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2M15 15a4.5 4.5 0 0 1 6.5 4v1" />
+      </svg>
+    );
+  }
+  if (index === 2) {
+    return (
+      <svg {...common}>
+        <path d="M12 20c-3.5-2-6-4.2-6-7.6A6 6 0 0 1 12 6a6 6 0 0 1 6 6.4C18 15.8 15.5 18 12 20Z" />
+        <path d="M12 20v-8M9 13l3 2 3-2" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...common}>
+      <path d="m4 17 6-6 4 4 6-7M15 8h5v5" />
+    </svg>
+  );
+}
+
+function ReadMore({ label, paragraphs }: { label: string; paragraphs: readonly string[] }) {
+  return (
+    <details className="group mt-6 rounded-2xl border border-border bg-white open:shadow-[0_12px_32px_rgba(24,24,27,.04)]">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-sm font-semibold text-primary marker:content-none [&::-webkit-details-marker]:hidden sm:px-6">
+        {label}
+        <svg aria-hidden="true" className="size-5 shrink-0 transition-transform duration-200 group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <div className="space-y-5 border-t border-border px-5 py-6 text-base leading-8 text-ink-soft sm:px-6 sm:text-lg">
+        {paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+      </div>
+    </details>
+  );
+}
+
+function RelationshipsIllustration() {
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-border bg-surface-muted p-4 sm:p-7" role="img" aria-label="Illustrazione astratta: la persona al centro delle sue relazioni, esperienze e contesti">
+      <div aria-hidden="true" className="absolute -right-12 -top-12 size-40 rounded-full bg-primary/10 blur-2xl" />
+      <div aria-hidden="true" className="absolute -bottom-12 -left-12 size-40 rounded-full bg-[#5d8f6f]/10 blur-2xl" />
+      <svg aria-hidden="true" className="relative mx-auto h-auto w-full max-w-[33rem]" viewBox="0 0 550 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M274 173C205 120 177 98 117 92" stroke="#5b35f5" strokeWidth="2" strokeDasharray="5 7" />
+        <path d="M275 178C342 125 386 113 452 102" stroke="#5d8f6f" strokeWidth="2" strokeDasharray="5 7" />
+        <path d="M270 188C214 237 178 259 123 277" stroke="#d36e59" strokeWidth="2" strokeDasharray="5 7" />
+        <path d="M281 192C340 231 387 266 453 276" stroke="#5b35f5" strokeWidth="2" strokeDasharray="5 7" />
+        <circle cx="274" cy="181" r="91" fill="white" stroke="#5b35f5" strokeWidth="2.5" />
+        <circle cx="113" cy="91" r="64" fill="#f2efff" stroke="#5b35f5" strokeWidth="1.3" />
+        <circle cx="455" cy="103" r="62" fill="#edf4ef" stroke="#5d8f6f" strokeWidth="1.3" />
+        <circle cx="121" cy="274" r="60" fill="#fff2ed" stroke="#d36e59" strokeWidth="1.3" />
+        <circle cx="450" cy="275" r="64" fill="#f2efff" stroke="#5b35f5" strokeWidth="1.3" />
+        <text x="274" y="176" textAnchor="middle" fontSize="23" fontWeight="700" fill="#18181b">La persona</text>
+        <text x="274" y="204" textAnchor="middle" fontSize="15" fill="#3f3f46">al centro</text>
+        <text x="113" y="96" textAnchor="middle" fontSize="17" fontWeight="600" fill="#4320d6">Relazioni</text>
+        <text x="455" y="109" textAnchor="middle" fontSize="18" fontWeight="600" fill="#436b50">Contesti</text>
+        <text x="121" y="280" textAnchor="middle" fontSize="18" fontWeight="600" fill="#a44f3d">Esperienze</text>
+        <text x="450" y="281" textAnchor="middle" fontSize="18" fontWeight="600" fill="#4320d6">Risorse</text>
+      </svg>
+    </div>
+  );
+}
+
 export default function AboutPage() {
+  const training = editorialSections[0];
+  const approach = editorialSections[1];
+  const journey = editorialSections[2];
+
   return (
     <main id="main-content">
-      <section className="overflow-hidden bg-white pb-14 pt-8 sm:pb-20 sm:pt-12 lg:pb-24 lg:pt-16" id="chi-sono">
-        <Container variant="wide">
-          <nav aria-label="Percorso di navigazione" className="mb-10 flex items-center gap-2 text-sm text-ink-muted sm:mb-14">
-            <Link className="transition-colors hover:text-primary" href="/">Home</Link>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page" className="font-semibold text-ink">Chi sono</span>
-          </nav>
-
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)] lg:gap-16 xl:gap-24">
-            <div className="max-w-[48rem]">
-              <p className="section-label">La mia storia</p>
-              <h1 className="mt-4 text-[clamp(3.4rem,8vw,6.5rem)] font-semibold leading-[.95] tracking-[-.065em] text-ink">
-                Chi sono<span className="text-[#6848ed]">?</span>
-              </h1>
-              <p className="mt-8 text-xl leading-[1.65] text-ink sm:text-[1.4rem]">
-                Sono <strong className="font-semibold">Giorgia Petruzzellis</strong>, psicologa clinica e forense, iscritta all'Albo delle Psicologhe e degli Psicologi della Puglia (n. 8714) e psicoterapeuta in formazione a orientamento sistemico-relazionale.
-              </p>
-              <div className="mt-7 border-l-[3px] border-[#6848ed] bg-[#f8f6ff] px-5 py-5 text-lg leading-[1.65] text-ink-soft sm:px-7">
-                Nel mio lavoro parto da un'idea a cui tengo particolarmente: per comprendere una persona è importante conoscere anche le relazioni, le esperienze e i contesti che hanno contribuito a costruire la sua storia.
-              </div>
-              <div className="mt-7 flex flex-wrap gap-2">
-                <a className="rounded-full border border-border px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:border-primary hover:text-primary" href="#formazione">
-                  La formazione
-                </a>
-                <a className="rounded-full border border-border px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:border-primary hover:text-primary" href="#approccio-sistemico">
-                  L'approccio
-                </a>
-                <a className="rounded-full border border-border px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:border-primary hover:text-primary" href="#percorso-psicologico">
-                  Il percorso
-                </a>
-              </div>
-            </div>
-
-            <figure className="mx-auto w-full max-w-[31rem] lg:mx-0 lg:justify-self-end">
-              <LocalPhoto
-                asset={{
-                  src: "/images/giorgia-hero-final.jpg",
-                  alt: "Ritratto della Dott.ssa Giorgia Petruzzellis",
-                  width: 1086,
-                  height: 1448,
-                }}
-                className="aspect-[3/4] w-full rounded-[2rem] border border-border/70 shadow-[0_20px_60px_rgba(24,24,27,0.07)]"
-                placeholder="Giorgia Petruzzellis"
-                sizes="(min-width: 1024px) 38vw, 100vw"
-              />
-              <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-ink-muted">
-                <span className="font-semibold text-ink">Giorgia Petruzzellis</span>
-                <span>Psicologa clinica e forense · Trani</span>
-              </figcaption>
-            </figure>
-          </div>
-        </Container>
-      </section>
-
-      <section className="bg-[#f7f3ff] py-14 sm:py-20">
-        <Container variant="wide">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,.65fr)_minmax(0,1.35fr)] lg:gap-16">
-            <div className="max-w-md">
-              <p className="section-label">Le persone e le loro storie</p>
-              <h2 className="mt-4 text-3xl font-semibold leading-tight tracking-[-.04em] text-ink sm:text-4xl">
-                Uno spazio di ascolto, senza giudizio.
-              </h2>
-            </div>
-            <div className="max-w-3xl space-y-5 text-[1.05rem] leading-8 text-ink-soft sm:text-lg sm:leading-9">
-              <p>Credo che ogni difficoltà abbia un significato che merita di essere ascoltato e compreso, senza fermarsi soltanto a ciò che appare in superficie.</p>
-              <p>Per questo, attraverso i colloqui psicologici, accompagno le persone, le coppie e le famiglie nell'esplorazione dei propri vissuti emotivi e delle dinamiche relazionali, con l'obiettivo di favorire nuove prospettive, maggiore consapevolezza e possibilità di cambiamento.</p>
-              <p>Il mio intento è costruire uno spazio di ascolto autentico, rispettoso e privo di giudizio, nel quale ciascuno possa sentirsi accolto nella propria unicità, riconoscere le proprie risorse e dare un nuovo significato alle esperienze che sta vivendo.</p>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {editorialSections.map((section, index) => (
-        <section
-          className={index % 2 === 0 ? "scroll-mt-24 bg-white py-16 sm:py-24" : "scroll-mt-24 bg-[#fcfbff] py-16 sm:py-24"}
-          id={section.id}
-          key={section.id}
-        >
-          <Container variant="wide">
-            <div className="grid items-start gap-9 lg:grid-cols-[minmax(0,.65fr)_minmax(0,1.35fr)] lg:gap-16">
-              <div className="max-w-lg lg:sticky lg:top-32">
-                <div className="mb-5 flex items-center gap-3">
-                  <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-[#f2edff] text-sm font-semibold text-primary">
-                    {section.number}
-                  </span>
-                  <p className="section-label">{section.label}</p>
-                </div>
-                <h2 className="text-3xl font-semibold leading-[1.16] tracking-[-.04em] text-ink sm:text-[2.75rem]">
-                  {section.title}
-                </h2>
-              </div>
-
-              <div className="max-w-3xl space-y-5 border-t border-border pt-7 text-[1.05rem] leading-8 text-ink-soft sm:text-lg sm:leading-9 lg:pt-9">
-                {section.paragraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-          </Container>
-        </section>
-      ))}
-
-      <section className="pb-16 pt-5 sm:pb-24 sm:pt-8">
-        <Container variant="wide">
-          <div className="rounded-[2rem] border border-primary/10 bg-[#f7f3ff] px-6 py-10 sm:px-10 sm:py-14 lg:flex lg:items-center lg:justify-between lg:gap-12 lg:px-14">
-            <div className="max-w-2xl">
-              <p className="section-label">Il primo passo</p>
-              <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-[-.04em] text-ink sm:text-[2.6rem]">
-                Un percorso inizia da un incontro.
-              </h2>
-              <p className="mt-4 text-lg leading-8 text-ink-soft">
-                Se desideri iniziare un percorso psicologico, puoi richiedere un primo colloquio in presenza a Trani oppure online.
-              </p>
-            </div>
-            <div className="mt-7 shrink-0 lg:mt-0">
-              <Button className="w-full sm:w-auto" href="/prenota" size="lg">
+      {/* Image-led hero, inspired by the reference layout but using this site's existing brand colors. */}
+      <section className="relative isolate overflow-hidden bg-ink" id="chi-sono" aria-labelledby="about-title">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          alt="Giorgia Petruzzellis, psicologa clinica e forense nel suo studio"
+          className="absolute inset-0 -z-20 size-full object-cover object-[center_27%] lg:object-[center_37%]"
+          src="/images/giorgia-hero-final.jpg"
+          width={1086}
+          height={1448}
+          fetchPriority="high"
+        />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#18181b] via-[#18181b]/65 to-transparent lg:bg-gradient-to-r lg:from-[#18181b]/95 lg:via-[#18181b]/55 lg:to-transparent" />
+        <Container variant="wide" className="relative flex min-h-[43rem] flex-col justify-end pb-24 pt-24 sm:min-h-[45rem] sm:pb-28 lg:min-h-[42rem] lg:pb-28">
+          <div className="max-w-[49rem]">
+            <p className="text-sm font-semibold uppercase tracking-[.18em] text-white/90">Giorgia Petruzzellis · Psicologa a Trani</p>
+            <h1 id="about-title" className="mt-5 text-[clamp(2.65rem,7.6vw,5.8rem)] font-semibold leading-[1.03] tracking-[-.05em] text-white">
+              Ogni storia merita di essere ascoltata.
+            </h1>
+            <p className="mt-5 max-w-[39rem] text-[1.05rem] leading-7 text-white/95 sm:mt-7 sm:text-[1.3rem] sm:leading-9">
+              Nel mio lavoro, emozioni, esperienze e relazioni diventano il punto di partenza per comprendere sé stessi e trovare nuove prospettive.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4 sm:mt-9">
+              <Button href="/prenota" className="w-full sm:w-auto" size="lg">
                 Prenota un primo colloquio <span aria-hidden="true">→</span>
               </Button>
+              <a className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-white/60 underline-offset-8 transition-colors hover:text-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" href="#presentazione">
+                Scopri chi sono <span aria-hidden="true">↓</span>
+              </a>
             </div>
+          </div>
+        </Container>
+        <svg aria-hidden="true" className="absolute -bottom-px left-0 h-9 w-full fill-white sm:h-14" viewBox="0 0 1440 68" preserveAspectRatio="none">
+          <path d="M0 34C190 2 322 13 515 40C770 77 1024 11 1221 22C1320 28 1394 45 1440 38V68H0Z" />
+        </svg>
+      </section>
+
+      <section aria-label="I valori del mio lavoro" className="bg-white pb-14 pt-5 sm:pb-20 sm:pt-9">
+        <Container variant="wide">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            {themes.map((theme, index) => (
+              <div className="flex min-h-[5.3rem] items-center gap-3 rounded-[1.35rem] border border-border bg-white px-3 py-4 shadow-[0_8px_24px_rgba(24,24,27,.035)] sm:px-5" key={theme.name}>
+                <span className={"flex size-10 shrink-0 items-center justify-center rounded-full " + theme.text + " " + theme.background}>
+                  <ThemeIcon index={index} />
+                </span>
+                <span className="text-[.93rem] font-semibold text-ink sm:text-base">{theme.name}</span>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <section className="scroll-mt-24 bg-white pb-20 sm:pb-28" id="presentazione" aria-labelledby="intro-title">
+        <Container variant="wide">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] lg:gap-16">
+            <div className="max-w-[41rem]">
+              <p className="section-label">Chi sono</p>
+              <h2 id="intro-title" className="mt-4 text-4xl font-semibold leading-[1.08] tracking-[-.045em] text-ink sm:text-5xl lg:text-[3.5rem]">
+                Sono Giorgia <span className="text-[#5d8f6f]">Petruzzellis.</span>
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">
+                Sono psicologa clinica e forense, iscritta all'Albo delle Psicologhe e degli Psicologi della Puglia (n. 8714) e psicoterapeuta in formazione a orientamento sistemico-relazionale.
+              </p>
+              <div className="mt-6 border-l-[3px] border-[#d36e59] pl-5 text-base leading-8 text-ink-soft sm:pl-6 sm:text-lg">
+                Nel mio lavoro parto da un'idea a cui tengo particolarmente: per comprendere una persona è importante conoscere anche le relazioni, le esperienze e i contesti che hanno contribuito a costruire la sua storia.
+              </div>
+              <ReadMore
+                label="Leggi di più su di me"
+                paragraphs={[
+                  "Credo che ogni difficoltà abbia un significato che merita di essere ascoltato e compreso, senza fermarsi soltanto a ciò che appare in superficie.",
+                  "Per questo, attraverso i colloqui psicologici, accompagno le persone, le coppie e le famiglie nell'esplorazione dei propri vissuti emotivi e delle dinamiche relazionali, con l'obiettivo di favorire nuove prospettive, maggiore consapevolezza e possibilità di cambiamento.",
+                  "Il mio intento è costruire uno spazio di ascolto autentico, rispettoso e privo di giudizio, nel quale ciascuno possa sentirsi accolto nella propria unicità, riconoscere le proprie risorse e dare un nuovo significato alle esperienze che sta vivendo.",
+                ]}
+              />
+            </div>
+            <div>
+              <RelationshipsIllustration />
+              <p className="mx-auto mt-4 max-w-[32rem] text-center text-sm leading-6 text-ink-muted">
+                Una prospettiva che tiene insieme la persona, la sua storia e le relazioni.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="scroll-mt-24 bg-surface-muted py-16 sm:py-24" id="formazione" aria-labelledby="training-title">
+        <Container variant="wide">
+          <div className="grid gap-9 lg:grid-cols-[minmax(0,.78fr)_minmax(0,1.22fr)] lg:gap-16">
+            <div className="max-w-lg">
+              <p className="section-label">Formazione e ricerca</p>
+              <h2 id="training-title" className="mt-4 text-4xl font-semibold leading-[1.1] tracking-[-.045em] text-ink sm:text-[3.25rem]">
+                Un percorso che continua a crescere.
+              </h2>
+              <p className="mt-5 text-lg leading-8 text-ink-soft">
+                Studio, aggiornamento e ricerca accompagnano il mio lavoro clinico.
+              </p>
+            </div>
+            <div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { number: "01", title: "Laurea magistrale", info: "Psicologia Clinica e di Comunità · 110/110 e lode", color: "bg-primary" },
+                  { number: "02", title: "Specializzazione in corso", info: "Psicoterapia Sistemico-Relazionale Integrata · Istituto Metafora, Bari", color: "bg-[#5d8f6f]" },
+                  { number: "03", title: "Master di II livello", info: "Psicologia Giuridica e Neuropsicologia Forense · con lode", color: "bg-[#d36e59]" },
+                  { number: "04", title: "Ricerca universitaria", info: "Progetti nazionali e internazionali in psicopatologia forense", color: "bg-primary" },
+                ].map((item) => (
+                  <article className="rounded-[1.5rem] border border-border bg-white p-5 sm:p-6" key={item.number}>
+                    <div className={"mb-5 h-1.5 w-9 rounded-full " + item.color} aria-hidden="true" />
+                    <h3 className="text-lg font-semibold leading-snug text-ink">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">{item.info}</p>
+                  </article>
+                ))}
+              </div>
+              <ReadMore label="Approfondisci la mia formazione" paragraphs={training.paragraphs} />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="scroll-mt-24 bg-white py-16 sm:py-24" id="approccio-sistemico" aria-labelledby="approach-title">
+        <Container variant="wide">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,.86fr)_minmax(0,1.14fr)] lg:gap-16">
+            <div className="order-2 lg:order-1">
+              <div className="relative overflow-hidden rounded-[2rem] border border-border bg-surface-muted p-8 sm:p-12">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full border-[24px] border-[#5d8f6f]/10" />
+                <svg aria-hidden="true" className="mx-auto mb-7 h-auto w-full max-w-[23rem]" viewBox="0 0 390 180" fill="none">
+                  <path d="M10 114C61 25 88 149 149 85C217 9 238 159 311 87C343 56 361 61 380 30" stroke="#5b35f5" strokeWidth="6" strokeLinecap="round" />
+                  <circle cx="149" cy="85" r="15" fill="#fff" stroke="#d36e59" strokeWidth="6" />
+                  <circle cx="311" cy="87" r="15" fill="#fff" stroke="#5d8f6f" strokeWidth="6" />
+                  <circle cx="10" cy="114" r="8" fill="#5b35f5" />
+                  <circle cx="380" cy="30" r="8" fill="#5b35f5" />
+                </svg>
+                <blockquote className="max-w-lg text-xl font-semibold leading-relaxed tracking-[-.02em] text-ink sm:text-2xl">
+                  “Non si tratta di cercare colpevoli, ma di ampliare lo sguardo e riconoscere le risorse già presenti.”
+                </blockquote>
+                <p className="mt-4 text-sm font-semibold text-[#5d8f6f]">Il mio approccio</p>
+              </div>
+            </div>
+            <div className="order-1 max-w-[43rem] lg:order-2">
+              <p className="section-label">Il mio approccio</p>
+              <h2 id="approach-title" className="mt-4 text-4xl font-semibold leading-[1.1] tracking-[-.045em] text-ink sm:text-[3.25rem]">
+                Comprendere la persona, anche attraverso le sue relazioni.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">
+                {approach.paragraphs[0]}
+              </p>
+              <ReadMore label="Scopri l’approccio sistemico-relazionale" paragraphs={approach.paragraphs.slice(1)} />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="scroll-mt-24 bg-surface-muted py-16 sm:py-24" id="percorso-psicologico" aria-labelledby="journey-title">
+        <Container variant="wide">
+          <div className="max-w-3xl">
+            <p className="section-label">Come lavoro</p>
+            <h2 id="journey-title" className="mt-4 text-4xl font-semibold leading-[1.1] tracking-[-.045em] text-ink sm:text-[3.25rem]">
+              Il percorso si costruisce insieme, un passo alla volta.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-ink-soft">
+              Non esiste un percorso identico per tutti: ogni persona porta con sé una storia unica.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-4 lg:grid-cols-3">
+            {[
+              { n: "01", title: "Ci conosciamo", body: "I primi colloqui sono dedicati a conoscerci e a esplorare ciò che ti ha portato a chiedere sostegno.", color: "text-primary" },
+              { n: "02", title: "Diamo senso alle esperienze", body: "Esploriamo insieme il significato delle difficoltà nella tua storia e nelle tue relazioni.", color: "text-[#d36e59]" },
+              { n: "03", title: "Definiamo gli obiettivi", body: "Individuiamo una direzione condivisa, rispettando le tue esigenze, i tuoi tempi e le tue risorse.", color: "text-[#5d8f6f]" },
+            ].map((item) => (
+              <article className="rounded-[1.65rem] border border-border bg-white px-6 py-7 sm:p-8" key={item.n}>
+                <p aria-hidden="true" className={"text-5xl font-semibold tracking-[-.07em] " + item.color}>{item.n}</p>
+                <h3 className="mt-6 text-xl font-semibold tracking-[-.02em] text-ink sm:text-2xl">{item.title}</h3>
+                <p className="mt-3 text-base leading-7 text-ink-soft">{item.body}</p>
+              </article>
+            ))}
+          </div>
+          <div className="mx-auto max-w-[51rem]">
+            <ReadMore label="Come si svolgono i colloqui: leggi di più" paragraphs={journey.paragraphs} />
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-white py-14 sm:py-20">
+        <Container variant="wide">
+          <div className="relative overflow-hidden rounded-[2rem] bg-primary px-6 py-10 text-white sm:px-10 sm:py-14 lg:flex lg:items-center lg:justify-between lg:gap-10 lg:px-14">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-14 -top-24 size-64 rounded-full border-[36px] border-white/10" />
+            <div className="relative max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-[.17em] text-white/80">Iniziamo da qui</p>
+              <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-[-.04em] sm:text-4xl">
+                Un primo incontro per capire da dove iniziare.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-white/90 sm:text-lg">
+                Puoi richiedere un colloquio psicologico a Trani oppure online, scegliendo la modalità più adatta a te.
+              </p>
+            </div>
+            <a href="/prenota" className="relative mt-7 inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-full border-[1.5px] border-white bg-white px-7 text-center text-base font-semibold text-primary-strong transition-colors hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto lg:mt-0">
+              Prenota un primo colloquio <span aria-hidden="true">→</span>
+            </a>
           </div>
         </Container>
       </section>
