@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { Button, Container } from "@/components/ui";
-import { LocalPhoto } from "@/components/sections/LocalPhoto";
 
 export const metadata: Metadata = {
   title: "Chi sono | Giorgia Petruzzellis, Psicologa a Trani",
@@ -94,49 +93,14 @@ export default function AboutPage() {
 
   return (
     <main id="main-content">
-      <section className="hero-surface overflow-hidden pb-10 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16" id="chi-sono" aria-labelledby="about-title">
-        <Container variant="wide">
-          <div className="grid items-center gap-7 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:gap-14">
-            <div className="max-w-3xl">
-              <p className="section-label">La mia storia</p>
-              <h1 id="about-title" className="mt-3 text-[2.65rem] font-semibold leading-[1.04] tracking-[-0.052em] text-ink min-[390px]:text-5xl sm:text-[3.5rem] lg:text-[4.4rem]">
-                Ogni storia merita di essere ascoltata.
-              </h1>
-              <p className="mt-5 max-w-2xl text-[1.15rem] leading-8 text-ink-soft sm:mt-7 sm:text-[1.35rem]">
-                Nel mio lavoro, emozioni, esperienze e relazioni diventano il punto di partenza per comprendere sé stessi e trovare nuove prospettive.
-              </p>
-              <div className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">
-                <Button href="/prenota" className="w-full sm:w-auto" size="lg">
-                  Prenota un primo colloquio <span aria-hidden="true">→</span>
-                </Button>
-                <a className="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft underline decoration-primary/50 underline-offset-8 transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" href="#presentazione">
-                  Scopri chi sono <span aria-hidden="true" className="ml-2">↓</span>
-                </a>
-              </div>
-            </div>
-            <LocalPhoto
-              asset={{
-                src: "/images/giorgia-hero-final.jpg",
-                alt: "Ritratto della Dott.ssa Giorgia Petruzzellis",
-                width: 1086,
-                height: 1448,
-              }}
-              className="aspect-[4/4.6] max-h-[37rem] rounded-[2rem] lg:justify-self-end lg:w-full"
-              placeholder="Giorgia Petruzzellis"
-              sizes="(min-width: 1024px) 42vw, 100vw"
-            />
-          </div>
-        </Container>
-      </section>
-
-      <section className="scroll-mt-24 bg-white pb-20 pt-7 sm:pb-28 sm:pt-12" id="presentazione" aria-labelledby="intro-title">
+      <section className="scroll-mt-24 bg-white pb-20 pt-12 sm:pb-28 sm:pt-20" id="chi-sono" aria-labelledby="intro-title">
         <Container variant="wide">
           <div className="mx-auto max-w-[53rem]">
             <div>
               <p className="section-label">Chi sono</p>
-              <h2 id="intro-title" className="mt-3 text-[clamp(2.15rem,5.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-.04em] text-ink">
+              <h1 id="intro-title" className="mt-3 text-[clamp(2.15rem,5.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-.04em] text-ink">
                 Sono Giorgia Petruzzellis.
-              </h2>
+              </h1>
               <p className="mt-6 text-lg leading-8 text-ink-soft sm:text-xl sm:leading-9">
                 Sono psicologa clinica e forense, iscritta all'Albo delle Psicologhe e degli Psicologi della Puglia (n. 8714) e psicoterapeuta in formazione a orientamento sistemico-relazionale.
               </p>
