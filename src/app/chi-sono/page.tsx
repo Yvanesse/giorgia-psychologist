@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Button, Container } from "@/components/ui";
+import { LocalPhoto } from "@/components/sections/LocalPhoto";
 
 export const metadata: Metadata = {
   title: "Chi sono | Giorgia Petruzzellis, Psicologa a Trani",
@@ -93,43 +94,42 @@ export default function AboutPage() {
 
   return (
     <main id="main-content">
-      {/* Image-led hero, inspired by the reference layout but using this site's existing brand colors. */}
-      <section className="relative isolate overflow-hidden bg-ink" id="chi-sono" aria-labelledby="about-title">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          alt="Giorgia Petruzzellis, psicologa clinica e forense nel suo studio"
-          className="absolute inset-0 -z-20 size-full object-cover object-[center_27%] lg:object-[center_37%]"
-          src="/images/giorgia-hero-final.jpg"
-          width={1086}
-          height={1448}
-          fetchPriority="high"
-        />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-[#18181b] via-[#18181b]/65 to-transparent lg:bg-gradient-to-r lg:from-[#18181b]/95 lg:via-[#18181b]/55 lg:to-transparent" />
-        <Container variant="wide" className="relative flex min-h-[43rem] flex-col justify-end pb-24 pt-24 sm:min-h-[45rem] sm:pb-28 lg:min-h-[42rem] lg:pb-28">
-          <div className="max-w-[49rem]">
-            <p className="text-sm font-semibold uppercase tracking-[.18em] text-white/90">Giorgia Petruzzellis · Psicologa a Trani</p>
-            <h1 id="about-title" className="mt-5 text-[clamp(2.65rem,7.6vw,5.8rem)] font-semibold leading-[1.03] tracking-[-.05em] text-white">
-              Ogni storia merita di essere ascoltata.
-            </h1>
-            <p className="mt-5 max-w-[39rem] text-[1.05rem] leading-7 text-white/95 sm:mt-7 sm:text-[1.3rem] sm:leading-9">
-              Nel mio lavoro, emozioni, esperienze e relazioni diventano il punto di partenza per comprendere sé stessi e trovare nuove prospettive.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4 sm:mt-9">
-              <Button href="/prenota" className="w-full sm:w-auto" size="lg">
-                Prenota un primo colloquio <span aria-hidden="true">→</span>
-              </Button>
-              <a className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-white/60 underline-offset-8 transition-colors hover:text-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white" href="#presentazione">
-                Scopri chi sono <span aria-hidden="true">↓</span>
-              </a>
+      <section className="hero-surface overflow-hidden pb-10 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16" id="chi-sono" aria-labelledby="about-title">
+        <Container variant="wide">
+          <div className="grid items-center gap-7 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:gap-14">
+            <div className="max-w-3xl">
+              <p className="section-label">La mia storia</p>
+              <h1 id="about-title" className="mt-3 text-[2.65rem] font-semibold leading-[1.04] tracking-[-0.052em] text-ink min-[390px]:text-5xl sm:text-[3.5rem] lg:text-[4.4rem]">
+                Ogni storia merita di essere ascoltata.
+              </h1>
+              <p className="mt-5 max-w-2xl text-[1.15rem] leading-8 text-ink-soft sm:mt-7 sm:text-[1.35rem]">
+                Nel mio lavoro, emozioni, esperienze e relazioni diventano il punto di partenza per comprendere sé stessi e trovare nuove prospettive.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">
+                <Button href="/prenota" className="w-full sm:w-auto" size="lg">
+                  Prenota un primo colloquio <span aria-hidden="true">→</span>
+                </Button>
+                <a className="inline-flex min-h-11 items-center text-sm font-semibold text-ink-soft underline decoration-primary/50 underline-offset-8 transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" href="#presentazione">
+                  Scopri chi sono <span aria-hidden="true" className="ml-2">↓</span>
+                </a>
+              </div>
             </div>
+            <LocalPhoto
+              asset={{
+                src: "/images/giorgia-hero-final.jpg",
+                alt: "Ritratto della Dott.ssa Giorgia Petruzzellis",
+                width: 1086,
+                height: 1448,
+              }}
+              className="aspect-[4/4.6] max-h-[37rem] rounded-[2rem] lg:justify-self-end lg:w-full"
+              placeholder="Giorgia Petruzzellis"
+              sizes="(min-width: 1024px) 42vw, 100vw"
+            />
           </div>
         </Container>
-        <svg aria-hidden="true" className="absolute -bottom-px left-0 h-9 w-full fill-white sm:h-14" viewBox="0 0 1440 68" preserveAspectRatio="none">
-          <path d="M0 34C190 2 322 13 515 40C770 77 1024 11 1221 22C1320 28 1394 45 1440 38V68H0Z" />
-        </svg>
       </section>
 
-      <section className="scroll-mt-24 bg-white pb-20 pt-10 sm:pb-28 sm:pt-16" id="presentazione" aria-labelledby="intro-title">
+      <section className="scroll-mt-24 bg-white pb-20 pt-7 sm:pb-28 sm:pt-12" id="presentazione" aria-labelledby="intro-title">
         <Container variant="wide">
           <div className="mx-auto max-w-[53rem]">
             <div>
