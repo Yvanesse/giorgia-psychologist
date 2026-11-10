@@ -95,8 +95,8 @@ export default function AboutPage() {
     <main id="main-content">
       <section className="scroll-mt-24 bg-white pb-20 pt-12 sm:pb-28 sm:pt-20" id="chi-sono" aria-labelledby="intro-title">
         <Container variant="wide">
-          <div className="mx-auto max-w-[53rem]">
-            <div>
+          <div className="mx-auto grid max-w-[69rem] items-start gap-9 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,.88fr)] lg:gap-14">
+            <div className="min-w-0">
               <p className="section-label">Chi sono</p>
               <h1 id="intro-title" className="mt-3 text-[clamp(2.15rem,5.5vw,3.5rem)] font-semibold leading-[1.1] tracking-[-.04em] text-ink">
                 Sono Giorgia Petruzzellis.
@@ -116,6 +116,18 @@ export default function AboutPage() {
                 ]}
               />
             </div>
+            <figure className="mx-auto w-full max-w-[27rem] lg:sticky lg:top-28">
+              {/* The About-page portrait is independent from the homepage hero image. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Giorgia Petruzzellis, psicologa clinica e forense, nel suo studio"
+                className="aspect-[3/4] w-full rounded-[2rem] border border-border object-cover object-center"
+                decoding="async"
+                height={640}
+                src="/images/giorgia-chi-sono.webp"
+                width={480}
+              />
+            </figure>
           </div>
         </Container>
       </section>
