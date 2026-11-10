@@ -241,8 +241,13 @@ export default function AboutPage() {
                 Puoi richiedere un colloquio psicologico a Trani oppure online, scegliendo la modalità più adatta a te.
               </p>
             </div>
-            <a href="/prenota" className="relative mt-7 inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-full border-[1.5px] border-white bg-white px-7 text-center text-base font-semibold text-primary-strong transition-colors hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto lg:mt-0">
-              Prenota un primo colloquio <span aria-hidden="true">→</span>
+            <a
+              href="/prenota"
+              className="relative mt-7 inline-flex min-h-14 w-full shrink-0 items-center justify-center gap-2 rounded-full border-[1.5px] border-white bg-white px-7 text-center text-base font-semibold text-primary-strong transition-colors hover:bg-surface-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:w-auto lg:mt-0"
+              style={{ color: "#4320d6", WebkitTextFillColor: "#4320d6" }}
+            >
+              <span>Prenota un primo colloquio</span>
+              <span aria-hidden="true">→</span>
             </a>
           </div>
         </Container>
