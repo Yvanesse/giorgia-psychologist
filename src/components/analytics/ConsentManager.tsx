@@ -32,7 +32,7 @@ function consentState(preferences: CookiePreferences): {
 function sendConsentCommand(method: "default" | "update", preferences: CookiePreferences) {
   window.dataLayer = window.dataLayer || [];
   // GTM riconosce i comandi gtag nella stessa forma dello snippet ufficiale.
-  function gtag() {
+  function gtag(..._args: unknown[]) {
     window.dataLayer?.push(arguments);
   }
   gtag("consent", method, consentState(preferences));
