@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site.config";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { ConsentManager } from "@/components/analytics/ConsentManager";
 import { WhatsAppContact } from "@/components/layout/WhatsAppContact";
 import { sharedContent } from "@/data";
 import "@/styles/globals.css";
@@ -59,6 +60,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <ConsentManager />
         <WhatsAppContact />
       </body>
     </html>
