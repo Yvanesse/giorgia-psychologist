@@ -72,8 +72,10 @@ export default function PrivacyPolicyPage() {
                   trattamento sanitario svolto da un professionista soggetto al segreto professionale.
                 </p>
                 <p>
-                  I dati non sono utilizzati per attività di marketing, profilazione pubblicitaria o newsletter senza una distinta
-                  base giuridica e una specifica informativa.
+                  I dati inseriti nella prenotazione non sono utilizzati per newsletter, remarketing o profilazione pubblicitaria.
+                  Separatamente, il sito può trattare dati tecnici di navigazione tramite Google Analytics 4 e Google Ads,
+                  esclusivamente dopo una scelta facoltativa dell’utente nel pannello cookie. Tale trattamento per finalità
+                  statistiche e di misurazione pubblicitaria si basa sul consenso, revocabile in qualsiasi momento.
                 </p>
               </PolicySection>
 
@@ -98,6 +100,7 @@ export default function PrivacyPolicyPage() {
                   <li><strong className="text-ink">Supabase</strong>, per database, autenticazione e archiviazione tecnica;</li>
                   <li><strong className="text-ink">Resend</strong>, per l’invio delle email relative alle richieste di appuntamento;</li>
                   <li><strong className="text-ink">Google Calendar</strong>, per la gestione delle disponibilità e degli appuntamenti confermati.</li>
+                  <li><strong className="text-ink">Google (Tag Manager, Analytics e Google Ads)</strong>, quando i relativi tag sono configurati e attivati con il consenso per statistiche e misurazione delle campagne.</li>
                 </ul>
                 <p>
                   I fornitori possono operare anche tramite infrastrutture localizzate fuori dallo Spazio Economico Europeo.
@@ -138,7 +141,11 @@ export default function PrivacyPolicyPage() {
 
               <PolicySection title="9. Cookie e strumenti di tracciamento">
                 <p>
-                  Le informazioni sui cookie e sugli strumenti tecnici utilizzati dal sito sono disponibili nella{" "}
+                  I cookie e gli altri strumenti di tracciamento facoltativi sono disattivati per impostazione predefinita.
+                  Il visitatore può accettare o rifiutare separatamente le statistiche e la misurazione delle campagne,
+                  modificando la scelta in qualsiasi momento tramite “Preferenze cookie” nel piè di pagina.
+                  Il sistema non trasmette nei relativi eventi di misurazione nome, email, telefono, motivo clinico
+                  o tipologia del colloquio. Per ulteriori dettagli consultare la{" "}
                   <a className="font-semibold text-primary underline underline-offset-4" href="/cookie-policy">
                     Cookie Policy
                   </a>.
