@@ -1,4 +1,7 @@
 // Raccogliamo solo preferenze tecniche e un evento privo di dati personali.
+export const GOOGLE_ANALYTICS_ID = "G-5Y9EXJ79EX";
+export const GOOGLE_ADS_ID = "AW-18578841452";
+
 export const COOKIE_PREFERENCES_KEY = "giorgia_cookie_preferences_v1";
 
 export type CookiePreferences = {
@@ -42,8 +45,9 @@ export function writeCookiePreferences(value: CookiePreferences): void {
 export function trackBookingRequestSubmitted(): void {
   if (typeof window === "undefined") return;
   const consent = readCookiePreferences();
-  if (!consent || (!consent.analytics && !consent.advertising)) return;
+  if (!consent?.analytics) return;
   window.dataLayer = window.dataLayer || [];
   // Non inviare nome, email, telefono, tipo di colloquio o altre informazioni sanitarie.
-  window.dataLayer.push({ event: "booking_request_submitted" });
+  // Evento GA4 generico: non contiene informazioni sui pazienti o sulla prestazione.
+  window.dataLayer.push(["event", "booking_request_submitted", { send_to: GOOGLE_ANALYTICS_ID }]);
 }
