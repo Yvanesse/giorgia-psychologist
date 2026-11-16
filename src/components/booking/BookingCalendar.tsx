@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { trackBookingRequestSubmitted } from "@/lib/analytics-client";
 
 type BookingMode = "in-presenza" | "online";
 type ServiceType = "individuale" | "coppia" | "familiare";
@@ -317,6 +318,7 @@ export function BookingCalendar() {
         throw new Error(result.message || "Non è stato possibile inviare la richiesta.");
       }
       setStatus("success");
+      trackBookingRequestSubmitted();
       setMessage(result.message || "Richiesta ricevuta correttamente.");
     } catch (error) {
       setStatus("error");
