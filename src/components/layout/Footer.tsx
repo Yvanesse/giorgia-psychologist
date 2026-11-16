@@ -1,6 +1,7 @@
 import { footerContent } from "@/data";
 import { siteConfig } from "@/config/site.config";
 import { Container } from "@/components/ui";
+import { CookieSettingsButton } from "@/components/analytics/ConsentManager";
 
 export function Footer() {
   const details = Object.values(footerContent.professionalDetails).filter(Boolean);
@@ -42,6 +43,7 @@ export function Footer() {
                   {item.label}
                 </a>
               ))}
+              <CookieSettingsButton />
             </nav>
           </div>
         </div>
