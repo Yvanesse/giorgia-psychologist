@@ -50,7 +50,7 @@ export default function CookiePolicyPage() {
                 <Heading variant="h3">Statistiche – Google Analytics 4</Heading>
                 <p className="mt-4">
                   Con il consenso alle statistiche, il sito può utilizzare Google
-                  Analytics 4, configurato attraverso Google Tag Manager, per
+                  Analytics 4, attivato direttamente tramite il tag Google, per
                   rilevare visite, pagine consultate e interazioni generali. Il
                   servizio può utilizzare cookie e identificatori tecnici per
                   distinguere le visite. Il consenso è facoltativo e disattivato
@@ -75,17 +75,17 @@ export default function CookiePolicyPage() {
               </section>
 
               <section className="border-t border-border pt-8">
-                <Heading variant="h3">Google Tag Manager e fornitori terzi</Heading>
+                <Heading variant="h3">Tag Google e fornitori terzi</Heading>
                 <p className="mt-4">
-                  Google Tag Manager è lo strumento utilizzato per caricare i tag
-                  facoltativi in base alle preferenze. I servizi Google possono
+                  Il tag Google (gtag.js) viene caricato soltanto dopo il consenso
+                  alle relative finalità. I servizi Google possono
                   trattare dati tecnici di navigazione e avvalersi di infrastrutture
                   anche fuori dallo Spazio Economico Europeo, secondo le rispettive
                   informative e garanzie applicabili.
                 </p>
                 <p className="mt-4">
                   L'effettiva raccolta di statistiche o conversioni dipende anche
-                  dalla configurazione dei tag nel contenitore Google Tag Manager.
+                  dalla configurazione dei servizi Google Analytics e Google Ads.
                 </p>
               </section>
 
