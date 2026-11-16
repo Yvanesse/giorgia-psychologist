@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  GOOGLE_ANALYTICS_ID,
+  GOOGLE_ADS_ID,
   readCookiePreferences,
   writeCookiePreferences,
   type CookiePreferences,
 } from "@/lib/analytics-client";
 
-const GTM_ID = "GTM-TZ825SP6";
 const OPEN_PREFERENCES_EVENT = "giorgia:open-cookie-preferences";
 const DENIED: CookiePreferences = { analytics: false, advertising: false };
 
@@ -29,24 +30,44 @@ function consentState(preferences: CookiePreferences): {
   };
 }
 
-function sendConsentCommand(method: "default" | "update", preferences: CookiePreferences) {
+// Il tag Google è caricato solo dopo il consenso: niente invii prima della scelta.
+function gtag(..._args: unknown[]) {
   window.dataLayer = window.dataLayer || [];
-  // GTM riconosce i comandi gtag nella stessa forma dello snippet ufficiale.
-  function gtag(..._args: unknown[]) {
-    window.dataLayer?.push(arguments);
-  }
+  window.dataLayer.push(arguments);
+}
+
+function sendConsentCommand(method: "default" | "update", preferences: CookiePreferences) {
   gtag("consent", method, consentState(preferences));
 }
 
-function loadGoogleTagManager() {
-  if (document.getElementById("giorgia-google-tag-manager")) return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+function loadGoogleMeasurement(preferences: CookiePreferences) {
+  if (!preferences.analytics && !preferences.advertising) return;
+  if (document.getElementById("giorgia-google-measurement")) return;
+
+  gtag("js", new Date());
+  gtag("set", "allow_google_signals", false);
+  gtag("set", "allow_ad_personalization_signals", false);
+
+  if (preferences.analytics) {
+    gtag("config", GOOGLE_ANALYTICS_ID, {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+    });
+  }
+
+  if (preferences.advertising) {
+    // Tag di base Ads. La conversione verrà configurata senza dati dei pazienti.
+    gtag("config", GOOGLE_ADS_ID, {
+      send_page_view: false,
+      allow_ad_personalization_signals: false,
+    });
+  }
 
   const script = document.createElement("script");
-  script.id = "giorgia-google-tag-manager";
+  script.id = "giorgia-google-measurement";
   script.async = true;
-  script.src = "https://www.googletagmanager.com/gtm.js?id=" + GTM_ID;
+  script.src = "https://www.googletagmanager.com/gtag/js?id=" +
+    (preferences.analytics ? GOOGLE_ANALYTICS_ID : GOOGLE_ADS_ID);
   document.head.appendChild(script);
 }
 
@@ -67,7 +88,7 @@ export function ConsentManager() {
   const [analytics, setAnalytics] = useState(false);
   const [advertising, setAdvertising] = useState(false);
   const activePreferences = useRef<CookiePreferences | null>(null);
-  const gtmLoaded = useRef(false);
+  const googleTagLoaded = useRef(false);
 
   useEffect(() => {
     // Consent Mode v2: neghiamo tutto prima di caricare qualsiasi tag Google.
@@ -80,8 +101,8 @@ export function ConsentManager() {
       setAdvertising(saved.advertising);
       sendConsentCommand("update", saved);
       if (saved.analytics || saved.advertising) {
-        loadGoogleTagManager();
-        gtmLoaded.current = true;
+        loadGoogleMeasurement(saved);
+        googleTagLoaded.current = true;
       }
       setPanel("hidden");
     } else {
@@ -104,7 +125,7 @@ export function ConsentManager() {
 
     // Ricaricare rimuove i tag già caricati se il visitatore revoca il consenso.
     if (
-      gtmLoaded.current &&
+      googleTagLoaded.current &&
       previous &&
       (previous.analytics !== preferences.analytics || previous.advertising !== preferences.advertising)
     ) {
@@ -113,8 +134,8 @@ export function ConsentManager() {
     }
 
     if (preferences.analytics || preferences.advertising) {
-      loadGoogleTagManager();
-      gtmLoaded.current = true;
+      loadGoogleMeasurement(preferences);
+      googleTagLoaded.current = true;
     }
     setPanel("hidden");
   }
