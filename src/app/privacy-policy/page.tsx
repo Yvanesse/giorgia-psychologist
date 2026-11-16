@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
                   <li><strong className="text-ink">Supabase</strong>, per database, autenticazione e archiviazione tecnica;</li>
                   <li><strong className="text-ink">Resend</strong>, per l’invio delle email relative alle richieste di appuntamento;</li>
                   <li><strong className="text-ink">Google Calendar</strong>, per la gestione delle disponibilità e degli appuntamenti confermati.</li>
-                  <li><strong className="text-ink">Google (Tag Manager, Analytics e Google Ads)</strong>, quando i relativi tag sono configurati e attivati con il consenso per statistiche e misurazione delle campagne.</li>
+                  <li><strong className="text-ink">Google (Analytics e Google Ads)</strong>, quando i relativi tag sono configurati e attivati con il consenso per statistiche e misurazione delle campagne.</li>
                 </ul>
                 <p>
                   I fornitori possono operare anche tramite infrastrutture localizzate fuori dallo Spazio Economico Europeo.
