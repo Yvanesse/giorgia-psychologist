@@ -18,49 +18,110 @@ export const metadata: Metadata = {
   },
 };
 
+
+type CoupleIconName = "messages" | "repeat" | "heart" | "sprout" | "ear" | "compass" | "flag";
+
+function CoupleIcon({ name }: { name: CoupleIconName }) {
+  const common = {
+    "aria-hidden": true as const,
+    className: "size-5 sm:size-6",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (name === "messages") return (
+    <svg {...common}>
+      <path d="M4 4.5h12a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H9l-4 4v-4.5a3 3 0 0 1-1-2.5v-5a3 3 0 0 1 3-3Z" />
+      <path d="M9 9h6M9 12h4" />
+    </svg>
+  );
+  if (name === "repeat") return (
+    <svg {...common}>
+      <path d="M20 7a7 7 0 0 0-12-2L6 7M6 3v4h4M4 17a7 7 0 0 0 12 2l2-2M18 21v-4h-4" />
+    </svg>
+  );
+  if (name === "heart") return (
+    <svg {...common}>
+      <path d="M20.8 8.6c0 4.6-8.8 10.3-8.8 10.3S3.2 13.2 3.2 8.6a4.7 4.7 0 0 1 8.8-2.1 4.7 4.7 0 0 1 8.8 2.1Z" />
+    </svg>
+  );
+  if (name === "sprout") return (
+    <svg {...common}>
+      <path d="M12 21V10M12 14C7 14 4 11 4 6c5 0 8 3 8 8ZM12 11c0-5 3-8 8-8 0 5-3 8-8 8Z" />
+    </svg>
+  );
+  if (name === "ear") return (
+    <svg {...common}>
+      <path d="M9 19c0 2 1.2 3 3 3 2.1 0 3-1.5 3-3 0-2.5 4-3.6 4-8A7 7 0 1 0 5 11" />
+      <path d="M9 12a3 3 0 0 1 6 0c0 2-3 2.4-3 5" />
+    </svg>
+  );
+  if (name === "compass") return (
+    <svg {...common}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.8 8.2-2.4 5.2-5.2 2.4 2.4-5.2 5.2-2.4Z" />
+    </svg>
+  );
+  return (
+    <svg {...common}>
+      <path d="M5 22V3M5 4c4-3 6 3 10 0v10c-4 3-6-3-10 0" />
+    </svg>
+  );
+}
+
 const helpfulMoments = [
   {
-    number: "01",
+    icon: "messages",
     title: "Difficoltà di comunicazione",
     description: "Fatica a capirsi, ascoltarsi o esprimere i propri bisogni.",
     color: "border-[#f5ddd6] bg-[#fff0eb]",
-    numberColor: "bg-white/75 text-[#bc604b]",
+    iconColor: "bg-white/75 text-[#bc604b]",
   },
   {
-    number: "02",
+    icon: "repeat",
     title: "Conflitti ricorrenti",
     description: "Discussioni che si ripetono e sembrano bloccare il dialogo.",
     color: "border-[#e3dafb] bg-[#f4efff]",
-    numberColor: "bg-white/75 text-primary-strong",
+    iconColor: "bg-white/75 text-primary-strong",
   },
   {
-    number: "03",
+    icon: "heart",
     title: "Distanza emotiva",
     description: "La sensazione di essere più lontani, con meno intimità e condivisione.",
     color: "border-[#dce9df] bg-[#eff7f1]",
-    numberColor: "bg-white/75 text-[#4f8060]",
+    iconColor: "bg-white/75 text-[#4f8060]",
   },
   {
-    number: "04",
+    icon: "sprout",
     title: "Cambiamenti importanti",
     description: "Convivenza, genitorialità o altre transizioni che modificano gli equilibri.",
     color: "border-[#f5e6d1] bg-[#fff5e8]",
-    numberColor: "bg-white/75 text-[#ae7134]",
+    iconColor: "bg-white/75 text-[#ae7134]",
   },
 ] as const;
 
 const steps = [
   {
+    icon: "ear",
+    color: "bg-[#f0eaff] text-primary-strong",
     title: "Si parte dall’ascolto",
     description:
       "Ognuno può raccontare ciò che vive, senza dover dare una versione perfetta della relazione.",
   },
   {
+    icon: "compass",
+    color: "bg-[#fff0eb] text-[#bc604b]",
     title: "Non si cerca chi ha ragione",
     description:
       "Il colloquio non è una gara: si osservano modalità di comunicazione, bisogni e punti di vista.",
   },
   {
+    icon: "flag",
+    color: "bg-[#eff7f1] text-[#4f8060]",
     title: "Si concordano gli obiettivi",
     description:
       "Si definiscono insieme i temi su cui lavorare e i passi possibili, rispettando i tempi di ciascuno.",
@@ -133,8 +194,8 @@ export default function CoupleSupportPage() {
           <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-4">
             {helpfulMoments.map((item) => (
               <article className={`min-w-0 rounded-[1.35rem] border p-4 sm:rounded-[1.65rem] sm:p-6 ${item.color}`} key={item.title}>
-                <span aria-hidden="true" className={`inline-flex size-10 items-center justify-center rounded-full text-xs font-semibold sm:size-12 sm:text-sm ${item.numberColor}`}>
-                  {item.number}
+                <span aria-hidden="true" className={`inline-flex size-10 items-center justify-center rounded-full sm:size-12 ${item.iconColor}`}>
+                  <CoupleIcon name={item.icon} />
                 </span>
                 <h3 className="mt-4 text-lg font-semibold leading-tight tracking-[-0.025em] text-ink sm:text-2xl">
                   {item.title}
@@ -156,10 +217,10 @@ export default function CoupleSupportPage() {
                 Come si svolge
               </h2>
               <ol className="mt-6 divide-y divide-border">
-                {steps.map((step, index) => (
+                {steps.map((step) => (
                   <li className="flex items-start gap-4 py-4 first:pt-0" key={step.title}>
-                    <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f0eaff] text-sm font-semibold text-primary-strong">
-                      {index + 1}
+                    <span aria-hidden="true" className={`flex size-10 shrink-0 items-center justify-center rounded-full ${step.color}`}>
+                      <CoupleIcon name={step.icon} />
                     </span>
                     <div>
                       <h3 className="text-lg font-semibold leading-snug text-ink sm:text-xl">{step.title}</h3>
@@ -183,26 +244,13 @@ export default function CoupleSupportPage() {
 
       <section className="pb-8 sm:pb-10" id="iniziare-da-soli">
         <Container variant="wide">
-          <div className="grid items-center gap-5 rounded-[1.75rem] border border-[#dce9df] bg-[#eff5ec] p-4 sm:grid-cols-[minmax(180px,16rem)_1fr] sm:gap-8 sm:p-5">
-            <div className="h-44 overflow-hidden rounded-[1.2rem] bg-[#d7c5d1] sm:h-52">
-              <Image
-                alt="Una persona partecipa a un colloquio di ascolto individuale."
-                className="h-full w-full object-cover object-left"
-                height={512}
-                sizes="(min-width: 640px) 256px, 100vw"
-                src="/images/coppia-colloquio-individuale.webp"
-                style={{ transform: "scale(1.28)", transformOrigin: "left center" }}
-                width={408}
-              />
-            </div>
-            <div className="py-1 sm:pr-5">
-              <h2 className="text-3xl font-medium leading-tight tracking-[-0.03em] text-ink sm:text-4xl">
-                Si può iniziare anche da soli?
-              </h2>
-              <p className="mt-3 text-base leading-7 text-ink-soft sm:text-lg sm:leading-8">
-                Non per forza. È possibile cominciare la terapia anche senza l'altra metà della coppia, e farla intervenire in un secondo momento.
-              </p>
-            </div>
+          <div className="rounded-[1.75rem] border border-[#dce9df] bg-[#eff5ec] px-5 py-6 sm:px-8 sm:py-7">
+            <h2 className="text-3xl font-medium leading-tight tracking-[-0.03em] text-ink sm:text-4xl">
+              Si può iniziare anche da soli?
+            </h2>
+            <p className="mt-3 max-w-4xl text-base leading-7 text-ink-soft sm:text-lg sm:leading-8">
+              Non per forza. È possibile cominciare la terapia anche senza l&apos;altra metà della coppia, e farla intervenire in un secondo momento.
+            </p>
           </div>
         </Container>
       </section>
