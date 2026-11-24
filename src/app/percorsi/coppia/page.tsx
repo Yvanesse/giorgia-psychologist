@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Container } from "@/components/ui";
-import { siteConfig } from "@/config/site.config";
 
 export const metadata: Metadata = {
   title: "Supporto psicologico di coppia | Giorgia Petruzzellis",
@@ -173,10 +172,10 @@ export default function CoupleSupportPage() {
             <Image
               alt="Due partner si confrontano con attenzione durante una conversazione."
               className="h-auto w-full rounded-[1.7rem]"
-              height={510}
+              height={341}
               sizes="(min-width: 1024px) 50vw, 100vw"
               src="/images/coppia-dialogo.webp"
-              width={680}
+              width={512}
             />
           </div>
         </Container>
@@ -184,15 +183,18 @@ export default function CoupleSupportPage() {
 
       <section className="pb-8 sm:pb-10" id="iniziare-da-soli">
         <Container variant="wide">
-          <div className="grid items-center gap-5 rounded-[1.75rem] border border-[#dce9df] bg-[#eff5ec] p-4 sm:grid-cols-[minmax(220px,0.65fr)_1fr] sm:gap-8 sm:p-5 lg:grid-cols-[minmax(260px,0.48fr)_1fr]">
-            <Image
-              alt="Una persona partecipa a un colloquio di ascolto individuale."
-              className="h-auto w-full rounded-[1.2rem]"
-              height={400}
-              sizes="(min-width: 1024px) 34vw, (min-width: 640px) 40vw, 100vw"
-              src="/images/coppia-colloquio-individuale.webp"
-              width={600}
-            />
+          <div className="grid items-center gap-5 rounded-[1.75rem] border border-[#dce9df] bg-[#eff5ec] p-4 sm:grid-cols-[minmax(180px,16rem)_1fr] sm:gap-8 sm:p-5">
+            <div className="h-44 overflow-hidden rounded-[1.2rem] bg-[#d7c5d1] sm:h-52">
+              <Image
+                alt="Una persona partecipa a un colloquio di ascolto individuale."
+                className="h-full w-full object-cover object-left"
+                height={512}
+                sizes="(min-width: 640px) 256px, 100vw"
+                src="/images/coppia-colloquio-individuale.webp"
+                style={{ transform: "scale(1.28)", transformOrigin: "left center" }}
+                width={408}
+              />
+            </div>
             <div className="py-1 sm:pr-5">
               <h2 className="text-3xl font-medium leading-tight tracking-[-0.03em] text-ink sm:text-4xl">
                 Si può iniziare anche da soli?
