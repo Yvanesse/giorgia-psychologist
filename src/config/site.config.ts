@@ -20,7 +20,7 @@ export const siteConfig = {
     linkedin: null,
   },
   seo: {
-    title: "Psicologa a Trani | Giorgia Petruzzellis",
+    title: "Psicologa a Trani e Online | Giorgia Petruzzellis",
     description: "Giorgia Petruzzellis, psicologa a Trani. Percorsi di supporto psicologico per la persona, le relazioni e i contesti di vita, in presenza e online.",
     locale: "it_IT",
   },
