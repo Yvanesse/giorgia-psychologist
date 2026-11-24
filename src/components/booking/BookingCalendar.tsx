@@ -90,11 +90,21 @@ export function BookingCalendar() {
   const [status, setStatus] = useState<SubmissionState>("idle");
   const [message, setMessage] = useState("");
 
-  // Links from the homepage can pre-select the mode without relying on DOM clicks.
+  // Links from each pathway can pre-select the intended service and visit mode.
   useEffect(() => {
-    const requestedMode = new URLSearchParams(window.location.search).get("mode");
+    const parameters = new URLSearchParams(window.location.search);
+    const requestedMode = parameters.get("mode");
     if (requestedMode === "online" || requestedMode === "in-presenza") {
       setMode(requestedMode);
+    }
+    const requestedService = parameters.get("service");
+    if (
+      requestedService === "individuale" ||
+      requestedService === "coppia" ||
+      requestedService === "familiare"
+    ) {
+      setServiceType(requestedService);
+      setStep(1);
     }
   }, []);
 
