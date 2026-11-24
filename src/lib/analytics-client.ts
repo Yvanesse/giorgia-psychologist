@@ -47,7 +47,10 @@ export function trackBookingRequestSubmitted(): void {
   const consent = readCookiePreferences();
   if (!consent?.analytics) return;
   window.dataLayer = window.dataLayer || [];
-  // Non inviare nome, email, telefono, tipo di colloquio o altre informazioni sanitarie.
-  // Evento GA4 generico: non contiene informazioni sui pazienti o sulla prestazione.
-  window.dataLayer.push(["event", "booking_request_submitted", { send_to: GOOGLE_ANALYTICS_ID }]);
+  // Il Google tag legge i comandi gtag nella forma degli argomenti della funzione.
+  function gtag(..._args: unknown[]) {
+    window.dataLayer?.push(arguments);
+  }
+  // Non inviare nome, email, telefono, tipologia del colloquio o informazioni sanitarie.
+  gtag("event", "booking_request_submitted", { send_to: GOOGLE_ANALYTICS_ID });
 }
