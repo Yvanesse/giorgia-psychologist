@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 import { areasContent } from "@/data";
 import { Container, Heading, Section } from "@/components/ui";
@@ -175,6 +176,17 @@ export function AreasSection() {
                     ))}
                   </div>
 
+                  {item.href === "/percorsi/coppia" ? (
+                    <div className="relative z-20 mt-6">
+                      <Link
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#d8cdfd] bg-white px-5 text-sm font-semibold text-primary-strong transition-colors hover:bg-[#f3efff]"
+                        href={item.href}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Scopri il percorso <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  ) : null}
                   {item.note ? <p className="mt-auto pt-7 text-base leading-7 text-ink-muted">{item.note}</p> : <div className="mt-auto" />}
                 </div>
               </article>
