@@ -7,7 +7,7 @@ import { Container } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Supporto psicologico di coppia | Giorgia Petruzzellis",
   description:
-    "Quando può essere utile un percorso psicologico di coppia, come partecipare ai colloqui e cosa aspettarsi. È possibile iniziare anche da soli.",
+    "Quando può essere utile un percorso psicologico di coppia, come partecipare ai colloqui e cosa aspettarsi dal percorso.",
   alternates: { canonical: "/percorsi/coppia" },
   openGraph: {
     title: "Supporto psicologico di coppia | Giorgia Petruzzellis",
@@ -238,19 +238,6 @@ export default function CoupleSupportPage() {
               src="/images/coppia-dialogo.webp"
               width={512}
             />
-          </div>
-        </Container>
-      </section>
-
-      <section className="pb-8 sm:pb-10" id="iniziare-da-soli">
-        <Container variant="wide">
-          <div className="rounded-[1.75rem] border border-[#dce9df] bg-[#eff5ec] px-5 py-6 sm:px-8 sm:py-7">
-            <h2 className="text-3xl font-medium leading-tight tracking-[-0.03em] text-ink sm:text-4xl">
-              Si può iniziare anche da soli?
-            </h2>
-            <p className="mt-3 max-w-4xl text-base leading-7 text-ink-soft sm:text-lg sm:leading-8">
-              Non per forza. È possibile cominciare la terapia anche senza l&apos;altra metà della coppia, e farla intervenire in un secondo momento.
-            </p>
           </div>
         </Container>
       </section>
